@@ -240,13 +240,13 @@ void pad_hints(const ImGuiViewport* viewport, const SDL_Rect& safe, float ease) 
     };
 
     const SDL_GamepadType type = pad_type();
-    const std::string south = pad_name(type, SDL_GAMEPAD_BUTTON_SOUTH);
+    const std::string south = pad_name(type, kPadConfirm);
     const std::vector<Hint> list = {
         {{pad_name(type, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER),
           pad_name(type, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER)},
          "Sections"},
         {{south}, "Select"},
-        {{pad_name(type, SDL_GAMEPAD_BUTTON_EAST)}, "Back to the game"},
+        {{pad_name(type, kPadBack)}, "Back to the game"},
     };
     ImDrawList* draw = ImGui::GetForegroundDrawList();
     ImFont* body = menu_fonts.body;

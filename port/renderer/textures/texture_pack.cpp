@@ -616,6 +616,13 @@ bool replace(Rgba8Image& image, const Origin& origin, Replacement* found_out) {
     if (found == s.files.end()) {
         return false;
     }
+    {
+        // Said once for each picture that is used (the first sign that a pack's picture is in the game).
+        static std::set<std::uint64_t> told;
+        if (told.insert(hash).second) {
+            log::info("texture pack: a picture of {:016x} ({}x{}) is wanted (drawn once it is read)", hash, image.width, image.height);
+        }
+    }
     // Read before, for the GPU's block format: no file is read again.
     if (const auto kept = s.kept.find(hash);
         kept != s.kept.end() && kept->second.blocks == g_block_format.load()) {
@@ -982,7 +989,18 @@ void drop_level_pictures() {
 }
 
 void set_block_format(BlockFormat format) {
-    g_block_format.store(format);
+    State& s = state();
+    const std::lock_guard guard(s.lock);
+    if (g_block_format.exchange(format) != format) {
+        // Pictures read before the format was known (the read-ahead of a pack starts as the program does, before the GPU is asked) were
+        // kept under the old one and would never be used (replace() wants the kept blocks to be the GPU's): they are read again.
+        s.kept.clear();
+        s.kept_bytes = 0;
+        ++s.kept_version;
+        if (!s.files.empty()) {
+            start_reader(s);
+        }
+    }
 }
 
 bool dumping() {

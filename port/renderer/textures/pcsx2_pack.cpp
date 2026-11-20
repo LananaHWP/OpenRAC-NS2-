@@ -16,6 +16,7 @@
 #include <xxhash.h>
 
 #include "common/log.h"
+#include "renderer/textures/button_glyphs.h"
 
 namespace openrac::renderer::pcsx2_pack {
 namespace {
@@ -293,7 +294,17 @@ bool replace_crops(
         if (XXH3_64bits_digest(&hash) != crop.hash) {
             continue;
         }
-        const auto picture = load(crop.file);
+        // While a menu trades the A and B buttons (button_glyphs.h) the Cross and Circle cells of the font sheet (at its row 96, columns 0 and 72) show each other's.
+        const Crop* shown = &crop;
+        if (button_glyphs::variant() != 0 && crop.top == 96 && (crop.left == 0 || crop.left == 72)) {
+            for (const auto& other : *entries) {
+                if (other.top == 96 && other.left == (crop.left == 0 ? 72 : 0)) {
+                    shown = &other;
+                    break;
+                }
+            }
+        }
+        const auto picture = load(shown->file);
         if (!picture || picture->pixels.empty()) {
             continue;
         }

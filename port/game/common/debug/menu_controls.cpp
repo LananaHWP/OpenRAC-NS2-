@@ -77,6 +77,21 @@ constexpr Label kTargetLabels[] = {
 };
 
 // The pad inputs' names: by position, with what the common pads print on them.
+#if defined(OPENRAC_SWITCH2)
+// The console has one kind of pad: its buttons by the names printed on it (the face buttons are A on the right and B at the foot).
+constexpr Label kInputLabels[] = {
+    {"PadSouth", "B (bottom)"},
+    {"PadEast", "A (right)"},
+    {"PadWest", "Y (left)"},
+    {"PadNorth", "X (top)"},
+    {"PadBack", "Minus (-)"},
+    {"PadGuide", "Home"},
+    {"PadStart", "Plus (+)"},
+    {"PadLeftStick", "Left stick click (L3)"},
+    {"PadRightStick", "Right stick click (R3)"},
+    {"PadLeftShoulder", "L"},
+    {"PadRightShoulder", "R"},
+#else
 constexpr Label kInputLabels[] = {
     {"PadSouth", "South (A, Cross)"},
     {"PadEast", "East (B, Circle)"},
@@ -89,18 +104,28 @@ constexpr Label kInputLabels[] = {
     {"PadRightStick", "Right stick click"},
     {"PadLeftShoulder", "Left shoulder"},
     {"PadRightShoulder", "Right shoulder"},
+#endif
     {"PadDpadUp", "D-pad up"},
     {"PadDpadDown", "D-pad down"},
     {"PadDpadLeft", "D-pad left"},
     {"PadDpadRight", "D-pad right"},
+#if defined(OPENRAC_SWITCH2)
+    {"PadMisc1", "Capture"},
+#else
     {"PadMisc1", "Misc (mic, capture, share)"},
+#endif
     {"PadRightPaddle1", "Right paddle 1"},
     {"PadLeftPaddle1", "Left paddle 1"},
     {"PadRightPaddle2", "Right paddle 2"},
     {"PadLeftPaddle2", "Left paddle 2"},
     {"PadTouchpad", "Touchpad click"},
+#if defined(OPENRAC_SWITCH2)
+    {"PadLeftTrigger", "ZL"},
+    {"PadRightTrigger", "ZR"},
+#else
     {"PadLeftTrigger", "Left trigger"},
     {"PadRightTrigger", "Right trigger"},
+#endif
     {"PadLeftStickUp", "Left stick up"},
     {"PadLeftStickDown", "Left stick down"},
     {"PadLeftStickLeft", "Left stick left"},

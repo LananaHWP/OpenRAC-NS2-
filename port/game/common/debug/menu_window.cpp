@@ -376,9 +376,9 @@ void hints(const ImGuiViewport* viewport, float shown) {
             {{pad_name(type, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER),
               pad_name(type, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER)},
              "Tabs"},
-            {{pad_name(type, SDL_GAMEPAD_BUTTON_SOUTH)}, "Select"},
+            {{pad_name(type, kPadConfirm)}, "Select"},
             {{"\u2190", "\u2192"}, "Change"},
-            {{pad_name(type, SDL_GAMEPAD_BUTTON_EAST)}, "Back to the game"},
+            {{pad_name(type, kPadBack)}, "Back to the game"},
             {{pad_name(type, SDL_GAMEPAD_BUTTON_NORTH)}, "Hold to quit"},
         };
     } else {

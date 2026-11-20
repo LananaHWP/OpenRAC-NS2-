@@ -22,6 +22,7 @@
 #include "common/stats.h"
 #include "renderer/gl/gl.h"
 #include "renderer/gl/shader.h"
+#include "renderer/textures/button_glyphs.h"
 #include "renderer/textures/pcsx2_pack.h"
 #include "renderer/textures/texture_pack.h"
 
@@ -416,6 +417,10 @@ TextureHandle TexturePool::convert_upload(const gs::Tex0& tex0, const gs::Texa& 
             }
         }
     }
+    // A font sheet is made in two ways while the menus trade the A and B pictures (button_glyphs.h); no other texture is told apart by it.
+    if (tex0.tw == 8 && tex0.th == 7 && tex0.psm == gs::kPsmt8) {
+        border_hash ^= button_glyphs::variant() * 0x9E3779B97F4A7C15ull;
+    }
     const Key key{
         tex0.tbp0,
         tex0.tbw,
@@ -521,6 +526,10 @@ TextureHandle TexturePool::convert_upload(const gs::Tex0& tex0, const gs::Texa& 
                      static_cast<float>(tex0.height()) / static_cast<float>(extent[1])};
             }
         }
+    }
+    // The button pictures of the game's text: only a sheet the game sent (a pack's own picture of the font shows its own).
+    if (!packed) {
+        button_glyphs::patch(image);
     }
     const TextureHandle h = add(std::move(image), AlphaScale::Gs, "upload");
     auto& entry = m_entries[h - 1];

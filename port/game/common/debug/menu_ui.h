@@ -131,6 +131,15 @@ void game_backdrop(const ImGuiViewport* viewport, const Shown& shown, float ease
 SDL_GamepadType pad_type();
 std::string pad_name(SDL_GamepadType type, SDL_GamepadButton button);
 
+// The pad buttons that confirm and go back in the menus: a Nintendo pad's A (the button on the right) confirms and its B goes back.
+#if defined(OPENRAC_SWITCH2)
+inline constexpr SDL_GamepadButton kPadConfirm = SDL_GAMEPAD_BUTTON_EAST;
+inline constexpr SDL_GamepadButton kPadBack = SDL_GAMEPAD_BUTTON_SOUTH;
+#else
+inline constexpr SDL_GamepadButton kPadConfirm = SDL_GAMEPAD_BUTTON_SOUTH;
+inline constexpr SDL_GamepadButton kPadBack = SDL_GAMEPAD_BUTTON_EAST;
+#endif
+
 // Where to draw `text` so its letters (not its line box) are centred on `centre`: across by the
 // ink, from the first letter's left edge to the last's right; down by a capital's height.
 ImVec2 centred_text(ImFont* font, float size, std::string_view text, ImVec2 centre);

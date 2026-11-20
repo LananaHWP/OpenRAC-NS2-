@@ -377,8 +377,14 @@ void feed_gamepads() {
     static constexpr Button kButtons[] = {
         {ImGuiKey_GamepadStart, SDL_GAMEPAD_BUTTON_START},
         {ImGuiKey_GamepadBack, SDL_GAMEPAD_BUTTON_BACK},
+#if defined(OPENRAC_SWITCH2)
+        // A confirms and B goes back on a Nintendo pad (A is the button on the right).
+        {ImGuiKey_GamepadFaceDown, SDL_GAMEPAD_BUTTON_EAST},
+        {ImGuiKey_GamepadFaceRight, SDL_GAMEPAD_BUTTON_SOUTH},
+#else
         {ImGuiKey_GamepadFaceDown, SDL_GAMEPAD_BUTTON_SOUTH},
         {ImGuiKey_GamepadFaceRight, SDL_GAMEPAD_BUTTON_EAST},
+#endif
         {ImGuiKey_GamepadFaceLeft, SDL_GAMEPAD_BUTTON_WEST},
         {ImGuiKey_GamepadFaceUp, SDL_GAMEPAD_BUTTON_NORTH},
         {ImGuiKey_UpArrow, SDL_GAMEPAD_BUTTON_DPAD_UP, true, SDL_SCANCODE_UP},
