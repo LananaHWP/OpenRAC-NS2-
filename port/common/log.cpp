@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 the OpenRAC contributors
 
+#if defined(OPENRAC_SWITCH2)
+#include "../platform_switch2/trace.h"
+#endif
 #include "log.h"
 
 #include <algorithm>
@@ -177,6 +180,11 @@ void rotate(const fs::path& dir, const std::string& name, int keep) {
 }
 
 bool open_session(const fs::path& dir, const std::string& name, int keep) {
+#if defined(OPENRAC_SWITCH2)
+    if (openrac_switch2_debug() == 0) {
+        return true;  // no debug.txt: no log file is made
+    }
+#endif
     std::scoped_lock hold(g_lock);
     close_file();
     std::error_code ec;
@@ -224,6 +232,17 @@ void write(Level level, std::string_view message) {
     line += message;
     line = tidy(line);
     g_recent.push(line);
+#if defined(OPENRAC_SWITCH2)
+    {
+        // Into the boot trace too (platform_switch2/trace.h): the program's own log opens late and can be lost in a crash. Every warning
+        // and error, and the first 300 other lines.
+        static int traced;
+        if (level >= Level::Warn || traced < 300) {
+            traced += level >= Level::Warn ? 0 : 1;
+            openrac_switch2_trace("%s", line.c_str());
+        }
+    }
+#endif
     if (g_written >= kSessionFileLimit && level < Level::Warn) {
         if (!g_limit_told) {
             g_limit_told = true;

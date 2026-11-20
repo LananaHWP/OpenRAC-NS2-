@@ -174,7 +174,7 @@ void on_stuck(int) {
 // Starts the watch over the blanks, once, from the game's thread. A pause (F5) holds the game
 // inside a blank, which looks the same: the switch is for scripted runs.
 void watch_blanks() {
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(OPENRAC_SWITCH2)  // the watch is a signal to the game's thread: Horizon has none
     g_game_thread = pthread_self();
     struct sigaction action{};
     action.sa_handler = on_stuck;

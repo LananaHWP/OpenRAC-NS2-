@@ -24,7 +24,11 @@ struct Options {
     fs::path cards;
     long frames = -1;
     bool keep_going = true;
+#if defined(OPENRAC_SWITCH2)
+    bool window = true;  // the console passes no arguments
+#else
     bool window = false;
+#endif
     bool skip_movies = false;  // development probes; not movie-playback validation
     bool unlock_all_weapons = false;
     bool unlock_all_gadgets = false;

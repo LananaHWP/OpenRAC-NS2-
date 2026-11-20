@@ -58,6 +58,9 @@ fs::path data_home() {
         const std::optional<std::string> profile = env::system_variable("USERPROFILE");
         base = fs::path(profile.value_or(".")) / "AppData/Local/openrac";
     }
+#elif defined(OPENRAC_SWITCH2)
+    // Everything of the program's lives on the SD card: saves, settings, controls, mods' files, the logs and the game's data.
+    fs::path base = "sdmc:/switch/openrac";
 #else
     fs::path base;
 
@@ -245,10 +248,15 @@ Options parse(int argc, char** argv) {
         if (const std::optional<std::string_view> data = env::value(env::Var::Data)) {
             o.data = *data;
         } else {
+#if defined(OPENRAC_SWITCH2)
+            // A launch from the home menu passes no arguments: the data folder is where the setup put it.
+            o.data = data_home() / "data";
+#else
             usage(
                 std::string("no data folder: pass --data, the folder the extractor wrote for ")
                 + openrac_game.game
             );
+#endif
         }
     }
 

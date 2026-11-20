@@ -51,10 +51,12 @@ ProcessMemory process_memory() {
         }
         std::fclose(f);
     }
+#if !defined(OPENRAC_SWITCH2)  // Horizon's rusage has no ru_maxrss
     struct rusage usage {};
     if (getrusage(RUSAGE_SELF, &usage) == 0) {
         m.peak = static_cast<std::uint64_t>(usage.ru_maxrss) * 1024u;  // kilobytes on Linux
     }
+#endif
 #endif
     return m;
 }

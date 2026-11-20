@@ -15,6 +15,8 @@
 namespace openrac::platform {
 namespace {
 
+bool (*g_menu_context_query)() = nullptr;
+
 // A button of the gamepad down, a stick or a trigger well out (a trigger only pressed in: some
 // rest below zero).
 bool held(SDL_Gamepad* g) {
@@ -675,6 +677,10 @@ void Input::refresh_pads() {
                        == SDL_GAMEPAD_BUTTON_LABEL_B) {
                 swap_face_labels(inputs);
             }
+            // In a menu (when the game says so) the foot and the right trade places: A confirms and B goes back on a Nintendo pad.
+            if (g_menu_context_query != nullptr && g_menu_context_query()) {
+                std::swap(inputs.buttons[SDL_GAMEPAD_BUTTON_SOUTH], inputs.buttons[SDL_GAMEPAD_BUTTON_EAST]);
+            }
             // A stick's gate is what its own gamepad has shown: another one on the port starts
             // afresh, with nothing held back.
             auto& gates = m_gates[static_cast<std::size_t>(port)];
@@ -707,6 +713,14 @@ void Input::refresh_pads() {
                 m_menu_chord[static_cast<std::size_t>(port)].filter(pad.buttons, SDL_GetTicksNS());
         }
     }
+}
+
+}  // namespace openrac::platform
+
+namespace openrac::platform {
+
+void set_menu_context_query(bool (*query)()) {
+    g_menu_context_query = query;
 }
 
 }  // namespace openrac::platform

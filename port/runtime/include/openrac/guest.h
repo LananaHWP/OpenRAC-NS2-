@@ -150,12 +150,85 @@ static inline gaddr openrac_guest_ram_address(gaddr address) {
     return openrac_guest_ram_address_for_size(address, openrac_guest_ram_size);
 }
 
+#if defined(OPENRAC_SWITCH2)
+/* Horizon: the 4 GB reservation cannot be backed (svcMapPhysicalMemory is refused for a process without a system resource, and a transfer
+ * memory mapped into the reservation never comes back), so each region of the console's memory is an ordinary allocation and G() routes
+ * the game address to the one that holds it. Main RAM is the first test and the one most accesses take; its uncached views are the same
+ * buffer. openrac_guest_base is the RAM buffer (a RAM address is still base + address). */
+extern uint8_t* openrac_guest_ram;
+extern uint8_t* openrac_guest_scratchpad;
+extern uint8_t* openrac_guest_ee_regs;
+extern uint8_t* openrac_guest_vu_mem;
+extern uint8_t* openrac_guest_gs_regs;
+extern uint8_t* openrac_guest_port;
+
+void openrac_guest_unmapped(gaddr address) __attribute__((noreturn));
+
+static inline void* openrac_guest_ptr(gaddr address) {
+    if (__builtin_expect(address < openrac_guest_ram_size, 1)) {
+        return openrac_guest_ram + address;
+    }
+    if (address - GUEST_RAM_UNCACHED < openrac_guest_ram_size) {
+        return openrac_guest_ram + (address - GUEST_RAM_UNCACHED);
+    }
+    if (address - GUEST_RAM_UNCACHED_ACCEL < openrac_guest_ram_size) {
+        return openrac_guest_ram + (address - GUEST_RAM_UNCACHED_ACCEL);
+    }
+    if (address - GUEST_PORT < GUEST_PORT_SIZE) {
+        return openrac_guest_port + (address - GUEST_PORT);
+    }
+    if (address - GUEST_SCRATCHPAD < GUEST_SCRATCHPAD_SIZE) {
+        return openrac_guest_scratchpad + (address - GUEST_SCRATCHPAD);
+    }
+    if (address - (GUEST_SCRATCHPAD | 0x20000000u) < GUEST_SCRATCHPAD_SIZE) {
+        return openrac_guest_scratchpad + (address - (GUEST_SCRATCHPAD | 0x20000000u));
+    }
+    if (address - GUEST_EE_REGS < GUEST_EE_REGS_SIZE) {
+        return openrac_guest_ee_regs + (address - GUEST_EE_REGS);
+    }
+    if (address - GUEST_VU_MEM < GUEST_VU_MEM_SIZE) {
+        return openrac_guest_vu_mem + (address - GUEST_VU_MEM);
+    }
+    if (address - GUEST_GS_REGS < GUEST_GS_REGS_SIZE) {
+        return openrac_guest_gs_regs + (address - GUEST_GS_REGS);
+    }
+    openrac_guest_unmapped(address);
+}
+
+static inline gaddr openrac_guest_address(const void* pointer) {
+    const uint8_t* p = (const uint8_t*)pointer;
+    if (p >= openrac_guest_ram && p < openrac_guest_ram + openrac_guest_ram_size) {
+        return (gaddr)(p - openrac_guest_ram);
+    }
+    if (p >= openrac_guest_port && p < openrac_guest_port + GUEST_PORT_SIZE) {
+        return GUEST_PORT + (gaddr)(p - openrac_guest_port);
+    }
+    if (p >= openrac_guest_scratchpad && p < openrac_guest_scratchpad + GUEST_SCRATCHPAD_SIZE) {
+        return GUEST_SCRATCHPAD + (gaddr)(p - openrac_guest_scratchpad);
+    }
+    if (p >= openrac_guest_ee_regs && p < openrac_guest_ee_regs + GUEST_EE_REGS_SIZE) {
+        return GUEST_EE_REGS + (gaddr)(p - openrac_guest_ee_regs);
+    }
+    if (p >= openrac_guest_vu_mem && p < openrac_guest_vu_mem + GUEST_VU_MEM_SIZE) {
+        return GUEST_VU_MEM + (gaddr)(p - openrac_guest_vu_mem);
+    }
+    if (p >= openrac_guest_gs_regs && p < openrac_guest_gs_regs + GUEST_GS_REGS_SIZE) {
+        return GUEST_GS_REGS + (gaddr)(p - openrac_guest_gs_regs);
+    }
+    return 0xFFFFFFFFu;
+}
+
+#define G(a) (openrac_guest_ptr((gaddr)(a)))
+#define GREF(T, a) (*(T*)G(a))
+#define GADDR(p) (openrac_guest_address((const void*)(p)))
+#else
 /* The host pointer for a game address, and an lvalue of type T there. */
 #define G(a) ((void*)(openrac_guest_base + (gaddr)(a)))
 #define GREF(T, a) (*(T*)G(a))
 
 /* The game address of a host pointer into game memory. */
 #define GADDR(p) ((gaddr)((const uint8_t*)(p) - openrac_guest_base))
+#endif
 
 /* The host compiler does not know that RAM and its uncached aliases are the
  * same memory: a write through one alias and a read through another in the

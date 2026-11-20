@@ -71,6 +71,10 @@ struct Device {
 // SDL_GetKeyboardState returns it. A stick key overrides the stick's axis.
 void apply_keyboard(Pad& pad, std::span<const bool> keys);
 
+// A game that wants the face buttons the other way about in its menus (the A of a Nintendo pad confirms, the B goes back) installs a query that
+// says whether a menu is up now: while it does, the two face buttons at the foot and on the right trade places before the bindings read them.
+void set_menu_context_query(bool (*query)());
+
 static_assert(kPlayers == kPadPorts);
 
 class Input {

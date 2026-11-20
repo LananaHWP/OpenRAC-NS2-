@@ -20,6 +20,9 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#elif defined(OPENRAC_SWITCH2)
+#include <switch.h>
+#include "../platform_switch2/trace.h"
 #else
 #include <csignal>
 #include <fcntl.h>
@@ -63,11 +66,20 @@ constexpr gaddr kRamViews[] = {GUEST_RAM, GUEST_RAM_UNCACHED, GUEST_RAM_UNCACHED
 
 Memory* g_memory = nullptr;
 
+// The host bytes of a game address: base + address, except where the platform routes it (Horizon, guest.h).
+#if defined(OPENRAC_SWITCH2)
+#define HOSTP(a) (static_cast<std::uint8_t*>(openrac_guest_ptr(static_cast<gaddr>(a))))
+#else
+#define HOSTP(a) (base_ + (a))
+#endif
+
 std::uint32_t page_size() {
 #if defined(_WIN32)
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     return info.dwAllocationGranularity;  // views and placeholders split at 64 KB
+#elif defined(OPENRAC_SWITCH2)
+    return 0x1000;  // Horizon's page
 #else
     return static_cast<std::uint32_t>(sysconf(_SC_PAGESIZE));
 #endif
@@ -186,6 +198,55 @@ void Memory::map_all() {
     aliases_ = false;
     log::warn("this Windows has no memory placeholders (before 10 1803): uncached RAM addresses "
               "are not mapped");
+}
+
+#elif defined(OPENRAC_SWITCH2)
+
+// Horizon: the 4 GB reservation is not used (svcMapPhysicalMemory is refused for this process and a transfer memory mapped into the
+// reservation never comes back). Each region is an ordinary zeroed allocation and guest.h's G() routes the game address to the buffer
+// that holds it; RAM's two uncached views are the same buffer, so they are true aliases (has_aliases() is true).
+extern "C" {
+std::uint8_t* openrac_guest_ram = nullptr;
+std::uint8_t* openrac_guest_scratchpad = nullptr;
+std::uint8_t* openrac_guest_ee_regs = nullptr;
+std::uint8_t* openrac_guest_vu_mem = nullptr;
+std::uint8_t* openrac_guest_gs_regs = nullptr;
+std::uint8_t* openrac_guest_port = nullptr;
+
+void openrac_guest_unmapped(gaddr address) {
+    openrac_switch2_trace("the game accessed console address %#x, which has no buffer", static_cast<unsigned>(address));
+    openrac::log::fatalf("the game accessed console address {:#010x}, which has no buffer in the port", address);
+    for (;;) {
+    }
+}
+}
+
+namespace {
+
+std::uint8_t* allocate_zeroed(const char* what, std::uint32_t size) {
+    const std::size_t padded = (static_cast<std::size_t>(size) + 4095u) & ~static_cast<std::size_t>(4095u);
+    void* block = std::aligned_alloc(4096, padded);
+    openrac_switch2_trace("memory: %s %#x bytes -> %p", what, static_cast<unsigned>(size), block);
+    if (block == nullptr) {
+        log::fatalf("could not allocate the game's {} ({:#x} bytes)", what, size);
+    }
+    std::memset(block, 0, padded);
+    return static_cast<std::uint8_t*>(block);
+}
+
+}  // namespace
+
+void Memory::map_all() {
+    openrac_guest_ram_size = ram_size_;
+    openrac_guest_ram = allocate_zeroed("RAM", ram_size_);
+    openrac_guest_ee_regs = allocate_zeroed("EE registers", GUEST_EE_REGS_SIZE);
+    openrac_guest_vu_mem = allocate_zeroed("VU memory", GUEST_VU_MEM_SIZE);
+    openrac_guest_gs_regs = allocate_zeroed("GS registers", GUEST_GS_REGS_SIZE);
+    openrac_guest_scratchpad = allocate_zeroed("scratchpad", GUEST_SCRATCHPAD_SIZE);
+    openrac_guest_port = allocate_zeroed("port region", GUEST_PORT_SIZE);
+    base_ = openrac_guest_ram;
+    aliases_ = true;
+    openrac_switch2_trace("memory: all regions allocated");
 }
 
 #else  // POSIX
@@ -347,13 +408,13 @@ std::span<std::uint8_t> Memory::bytes(gaddr address, std::size_t size) {
     if (!mapped(address, size)) {
         log::fatalf("game memory {:#010x}+{:#x} is not mapped", address, size);
     }
-    return {base_ + address, size};
+    return {HOSTP(address), size};
 }
 
 void Memory::clear() {
-    std::memset(base_ + GUEST_RAM, 0, ram_size_);
+    std::memset(HOSTP(GUEST_RAM), 0, ram_size_);
     for (const Region& r : kPlainRegions) {
-        std::memset(base_ + r.address, 0, r.size);
+        std::memset(HOSTP(r.address), 0, r.size);
     }
     openrac_guest_sp = GUEST_STACK_TOP;
 }
@@ -371,10 +432,10 @@ bool Memory::save_snapshot(std::span<std::uint8_t> out) const {
         return false;
     }
     std::size_t at = 0;
-    std::memcpy(out.data() + at, base_ + GUEST_RAM, ram_size_);
+    std::memcpy(out.data() + at, HOSTP(GUEST_RAM), ram_size_);
     at += ram_size_;
     for (const Region& r : kPlainRegions) {
-        std::memcpy(out.data() + at, base_ + r.address, r.size);
+        std::memcpy(out.data() + at, HOSTP(r.address), r.size);
         at += r.size;
     }
     return true;
@@ -415,58 +476,58 @@ bool Memory::restore_snapshot(
         std::vector<std::uint8_t> statics_tail(statics_tail_size);
         std::vector<std::uint8_t> static_sites_tail(static_sites_tail_size);
         if (!strings_tail.empty()) {
-            std::memcpy(strings_tail.data(), base_ + allocations.strings_end, strings_tail.size());
+            std::memcpy(strings_tail.data(), HOSTP(allocations.strings_end), strings_tail.size());
         }
         if (!statics_tail.empty()) {
-            std::memcpy(statics_tail.data(), base_ + allocations.statics_end, statics_tail.size());
+            std::memcpy(statics_tail.data(), HOSTP(allocations.statics_end), statics_tail.size());
         }
         if (!static_sites_tail.empty()) {
             std::memcpy(
                 static_sites_tail.data(),
-                base_ + current.static_sites_begin,
+                HOSTP(current.static_sites_begin),
                 static_sites_tail.size()
             );
         }
         if (allocations.strings_end > current.strings_end) {
             std::memset(
-                base_ + current.strings_end, 0, allocations.strings_end - current.strings_end
+                HOSTP(current.strings_end), 0, allocations.strings_end - current.strings_end
             );
         }
         if (allocations.statics_end > current.statics_end) {
             std::memset(
-                base_ + current.statics_end, 0, allocations.statics_end - current.statics_end
+                HOSTP(current.statics_end), 0, allocations.statics_end - current.statics_end
             );
         }
         if (allocations.static_sites_begin < current.static_sites_begin) {
             std::memset(
-                base_ + allocations.static_sites_begin,
+                HOSTP(allocations.static_sites_begin),
                 0,
                 current.static_sites_begin - allocations.static_sites_begin
             );
         }
         std::size_t at = 0;
-        std::memcpy(base_ + GUEST_RAM, in.data() + at, ram_size_);
+        std::memcpy(HOSTP(GUEST_RAM), in.data() + at, ram_size_);
         at += ram_size_;
         for (const Region& r : kPlainRegions) {
-            std::memcpy(base_ + r.address, in.data() + at, r.size);
+            std::memcpy(HOSTP(r.address), in.data() + at, r.size);
             at += r.size;
         }
         if (!strings_tail.empty()) {
-            std::memcpy(base_ + allocations.strings_end, strings_tail.data(), strings_tail.size());
+            std::memcpy(HOSTP(allocations.strings_end), strings_tail.data(), strings_tail.size());
         }
         if (!statics_tail.empty()) {
-            std::memcpy(base_ + allocations.statics_end, statics_tail.data(), statics_tail.size());
+            std::memcpy(HOSTP(allocations.statics_end), statics_tail.data(), statics_tail.size());
         }
         if (!static_sites_tail.empty()) {
             std::memcpy(
-                base_ + current.static_sites_begin,
+                HOSTP(current.static_sites_begin),
                 static_sites_tail.data(),
                 static_sites_tail.size()
             );
         }
         if (allocations.static_sites_begin > current.static_sites_begin) {
             std::memset(
-                base_ + current.static_sites_begin,
+                HOSTP(current.static_sites_begin),
                 0,
                 allocations.static_sites_begin - current.static_sites_begin
             );
@@ -478,12 +539,21 @@ bool Memory::restore_snapshot(
 }
 
 bool Memory::contains(const void* host, gaddr* address) const {
+#if defined(OPENRAC_SWITCH2)
+    const gaddr found = openrac_guest_address(host);
+    if (found == 0xFFFFFFFFu) {
+        return false;
+    }
+    *address = found;
+    return true;
+#else
     auto* p = static_cast<const std::uint8_t*>(host);
     if (p < base_ || p >= base_ + kReservation) {
         return false;
     }
     *address = static_cast<gaddr>(p - base_);
     return true;
+#endif
 }
 
 }  // namespace openrac::runtime

@@ -365,7 +365,7 @@ function(openrac_add_game config)
   target_compile_options(openrac_${target_id}_game PRIVATE ${OPENRAC_GAME_C_FLAGS})
   add_dependencies(openrac_${target_id}_game openrac_${target_id}_hostgen)
   # The decompilation's C is read as it is: its warnings are its own.
-  set_source_files_properties(${sources} PROPERTIES COMPILE_OPTIONS "-w")
+  set_source_files_properties(${sources} PROPERTIES COMPILE_OPTIONS "-w;${OPENRAC_SWITCH2_GENERATED_C_OPTIONS}")
   if(host)
     set_source_files_properties(${host} PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra")
   endif()

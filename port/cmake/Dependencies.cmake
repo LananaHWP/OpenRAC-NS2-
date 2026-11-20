@@ -29,10 +29,27 @@ include(FetchContent)
 # OPENRAC_STATIC_SDL (the `standalone` preset): never the system's, so that the program an
 # installer carries needs no SDL on the player's machine.
 option(OPENRAC_STATIC_SDL "Build SDL3 into the programs even when the system has one" OFF)
-if(NOT OPENRAC_STATIC_SDL)
+if(NOT OPENRAC_STATIC_SDL AND NOT OPENRAC_SWITCH2)
   find_package(SDL3 CONFIG QUIET)
 endif()
-if(SDL3_FOUND)
+if(OPENRAC_SWITCH2)
+  # Nintendo Switch 2: SDL3 has no Horizon backend. SDL3's headers (types, enums, the API as declared) are used as they are, and
+  # platform_switch2/sdl3_shim.cpp provides the functions the port calls, on libounce (window and OpenGL through EGL, pad, audout).
+  FetchContent_Declare(SDL3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-3.4.18
+    GIT_SHALLOW TRUE
+  )
+  FetchContent_GetProperties(SDL3)
+  if(NOT sdl3_POPULATED)
+    FetchContent_Populate(SDL3)
+  endif()
+  add_library(openrac_sdl3_shim STATIC "${CMAKE_CURRENT_LIST_DIR}/../platform_switch2/sdl3_shim.cpp")
+  target_include_directories(openrac_sdl3_shim SYSTEM PUBLIC "${sdl3_SOURCE_DIR}/include")
+  target_link_libraries(openrac_sdl3_shim PUBLIC EGL nx)
+  add_library(openrac_sdl3 INTERFACE)
+  target_link_libraries(openrac_sdl3 INTERFACE openrac_sdl3_shim)
+elseif(SDL3_FOUND)
   message(STATUS "SDL3: system (${SDL3_VERSION})")
 else()
   # Desktop: SDL 3.4, whose HIDAPI drivers read the Steam Controllers (the 2015 one and the 2026

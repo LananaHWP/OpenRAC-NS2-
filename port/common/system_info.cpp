@@ -68,7 +68,7 @@ std::string property(const char* name) {
 }
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(OPENRAC_SWITCH2)
 // A value of a `key=value` (os-release) or `key : value` (cpuinfo) file.
 std::string file_value(const char* path, const std::string& key, char between) {
     std::ifstream in(path);

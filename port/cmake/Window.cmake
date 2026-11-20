@@ -276,6 +276,7 @@ add_library(openrac_renderer STATIC
   renderer/textures/texture_pack.cpp
   renderer/textures/pcsx2_pack.cpp
   renderer/textures/pcsx2_dds.cpp
+  renderer/textures/button_glyphs.cpp
   renderer/textures/texture_pool.cpp
 )
 

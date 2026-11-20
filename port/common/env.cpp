@@ -11,6 +11,10 @@
 #include <cstddef>
 #include <cstdlib>
 
+#if defined(OPENRAC_SWITCH2)
+extern "C" void openrac_switch2_load_env(void);
+#endif
+
 namespace openrac::env {
 namespace {
 
@@ -569,6 +573,9 @@ using Snapshot = std::array<StoredValue, kVariableCount>;
 
 // Reads every variable of the table from the environment.
 Snapshot read_environment() {
+#if defined(OPENRAC_SWITCH2)
+    openrac_switch2_load_env();  // the console has no shell: sdmc:/switch/openrac/env.txt
+#endif
     Snapshot values;
     for (const Variable& row : kVariables) {
         // std::getenv wants the name ending in a NUL, which a view need not have.

@@ -15,6 +15,7 @@ if(CMAKE_HOST_APPLE AND NOT CMAKE_TOOLCHAIN_FILE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0 CACHE STRING "Oldest macOS the programs run on")
 endif()
 project(openrac_port LANGUAGES C CXX)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/OpenracSwitch2.cmake")  # Nintendo Switch 2 (OunceDevKit): flags, stand-in headers; a no-op elsewhere
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   set(OPENRAC_IOS ON)
   add_compile_definitions(OPENRAC_IOS=1)
@@ -123,6 +124,10 @@ add_library(openrac_common STATIC
   "${OPENRAC_BUILD_INFO}"
 )
 add_dependencies(openrac_common openrac_build_info)
+if(OPENRAC_SWITCH2)
+  target_sources(openrac_common PRIVATE platform_switch2/compat.c platform_switch2/perf.c)
+  target_link_libraries(openrac_common PUBLIC EGL nx)
+endif()
 if(APPLE)
   target_sources(openrac_common PRIVATE common/apple_to_chars.cpp)
 endif()
@@ -220,8 +225,13 @@ openrac_add_test(game_fixes
   LIBS openrac_common)
 
 # ---- runtime: game memory, the guest contract, the executable loader ----
+# Horizon has no signals to catch a fault with: the Switch 2 stand-in only logs a terminate.
+set(OPENRAC_RUNTIME_CRASH_SOURCE runtime/crash.cpp)
+if(OPENRAC_SWITCH2)
+  set(OPENRAC_RUNTIME_CRASH_SOURCE platform_switch2/runtime_crash.cpp)
+endif()
 add_library(openrac_runtime STATIC
-  runtime/crash.cpp
+  ${OPENRAC_RUNTIME_CRASH_SOURCE}
   runtime/ee.cpp
   runtime/elf.cpp
   runtime/guest.cpp
