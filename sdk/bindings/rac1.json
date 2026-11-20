@@ -18,9 +18,78 @@
     "func_L00_002C74B8": "defined under another name (func_L00_002C74B8_r), which hostgen does not check a hook row against",
     "func_L07_0031A410": "defined under another name (func_L07_0031A410_r), which hostgen does not check a hook row against",
     "func_L10_002DE018": "defined under another name (func_L10_002DE018_impl, a functional candidate), which hostgen does not check a hook row against",
-    "func_L13_00306EF0": "defined under another name (func_L13_00306EF0_r), which hostgen does not check a hook row against"
+    "func_L13_00306EF0": "defined under another name (func_L13_00306EF0_r), which hostgen does not check a hook row against",
+    "func_L01_002E2E38": "defined in the table instead (the omni extension, alias rac1.omni.goldcase.update): its signature and notes come from there",
+    "func_L00_002A9768": "defined in the table instead (the omni extension, alias rac1.omni.wrench.update): its signature and notes come from there",
+    "func_L00_002DBC40": "defined in the table instead (the omni extension, alias rac1.omni.weapon.suck_cannon.update): its signature and notes come from there",
+    "func_L00_002C39D0": "defined in the table instead (the omni extension, alias rac1.omni.weapon.bomb_glove.update): its signature and notes come from there",
+    "func_L00_002B8208": "defined in the table instead (the omni extension, alias rac1.omni.weapon.taunter.update): its signature and notes come from there",
+    "func_L00_002B8AE8": "defined in the table instead (the omni extension, alias rac1.omni.weapon.pyrocitor.update): its signature and notes come from there",
+    "func_L00_002C2DD8": "defined in the table instead (the omni extension, alias rac1.omni.weapon.mine_glove.update): its signature and notes come from there",
+    "func_L00_002BC860": "defined in the table instead (the omni extension, alias rac1.omni.weapon.walloper.update): its signature and notes come from there",
+    "func_L00_002C8DB8": "defined in the table instead (the omni extension, alias rac1.omni.weapon.glove_of_doom.update): its signature and notes come from there",
+    "func_L00_002CDAB8": "defined in the table instead (the omni extension, alias rac1.omni.weapon.ryno.update): its signature and notes come from there",
+    "func_L00_002D3B20": "defined in the table instead (the omni extension, alias rac1.omni.weapon.decoy.update): its signature and notes come from there",
+    "func_L00_002C6720": "defined in the table instead (the omni extension, alias rac1.omni.ammo.pickup): its signature and notes come from there",
+    "func_L00_002AB910": "defined in the table instead (the omni extension, alias rac1.omni.projectile.mine.update): its signature and notes come from there",
+    "func_L00_002CC868": "defined in the table instead (the omni extension, alias rac1.omni.projectile.blaster_shot.update): its signature and notes come from there",
+    "func_L00_002CE6A0": "defined in the table instead (the omni extension, alias rac1.omni.projectile.ryno_rocket.update): its signature and notes come from there",
+    "func_L00_002C12B0": "defined in the table instead (the omni extension, alias rac1.omni.projectile.doom_agent.update): its signature and notes come from there",
+    "func_L00_002C9DC8": "defined in the table instead (the omni extension, alias rac1.omni.projectile.doom_capsule.update): its signature and notes come from there",
+    "func_L00_002B1688": "defined in the table instead (the omni extension, alias rac1.omni.projectile.devastator_rocket.update): its signature and notes come from there",
+    "func_L00_002B4340": "defined in the table instead (the omni extension, alias rac1.omni.weapon.visibomb.update)",
+    "func_L00_002BDAF0": "defined in the table instead (the omni extension, alias rac1.omni.weapon.morph_o_ray.update)",
+    "func_L00_002AEDD0": "defined in the table instead (the omni extension, alias rac1.omni.projectile.bomb.update)",
+    "func_L00_002B7430": "defined in the table instead (the omni extension, alias rac1.omni.projectile.visibomb.update)"
   },
   "hooks": [
+    {
+      "id": "rac1.moby.item_offer.update",
+      "name": "Moby_GoldWeaponCase_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of a Gold Weapon Case (moby class 304) and of its display moby (classes 1456..1465), the retail seller of gold weapons (Novalis and Gerhardt's gold weapons): it tests the bolts, the item and the player's pad and sells. The omni extension's rac1.omni.goldcase.update. Levels of the Oozla family only.",
+      "symbols": {
+        "pal": "func_L01_002E2E38",
+        "ntsc": "FUN_L01_002e1ac0"
+      },
+      "aliases": [
+        "rac1.omni.goldcase.update"
+      ]
+    },
+    {
+      "id": "rac1.omni.weapon.ryno.fire",
+      "name": "Weapon_Ryno_Fire",
+      "signature": "u32(u32,u32,u32,f32,f32,f32)",
+      "params": [
+        "owner",
+        "pos",
+        "target",
+        "height",
+        "yaw",
+        "pitch"
+      ],
+      "about": "Creates an R.Y.N.O. rocket (class 457): height = a height offset added to the target aim point, yaw and pitch of the rocket, owner = the moby that fires, pos = its start, target = the aimed target. Returns the rocket moby. Every level. (The script is given the floats first, as the omni extension lists them.)",
+      "symbols": {
+        "pal": "func_L00_002CE390",
+        "ntsc": "FUN_L00_002ccee0"
+      }
+    },
+    {
+      "id": "rac1.omni.moby.delete",
+      "name": "moby_delete",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "The game's moby deletion (DeleteMoby, in the executable: every level's copy of the address runs it): removes a moby (a projectile's death, a killed enemy). The only code that writes the deleted state. Every level.",
+      "symbols": {
+        "pal": "func_0020D678",
+        "ntsc": "FUN_0020c828"
+      }
+    },
     {
       "id": "rac1.pad.process_report",
       "name": "Pad_ProcessReport",
@@ -266,7 +335,10 @@
         "pal": "func_L00_002B5998",
         "ntsc": "FUN_L00_002b46a8"
       },
-      "about": "Chooses the Blaster's auto-aim target for a shot from from (select_blaster_auto_aim_target; from a Vec4, yaw and pitch f32s, all addresses): the nearest targetable creature (Moby flags 0x1000) within 20 units whose aim point is within about 9 degrees of the heading yaw/pitch and in sight from the camera and from from (ignore: the moby the sight test passes over). Writes the pitch toward it, and the yaw when within 10 degrees, and returns it; 0 for none."
+      "about": "Chooses the Blaster's auto-aim target for a shot from from (select_blaster_auto_aim_target; from a Vec4, yaw and pitch f32s, all addresses): the nearest targetable creature (Moby flags 0x1000) within 20 units whose aim point is within about 9 degrees of the heading yaw/pitch and in sight from the camera and from from (ignore: the moby the sight test passes over). Writes the pitch toward it, and the yaw when within 10 degrees, and returns it; 0 for none.",
+      "aliases": [
+        "rac1.omni.weapon.blaster.aim_search"
+      ]
     },
     {
       "id": "rac1.weapon.ryno.pick_target",
@@ -299,7 +371,10 @@
         "pal": "func_L00_002B1290",
         "ntsc": "FUN_L00_002affa8"
       },
-      "about": "Chooses the gold Devastator missile's target (select_gold_devastator_missile_target): the creature within 40 units of the missile nearest its heading, in a cone that widens with the weapon's level, in sight, not skip; writes it into the missile's data (data, its pvars)."
+      "about": "Chooses the gold Devastator missile's target (select_gold_devastator_missile_target): the creature within 40 units of the missile nearest its heading, in a cone that widens with the weapon's level, in sight, not skip; writes it into the missile's data (data, its pvars).",
+      "aliases": [
+        "rac1.omni.weapon.devastator.retarget"
+      ]
     },
     {
       "id": "rac1.weapon.drone.pick_target",
@@ -589,7 +664,10 @@
         "pal": "func_L00_00238530",
         "ntsc": "FUN_L00_00237ba0"
       },
-      "about": "The quick select in play, each tick (update_hud_item_selector_selection_and_visibility): its focus, whether it shows, and the item chosen."
+      "about": "The quick select in play, each tick (update_hud_item_selector_selection_and_visibility): its focus, whether it shows, and the item chosen.",
+      "aliases": [
+        "rac1.omni.weapon.quick_select"
+      ]
     },
     {
       "id": "rac1.hud.quick_select.draw",
@@ -613,7 +691,10 @@
         "pal": "func_L00_0029CDE0",
         "ntsc": "FUN_L00_0029ba78"
       },
-      "about": "The vendor's purchase menu, each tick it is open (update_vendor_purchase): buying items and ammo."
+      "about": "The vendor's purchase menu, each tick it is open (update_vendor_purchase): buying items and ammo.",
+      "aliases": [
+        "rac1.omni.vendor.buy"
+      ]
     },
     {
       "id": "rac1.vendor.initialize_selected",
@@ -784,7 +865,10 @@
         "pal": "func_L00_0029BA20",
         "ntsc": "FUN_L00_0029a6b0"
       },
-      "about": "Opens the vendor purchase menu, including the Gadgetron PDA remote vendor when moby is zero."
+      "about": "Opens the vendor purchase menu, including the Gadgetron PDA remote vendor when moby is zero.",
+      "aliases": [
+        "rac1.omni.vendor.open"
+      ]
     },
     {
       "id": "rac1.gold_bolt.count_unspent",
@@ -795,7 +879,716 @@
         "pal": "func_00216098",
         "ntsc": "FUN_00215248"
       },
-      "about": "Unspent gold bolts available for purchases; retail subtracts four per purchased gold weapon. Mods may separate purchases from gold weapon ownership."
+      "about": "Unspent gold bolts available for purchases; retail subtracts four per purchased gold weapon. Mods may separate purchases from gold weapon ownership.",
+      "aliases": [
+        "rac1.gold_bolt.count_spare"
+      ]
+    },
+    {
+      "id": "rac1.omni.damage.build_hit",
+      "name": "Damage_BuildHit",
+      "signature": "void(u32,u32,u32,f32,u32)",
+      "params": [
+        "desc",
+        "attacker",
+        "mask",
+        "damage",
+        "dir"
+      ],
+      "about": "hit_desc_build: fills a hit descriptor (0x24+ bytes) for a hit on an enemy: the 16-byte direction vector at +0, attacker moby +0x10, mask +0x14, damage f32 +0x1c, +0x20 = 1. Every attack that hurts an enemy builds one (the wrench on the stack right before its swing sweep), so a hook that calls the original with another damage changes what is dealt. Checked against the wrench update's call (a0 = descriptor on the stack, a1 = attacker moby, a2 = mask, a3 = vec4 direction, f12 = damage). Every level.",
+      "symbols": {
+        "pal": "func_L00_0025A8C0",
+        "ntsc": "FUN_L00_00259888"
+      }
+    },
+    {
+      "id": "rac1.omni.damage.hit_victim",
+      "name": "Damage_HitVictim",
+      "signature": "void(u32,u32)",
+      "params": [
+        "victim",
+        "desc"
+      ],
+      "about": "hit_ring_write: posts a hit descriptor on the victim moby into the 64-entry hit queue at 0x178100 (stride 0x40) unless the victim already holds a stronger hit this tick (victim byte +0xa4 = queue slot); the victim reads it in MobyGetHitMessage (rac1.combat.get_hit). To hurt an enemy from a mod: build a descriptor with omni.with_stack and the build_hit function, then call this. a0 = victim, a1 = descriptor (asm of the prologue). Every level.",
+      "symbols": {
+        "pal": "func_L00_0025AAC0",
+        "ntsc": "FUN_L00_00259a88"
+      }
+    },
+    {
+      "id": "rac1.omni.wrench.swing",
+      "name": "Wrench_SwingSweep",
+      "signature": "u32(u32,u32,u32,u32,u32,u32,i32)",
+      "params": [
+        "prev_a",
+        "prev_b",
+        "cur_a",
+        "cur_b",
+        "owner",
+        "attack",
+        "steps"
+      ],
+      "about": "The wrench swing sweep: five segment casts between the previous and the current wrench joint poses (four vec4 pointers into the hero struct +0x9f0, +0xa00, +0xa10, +0xa20), owner = the word at hero +0x2080, attack = the hit descriptor built just before (damage at +0x1c), steps = 5. Returns 1 when something was hit. Only caller: the class 71 update. Argument registers a0..a3, t0, t1, t2 checked in the caller's asm. Every level.",
+      "symbols": {
+        "pal": "func_L00_0025AD60",
+        "ntsc": "FUN_L00_00259d08"
+      }
+    },
+    {
+      "id": "rac1.omni.wrench.throw",
+      "name": "Wrench_ThrowRelease",
+      "signature": "void()",
+      "params": [],
+      "about": "Comet-Strike release: aims and launches the thrown wrench (sets the wrench byte +0x20 = 10 and the byte at 0x1403fa). No arguments (the callers set none for it). Callers: the try-fire dispatcher and 0x217550 (Veldin). Every level.",
+      "symbols": {
+        "pal": "func_L00_00217DE0",
+        "ntsc": "FUN_L00_00217658"
+      }
+    },
+    {
+      "id": "rac1.moby.wrench.update",
+      "name": "Wrench_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Omniwrench (moby class 71): combo state, swing damage literals, calls the swing sweep and the hit descriptor builder. Every level.",
+      "symbols": {
+        "pal": "func_L00_002A9768",
+        "ntsc": "FUN_L00_002a84c8"
+      },
+      "aliases": [
+        "rac1.omni.wrench.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.suck_cannon.update",
+      "name": "Weapon_SuckCannon_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Suck Cannon (moby class 849, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002DBC40",
+        "ntsc": "FUN_L00_002da790"
+      },
+      "aliases": [
+        "rac1.omni.weapon.suck_cannon.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.moby192.update",
+      "name": "Weapon_BombGlove_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Bomb Glove (moby class 192, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C39D0",
+        "ntsc": "FUN_L00_002c26c8"
+      },
+      "aliases": [
+        "rac1.omni.weapon.bomb_glove.update"
+      ]
+    },
+    {
+      "id": "rac1.omni.weapon.devastator.update",
+      "name": "Weapon_Devastator_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Devastator (moby class 157, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B33E8",
+        "ntsc": "FUN_L00_002b2100"
+      }
+    },
+    {
+      "id": "rac1.moby.moby163.update",
+      "name": "Weapon_Visibomb_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Visibomb Gun (moby class 163, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "ntsc": "FUN_L00_002b3058",
+        "pal": "func_L00_002B4340"
+      },
+      "aliases": [
+        "rac1.omni.weapon.visibomb.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.moby175.update",
+      "name": "Weapon_Taunter_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Taunter (moby class 175, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B8208",
+        "ntsc": "FUN_L00_002b6f10"
+      },
+      "aliases": [
+        "rac1.omni.weapon.taunter.update"
+      ]
+    },
+    {
+      "id": "rac1.omni.weapon.blaster.update",
+      "name": "Weapon_Blaster_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Blaster (moby class 168, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B5C98",
+        "ntsc": "FUN_L00_002b49a8"
+      }
+    },
+    {
+      "id": "rac1.moby.pyrocitor.update",
+      "name": "Weapon_Pyrocitor_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Pyrocitor (moby class 176, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B8AE8",
+        "ntsc": "FUN_L00_002b77f0"
+      },
+      "aliases": [
+        "rac1.omni.weapon.pyrocitor.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.mine_glove.update",
+      "name": "Weapon_MineGlove_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Mine Glove (moby class 190, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C2DD8",
+        "ntsc": "FUN_L00_002c1ad0"
+      },
+      "aliases": [
+        "rac1.omni.weapon.mine_glove.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.moby180.update",
+      "name": "Weapon_Walloper_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Walloper (moby class 180, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002BC860",
+        "ntsc": "FUN_L00_002bb558"
+      },
+      "aliases": [
+        "rac1.omni.weapon.walloper.update"
+      ]
+    },
+    {
+      "id": "rac1.omni.weapon.tesla_claw.update",
+      "name": "Weapon_TeslaClaw_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Tesla Claw (moby class 177, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B9AD8",
+        "ntsc": "FUN_L00_002b87e0"
+      }
+    },
+    {
+      "id": "rac1.moby.carrier.update",
+      "name": "Weapon_GloveOfDoom_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Glove of Doom (moby class 229, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C8DB8",
+        "ntsc": "FUN_L00_002c7a58"
+      },
+      "aliases": [
+        "rac1.omni.weapon.glove_of_doom.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.morphoray.update",
+      "name": "Weapon_MorphORay_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Morph-o-Ray (moby class 185, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "ntsc": "FUN_L00_002bc7e8",
+        "pal": "func_L00_002BDAF0"
+      },
+      "aliases": [
+        "rac1.omni.weapon.morph_o_ray.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.ryno.update",
+      "name": "Weapon_Ryno_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held R.Y.N.O. (moby class 454, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002CDAB8",
+        "ntsc": "FUN_L00_002cc608"
+      },
+      "aliases": [
+        "rac1.omni.weapon.ryno.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.decoy_glove.update",
+      "name": "Weapon_Decoy_Update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of the held Decoy Glove (moby class 562, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.",
+      "symbols": {
+        "pal": "func_L00_002D3B20",
+        "ntsc": "FUN_L00_002d2670"
+      },
+      "aliases": [
+        "rac1.omni.weapon.decoy.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.ammo_pickup.update",
+      "name": "Ammo_Pickup",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Per-tick update of an ammo pickup moby (Veldin 0x2c4d68, names row func_L00_002C6720; classes 204 213 214 222 223 225 226 1006 1438 1447 1449, the broken crates' ammo): physics in states 1/3/4, and in the waiting state a jump-table case INLINES the pickup (distance to the hero, AddAmmo, banner, state 2). Every ammo the hero collects by walking into a pickup is given inside this call, so a mod that wraps `original` sees AddAmmo (rac1.omni.ammo.add) run inside it and can tell a pickup from a vendor purchase. The moby's pvar (moby+0x78) holds pvar[0] = amount, pvar[2] = item id, readable before `original`. Stage AP1: this id used to be the collect helper 0x2c5590, which this path never calls (see rac1.omni.ammo.collect). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C6720",
+        "ntsc": "FUN_L00_002c53c0"
+      },
+      "aliases": [
+        "rac1.omni.ammo.pickup"
+      ]
+    },
+    {
+      "id": "rac1.omni.ammo.add",
+      "name": "Ammo_Add",
+      "signature": "i32(i32,i32)",
+      "params": [
+        "item",
+        "amount"
+      ],
+      "about": "AddAmmo: adds amount to the ammo int of item (0x13d428 + item * 4) and caps it at the max ammo of the price row; returns the overflow. Shared by pickups, the vendor and UnlockGadget. Every level.",
+      "symbols": {
+        "pal": "func_L00_002346C0",
+        "ntsc": "FUN_L00_00233e40"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.select",
+      "name": "Hero_ItemRequestApply",
+      "signature": "void(u32)",
+      "params": [
+        "slot"
+      ],
+      "about": "Applies the requested item (0x141408 and the kind words) for hero item slot `slot`; the equip path of Square (wrench), Circle (last weapon) and the quick-select commit. Decomp name hero_item_request_apply, names tsv label UpdateWrenchSelected; 2216 bytes, callers 0x210290 and 0x229750 (Veldin). Not in the code of Rilgar (5) and Kalebo III (16): no hook there. Argument a0 = slot checked in the caller's asm and the Ghidra C.",
+      "symbols": {
+        "pal": "func_L00_00210558",
+        "ntsc": "FUN_L00_0020fea0"
+      }
+    },
+    {
+      "id": "rac1.omni.damage.resolve",
+      "name": "Damage_Resolve",
+      "signature": "u32(u32,u32,u32,u32,u32,u32,u32,u32)",
+      "params": [
+        "victim",
+        "entry",
+        "component",
+        "arg3",
+        "status_out",
+        "strength_out",
+        "extra_out",
+        "mode"
+      ],
+      "about": "The shared hit resolver (Veldin FUN_0025a088, names row hit_knockback): every enemy class calls it once per tick from its prestep with the hit entry that rac1.combat.get_hit returned. a0 = the victim moby, a1 = the hit queue entry (0 = none; +0x20 attacker moby, +0x2c strength), a2 = the victim's component block (pvar +0x20: the health float, +8 the component byte), a3 = 0 in every caller read, t0 = u32 out (status: 0, or 1 = no usable hit), t1 = f32 out (the STRENGTH the class subtracts from its health; may be 0 = no pointer), t2 = u32 out (-1 or untouched, may be 0), t3 = mode (4 = take it from the component byte). The return value is the reaction class (0 nothing, 0xb, 0xd, jump-table cases), NOT the strength: the strength is written to *t1 (= entry +0x2c, which the resolver sets from the attacker table for Blaster classes 0x131 and 0xa8). A mod scales damage dealt to enemies by calling original and then multiplying the f32 at strength_out (when it is not 0) and entry +0x2c; it reads the victim's health first through the pvars/structs (enemy.health). Signature checked in the asm prologue (a0..a3, t0..t3 stored/used) and the Ghidra C (8 parameters) and a caller (toad prestep FUN_002d4b08: a0 victim, a1 entry, a2 pvar+0x20, a3 0, t0 &status, t1 &strength, t2 0, t3 4). Every level.",
+      "symbols": {
+        "pal": "func_L00_0025B4D0",
+        "ntsc": "FUN_L00_0025a478"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.flame.create",
+      "name": "Pyrocitor_FlameCreate",
+      "signature": "u32(u32,u32,u8,f32)",
+      "params": [
+        "pos",
+        "vel",
+        "flags",
+        "range"
+      ],
+      "about": "The Pyrocitor flame effect creator (names tsv PartType12Spawn; shared with the flame effect of other callers): f12 = the flame reach / life float, a0 = position vec4 address, a1 = velocity vec4 address, a2 = flags byte (bit 2 always set, bit 0 = lead flame vs trailing). The held update calls it 2 leading and 2 trailing times per tick. A mod calls original again with its own vel vector (omni.with_stack) for extra flames. Argument registers checked by argscan and the caller at 0x2b7880 (Ghidra C: FUN_0026abc0(float, vec*, vec*, byte)). Every level.",
+      "symbols": {
+        "pal": "func_L00_0026C0D0",
+        "ntsc": "FUN_L00_0026b230"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.bomb_glove.fire",
+      "name": "Weapon_BombGlove_Fire",
+      "signature": "void(u32,u32,u32)",
+      "params": [
+        "pos_ptr",
+        "bomb",
+        "pvar"
+      ],
+      "about": "Launches the held bomb (FUN_002ac980, state 3 of the held update 0x2c2070 once per throw, then the held bomb pointer is cleared): a0 = a stack vec (aim), a1 = the bomb moby (spawned by FUN_002ac818), a2 = its pvar (moby +0x78). Every level.",
+      "symbols": {
+        "pal": "func_L00_002AE278",
+        "ntsc": "FUN_L00_002acfd8"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.mine_glove.fire",
+      "name": "Weapon_MineGlove_Fire",
+      "signature": "void(u32,u32,u32)",
+      "params": [
+        "pos_ptr",
+        "mine",
+        "pvar"
+      ],
+      "about": "Launches the held mine (FUN_002a99b0, state 3 of the held update 0x2c1478 once per throw): a0 = a stack vec (aim), a1 = the mine moby (class 74, created by FUN_002a9878), a2 = its pvar (moby +0x78). Every level.",
+      "symbols": {
+        "pal": "func_L00_002AB2A8",
+        "ntsc": "FUN_L00_002aa008"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.glove_of_doom.fire",
+      "name": "Weapon_GloveOfDoom_Fire",
+      "signature": "void(u32,u32,u32)",
+      "params": [
+        "pos_ptr",
+        "capsule",
+        "pvar"
+      ],
+      "about": "Launches the held Glove of Doom capsule (FUN_002c7c98, once per shot; the caller then clears the held pointer): a0 = hero + 0x40 vec, a1 = the capsule moby (class 230, created by FUN_002c7bc0), a2 = its pvar (moby +0x78). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C96D0",
+        "ntsc": "FUN_L00_002c82f0"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.devastator.fire",
+      "name": "Weapon_Devastator_Fire",
+      "signature": "u32(u32,u32,u32,f32,f32,f32,f32,f32)",
+      "params": [
+        "pvar_arg",
+        "pos",
+        "owner",
+        "f0",
+        "f1",
+        "f2",
+        "f3",
+        "f4"
+      ],
+      "about": "Creates a Devastator rocket (FUN_002af618, class 153; once per rocket, two call sites in the held update 0x2b1aa8): a0 = word stored in the rocket pvar +0x10, a1 = spawn position vec4 address, a2 = the owner moby (its component is read), f12 = float stored at the rocket pvar +0x2c, f13 and f14 = floats kept in the creator, f15 = stored at moby +0x48, f16 = stored at moby +0x44 (meaning of the floats [?]); returns the rocket moby. Register reads checked by argscan and the prologue asm (a0, a1, a2, f12..f16; Ghidra's 8 parameters are an artefact). Every level.",
+      "symbols": {
+        "pal": "func_L00_002B0F58",
+        "ntsc": "FUN_L00_002afc70"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.visibomb.fire",
+      "name": "Weapon_Visibomb_Fire",
+      "signature": "u32(u32,u32,f32,f32)",
+      "params": [
+        "owner",
+        "dir",
+        "f0",
+        "f1"
+      ],
+      "about": "Creates the Visibomb missile (FUN_002b5280, class 172; once per shot from the held update 0x2b2a00): f12, f13 = floats (speed / aim [?]), a0 = the owner moby, a1 = a vec4 address (launch direction); returns the missile moby (stored in the held pvar word 1). Registers by argscan. Every level.",
+      "symbols": {
+        "pal": "func_L00_002B6BC8",
+        "ntsc": "FUN_L00_002b58d8"
+      }
+    },
+    {
+      "id": "rac1.omni.weapon.blaster.fire",
+      "name": "Weapon_Blaster_Fire",
+      "signature": "u32(u32,u32,u32,f32,f32,f32,f32)",
+      "params": [
+        "iarg",
+        "vec",
+        "target",
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+      ],
+      "about": "Creates a Blaster shot (FUN_002ca918, class 305 = 0x131, the attacker class whose strength comes from the table at gp -0x6bc0; once per shot from the held update 0x2b4350): f12..f15 = four floats (shot speed / direction components [?]), a0 = the word at 0x1413d0, a1 = a vec address, a2 = a moby pointer; returns the shot moby. Registers by argscan and the caller (7 parameters in the Ghidra C). Every level.",
+      "symbols": {
+        "pal": "func_L00_002CC3C0",
+        "ntsc": "FUN_L00_002caf70"
+      }
+    },
+    {
+      "id": "rac1.omni.moby.create",
+      "name": "moby_create",
+      "signature": "u32(u32)",
+      "params": [
+        "class"
+      ],
+      "about": "Retail CreateMoby (Veldin 0x24e448): allocates a moby of a class with its pvar block, returns the moby (0 when full). The class init then runs on its first update. Every level. Every dynamic spawn of the game (projectiles, sparks, glow spheres, debris) goes through it; placed mobies of a level do not (use level_loaded + mobys). Hot: hundreds of calls per second in a fight, so a mod filters by class first and returns. A hook must not spawn the same class from inside it.",
+      "symbols": {
+        "pal": "func_L00_0024F870",
+        "ntsc": "FUN_0020c4f8"
+      }
+    },
+    {
+      "id": "rac1.moby.hero_bomb.update",
+      "name": "projectile_bomb_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Bomb Glove bomb (class 121) per-tick update (Veldin 0x2ad4d8, 6.3 KB). Every level.",
+      "symbols": {
+        "ntsc": "FUN_L00_002adb30",
+        "pal": "func_L00_002AEDD0"
+      },
+      "aliases": [
+        "rac1.omni.projectile.bomb.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.mine.update",
+      "name": "projectile_mine_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Mine Glove mine (class 74) per-tick update (Veldin 0x2aa018). Every level.",
+      "symbols": {
+        "pal": "func_L00_002AB910",
+        "ntsc": "FUN_L00_002aa670"
+      },
+      "aliases": [
+        "rac1.omni.projectile.mine.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.moby305.update",
+      "name": "projectile_blaster_shot_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Blaster shot (class 305) per-tick update (Veldin 0x2cadc0): steers to the point in pvar+0, moves 0.8 u/tick along yaw/pitch, ray test, gold bounce. Every level.",
+      "symbols": {
+        "pal": "func_L00_002CC868",
+        "ntsc": "FUN_L00_002cb418"
+      },
+      "aliases": [
+        "rac1.omni.projectile.blaster_shot.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.rocket_steer.update",
+      "name": "projectile_ryno_rocket_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "R.Y.N.O. rocket (class 457) per-tick update (Veldin 0x2ccb98): homes on the moby in pvar+0x28. Every level.",
+      "symbols": {
+        "pal": "func_L00_002CE6A0",
+        "ntsc": "FUN_L00_002cd1f0"
+      },
+      "aliases": [
+        "rac1.omni.projectile.ryno_rocket.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.doom_bot.update",
+      "name": "projectile_doom_agent_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Glove of Doom agent (class 186) per-tick update (Veldin 0x2bf950): state machine, state 0xb = explode. Every level.",
+      "symbols": {
+        "pal": "func_L00_002C12B0",
+        "ntsc": "FUN_L00_002bffa8"
+      },
+      "aliases": [
+        "rac1.omni.projectile.doom_agent.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.bomb_230.update",
+      "name": "projectile_doom_capsule_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Glove of Doom capsule (class 230) per-tick update (Veldin 0x2c8390). Every level.",
+      "symbols": {
+        "pal": "func_L00_002C9DC8",
+        "ntsc": "FUN_L00_002c89e8"
+      },
+      "aliases": [
+        "rac1.omni.projectile.doom_capsule.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.visibomb_missile.update",
+      "name": "projectile_visibomb_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Visibomb missile (class 172) per-tick update (Veldin 0x2b5ae8; player-steered missile). Every level.",
+      "symbols": {
+        "ntsc": "FUN_L00_002b6140",
+        "pal": "func_L00_002B7430"
+      },
+      "aliases": [
+        "rac1.omni.projectile.visibomb.update"
+      ]
+    },
+    {
+      "id": "rac1.moby.missile.update",
+      "name": "projectile_devastator_rocket_update",
+      "signature": "void(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "Devastator rocket (class 153) per-tick update (Veldin 0x2afd48): steers to its target, gold bounces 3 times. Every level.",
+      "symbols": {
+        "pal": "func_L00_002B1688",
+        "ntsc": "FUN_L00_002b03a0"
+      },
+      "aliases": [
+        "rac1.omni.projectile.devastator_rocket.update"
+      ]
+    },
+    {
+      "id": "rac1.omni.collide.segment",
+      "name": "collide_segment",
+      "signature": "u32(u32,u32,u32,u32,u32)",
+      "params": [
+        "start",
+        "end",
+        "mask",
+        "self",
+        "attack"
+      ],
+      "about": "Retail seg_collide (Veldin 0x1efbf0): segment start..end vs mobys and terrain; a3 = moby to ignore, t0 = hit descriptor (0 = none; when set and the hit moby takes hits the hit is posted into the hit ring). Returns 1 on a hit; result block at the level block RES (Veldin 0x173e40): +0x18 hit moby (0 = terrain), +0x1c record word, +0x20 contact point vec4, +0x40 surface normal vec4. Hot function (every projectile, the camera, the hero). Every level.",
+      "symbols": {
+        "ntsc": "FUN_L00_001efc70",
+        "pal": "func_L00_001EFBF0"
+      }
+    },
+    {
+      "id": "rac1.omni.collide.sphere_mobys",
+      "name": "collide_sphere_mobys",
+      "signature": "u32(f32,u32,u32,u32,u32)",
+      "params": [
+        "radius",
+        "pos",
+        "mask",
+        "self",
+        "filter"
+      ],
+      "about": "Retail sphere_list_mobys (Veldin 0x1f27e8): list the mobys within radius of pos (mask 0x10 = hittable); the list lands at 0x177f00 (Veldin), returns the count. Blasts call it right before blast.apply. Every level.",
+      "symbols": {
+        "pal": "func_L00_001F2BE8",
+        "ntsc": "FUN_L00_001f2868"
+      }
+    },
+    {
+      "id": "rac1.omni.blast.apply",
+      "name": "blast_apply",
+      "signature": "void(u32,u32,u32,u32,u32,u32,u32,u32,f32,f32,f32)",
+      "params": [
+        "attacker",
+        "pos",
+        "list",
+        "count",
+        "exclude",
+        "mask",
+        "cat",
+        "sub",
+        "strength",
+        "hscale",
+        "vimpulse"
+      ],
+      "about": "Retail apply_blast_damage (Veldin 0x25a608): posts one hit (hit_desc_build + hit_ring_write) per listed moby; attacker = the projectile (its class is the weapon). Every level.",
+      "symbols": {
+        "pal": "func_L00_0025BA50",
+        "ntsc": "FUN_L00_0025a9f8"
+      }
+    },
+    {
+      "id": "rac1.omni.hero.items_attach",
+      "name": "HeroItems_Attach",
+      "signature": "void()",
+      "params": [],
+      "about": "Retail HeroItemsAttach (Veldin 0x20f0c8, names row HeroItemsAttach, shared code, once per tick, no arguments): glues every item the hero holds to the hero. For each hero item slot (table 0x1403e0, stride 0x50) it copies the attach matrix of the item's attach point (the Blaster and other weapons: the right hand) into the held moby: position +0x10, basis rows +0xc0/0xd0/0xe0, pitch/yaw, sets moby flags |= 6 (not scheduled, no transform) and copies the light words from the hero. Hook it after `original` to place or update extra mobies that follow the hero (read omni.hero.held_moby; the held weapon is already in its final place for this tick).",
+      "symbols": {
+        "pal": "func_L00_0020FC18",
+        "ntsc": "FUN_L00_0020f580"
+      }
+    },
+    {
+      "id": "rac1.omni.ammo.collect",
+      "name": "Ammo_Collect",
+      "signature": "u32(u32)",
+      "params": [
+        "moby"
+      ],
+      "about": "The ammo pickup collect helper (Veldin 0x2c5590, names row func_L00_002C6F48, 480 bytes), the second way an ammo pickup is collected: called by the code that scans the mobys near the hero or a blast (Veldin callers 0x2a7c68 and 0x2deb88), NOT by the pickup moby's own update (rac1.omni.ammo.pickup inlines the same job). pvar[0] = amount, pvar[2] = item id; adds it with AddAmmo, shows the banner, returns 1 when collected. A mod that changes pickup ammo wraps both ids the same way. Stage AP1: this was rac1.omni.ammo.pickup before. Every level.",
+      "symbols": {
+        "pal": "func_L00_002C6F48",
+        "ntsc": "FUN_L00_002c5be8"
+      }
+    },
+    {
+      "id": "rac1.omni.hud.health_draw",
+      "name": "Hud_HealthDraw",
+      "signature": "u32(u32)",
+      "params": [
+        "element"
+      ],
+      "about": "Draws the HUD's nanotech meter (the health orbs and their bar) for its HUD element and returns the word at element +0x58. The meter fades in and out in steps 0..8 (struct hud_health: fade_bar at +0x70, fade_orbs at +0x71); it shows 100 ticks after the health changes (180 at a level start) and stays up at 1 orb. A mod that draws its own health replaces it: skip the original and return the word at +0x58 (hud_health.result). Every level.",
+      "symbols": {
+        "pal": "func_L00_0023A1A0",
+        "ntsc": "FUN_L00_00239810"
+      }
     }
   ],
   "bases": {
@@ -855,6 +1648,735 @@
         "ntsc": "0x0015ED98"
       },
       "about": "The player's bolts."
+    },
+    {
+      "name": "omni.weapon.wrench.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5C8",
+        "ntsc": "0x0013D4C8"
+      },
+      "about": "Omniwrench (item 8): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.suck_cannon.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5C9",
+        "ntsc": "0x0013D4C9"
+      },
+      "about": "Suck Cannon (item 9): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.suck_cannon.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D54C",
+        "ntsc": "0x0013D44C"
+      },
+      "about": "Suck Cannon (item 9): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.suck_cannon.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E629",
+        "ntsc": "0x0013E529"
+      },
+      "about": "Suck Cannon (item 9): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.bomb_glove.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5CA",
+        "ntsc": "0x0013D4CA"
+      },
+      "about": "Bomb Glove (item 10): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.bomb_glove.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D550",
+        "ntsc": "0x0013D450"
+      },
+      "about": "Bomb Glove (item 10): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.bomb_glove.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E62A",
+        "ntsc": "0x0013E52A"
+      },
+      "about": "Bomb Glove (item 10): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.devastator.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5CB",
+        "ntsc": "0x0013D4CB"
+      },
+      "about": "Devastator (item 11): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.devastator.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D554",
+        "ntsc": "0x0013D454"
+      },
+      "about": "Devastator (item 11): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.devastator.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E62B",
+        "ntsc": "0x0013E52B"
+      },
+      "about": "Devastator (item 11): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.visibomb.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5CD",
+        "ntsc": "0x0013D4CD"
+      },
+      "about": "Visibomb Gun (item 13): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.visibomb.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D55C",
+        "ntsc": "0x0013D45C"
+      },
+      "about": "Visibomb Gun (item 13): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.visibomb.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E62D",
+        "ntsc": "0x0013E52D"
+      },
+      "about": "Visibomb Gun (item 13): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.taunter.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5CE",
+        "ntsc": "0x0013D4CE"
+      },
+      "about": "Taunter (item 14): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.taunter.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D560",
+        "ntsc": "0x0013D460"
+      },
+      "about": "Taunter (item 14): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.taunter.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E62E",
+        "ntsc": "0x0013E52E"
+      },
+      "about": "Taunter (item 14): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.blaster.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5CF",
+        "ntsc": "0x0013D4CF"
+      },
+      "about": "Blaster (item 15): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.blaster.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D564",
+        "ntsc": "0x0013D464"
+      },
+      "about": "Blaster (item 15): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.blaster.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E62F",
+        "ntsc": "0x0013E52F"
+      },
+      "about": "Blaster (item 15): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.pyrocitor.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D0",
+        "ntsc": "0x0013D4D0"
+      },
+      "about": "Pyrocitor (item 16): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.pyrocitor.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D568",
+        "ntsc": "0x0013D468"
+      },
+      "about": "Pyrocitor (item 16): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.pyrocitor.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E630",
+        "ntsc": "0x0013E530"
+      },
+      "about": "Pyrocitor (item 16): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.mine_glove.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D1",
+        "ntsc": "0x0013D4D1"
+      },
+      "about": "Mine Glove (item 17): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.mine_glove.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D56C",
+        "ntsc": "0x0013D46C"
+      },
+      "about": "Mine Glove (item 17): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.mine_glove.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E631",
+        "ntsc": "0x0013E531"
+      },
+      "about": "Mine Glove (item 17): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.walloper.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D2",
+        "ntsc": "0x0013D4D2"
+      },
+      "about": "Walloper (item 18): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.walloper.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D570",
+        "ntsc": "0x0013D470"
+      },
+      "about": "Walloper (item 18): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.walloper.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E632",
+        "ntsc": "0x0013E532"
+      },
+      "about": "Walloper (item 18): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.tesla_claw.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D3",
+        "ntsc": "0x0013D4D3"
+      },
+      "about": "Tesla Claw (item 19): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.tesla_claw.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D574",
+        "ntsc": "0x0013D474"
+      },
+      "about": "Tesla Claw (item 19): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.tesla_claw.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E633",
+        "ntsc": "0x0013E533"
+      },
+      "about": "Tesla Claw (item 19): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.glove_of_doom.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D4",
+        "ntsc": "0x0013D4D4"
+      },
+      "about": "Glove of Doom (item 20): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.glove_of_doom.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D578",
+        "ntsc": "0x0013D478"
+      },
+      "about": "Glove of Doom (item 20): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.glove_of_doom.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E634",
+        "ntsc": "0x0013E534"
+      },
+      "about": "Glove of Doom (item 20): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.morph_o_ray.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D5",
+        "ntsc": "0x0013D4D5"
+      },
+      "about": "Morph-o-Ray (item 21): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.morph_o_ray.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D57C",
+        "ntsc": "0x0013D47C"
+      },
+      "about": "Morph-o-Ray (item 21): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.morph_o_ray.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E635",
+        "ntsc": "0x0013E535"
+      },
+      "about": "Morph-o-Ray (item 21): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.ryno.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D7",
+        "ntsc": "0x0013D4D7"
+      },
+      "about": "R.Y.N.O. (item 23): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.ryno.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D584",
+        "ntsc": "0x0013D484"
+      },
+      "about": "R.Y.N.O. (item 23): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.ryno.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E637",
+        "ntsc": "0x0013E537"
+      },
+      "about": "R.Y.N.O. (item 23): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.drone_device.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D8",
+        "ntsc": "0x0013D4D8"
+      },
+      "about": "Drone Device (item 24): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.drone_device.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D588",
+        "ntsc": "0x0013D488"
+      },
+      "about": "Drone Device (item 24): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.drone_device.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E638",
+        "ntsc": "0x0013E538"
+      },
+      "about": "Drone Device (item 24): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.decoy.have",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013D5D9",
+        "ntsc": "0x0013D4D9"
+      },
+      "about": "Decoy Glove (item 25): 1 when the player owns it (the have byte table at 0x13d4c0)."
+    },
+    {
+      "name": "omni.weapon.decoy.ammo",
+      "type": "i32",
+      "address": {
+        "pal": "0x0013D58C",
+        "ntsc": "0x0013D48C"
+      },
+      "about": "Decoy Glove (item 25): its ammo (the ammo int table at 0x13d428)."
+    },
+    {
+      "name": "omni.weapon.decoy.gold",
+      "type": "u8",
+      "address": {
+        "pal": "0x0013E639",
+        "ntsc": "0x0013E539"
+      },
+      "about": "Decoy Glove (item 25): 1 when it is the gold version (byte table at 0x13e520, saved with the game)."
+    },
+    {
+      "name": "omni.weapon.equipped",
+      "type": "i32",
+      "address": {
+        "pal": "0x00140508",
+        "ntsc": "0x00140408"
+      },
+      "about": "The item id in the hero's first item slot (the equipped weapon: 8 wrench, 10 Bomb Glove, ...; slot table 0x1403e0, stride 0x50, id at +0x28). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.weapon.quick_select",
+      "type": "i32",
+      "address": {
+        "pal": "0x00141FA0",
+        "ntsc": "0x00141EA0"
+      },
+      "about": "Quick-select wheel entry 0: an item id (0 = empty). The wheel has 8 entries of 4 bytes: omni.weapon.quick_select.1 .. .7 are the others."
+    },
+    {
+      "name": "omni.weapon.bomb_glove.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C41AE",
+        "ntsc": "0x401C41AE"
+      },
+      "about": "Bomb Glove (item 10): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 40). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.devastator.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C41C6",
+        "ntsc": "0x401C41C6"
+      },
+      "about": "Devastator (item 11): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.visibomb.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C41F6",
+        "ntsc": "0x401C41F6"
+      },
+      "about": "Visibomb Gun (item 13): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.blaster.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C4226",
+        "ntsc": "0x401C4226"
+      },
+      "about": "Blaster (item 15): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 200). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.pyrocitor.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C423E",
+        "ntsc": "0x401C423E"
+      },
+      "about": "Pyrocitor (item 16): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 240). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.mine_glove.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C4256",
+        "ntsc": "0x401C4256"
+      },
+      "about": "Mine Glove (item 17): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 50). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.tesla_claw.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C4286",
+        "ntsc": "0x401C4286"
+      },
+      "about": "Tesla Claw (item 19): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 240). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.glove_of_doom.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C429E",
+        "ntsc": "0x401C429E"
+      },
+      "about": "Glove of Doom (item 20): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 10). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.ryno.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C42E6",
+        "ntsc": "0x401C42E6"
+      },
+      "about": "R.Y.N.O. (item 23): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 50). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.drone_device.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C42FE",
+        "ntsc": "0x401C42FE"
+      },
+      "about": "Drone Device (item 24): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 10). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.weapon.decoy.max_ammo",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C4316",
+        "ntsc": "0x401C4316"
+      },
+      "about": "Decoy Glove (item 25): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`."
+    },
+    {
+      "name": "omni.menu.weapons_page.highlight_class",
+      "type": "u32",
+      "address": {
+        "pal": "0x401B9E10",
+        "ntsc": "0x401B9E10"
+      },
+      "about": "Pause menu, Weapons page: the moby class of the 3D model of the highlighted item (overlay global 0x1b9e10 in Veldin, written by the page's item function 0x27b808 when the cursor lands on a weapon; 0xFFFFFFFF = nothing yet; e.g. Bomb Glove 192, item 16 -> 176, item 15 -> 168, item 11 -> 157, item 19 -> 177; it follows the cursor one tick later). Overlay data in the host's overlay window: reads fail outside a level. It is the model class, not the item id: the id is *(u16*)(*(S+0x48) + *(S+0x3c)*10 + 6) with S = *(*(0x1b9cf4)+0x40) (a pointer chain, no plain field)."
+    },
+    {
+      "name": "omni.hud.ammo_box.max",
+      "type": "u32",
+      "address": {
+        "pal": "0x4017DC58",
+        "ntsc": "0x4017DC58"
+      },
+      "about": "The HUD ammo box: the maximum it shows right now, the N of the printed \"count/N\" (element +0x08). The game copies it from the weapon's cap only when the box is created, so after a cap change on the weapon that stays held (a level-up) the box keeps the old N until the weapon is switched or holstered; a mod writes the new cap here (and to def_max) and the box shows it on the next frame. Meaningful only while the box shows (the id field says which weapon it belongs to). Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box."
+    },
+    {
+      "name": "omni.hud.ammo_box.def_max",
+      "type": "u32",
+      "address": {
+        "pal": "0x4017DC78",
+        "ntsc": "0x4017DC78"
+      },
+      "about": "The HUD ammo box: the maximum the game compares when it re-requests the box every tick (element +0x28). If it differs from the weapon's current cap the game restarts the box (fade out, fade in) to load the new one; write the same value as omni.hud.ammo_box.max so the compare finds an identical request and no restart happens. Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box."
+    },
+    {
+      "name": "omni.hud.ammo_box.id",
+      "type": "u32",
+      "address": {
+        "pal": "0x4017DC70",
+        "ntsc": "0x4017DC70"
+      },
+      "about": "The HUD ammo box: the id of the element in slot 0 (element +0x20): 60000 + the item id of the weapon the box shows, 0xFFFF when the slot is empty. Read-only for mods; check it before writing max / def_max. Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box."
+    },
+    {
+      "name": "omni.weapon.suck_cannon.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C419C",
+        "ntsc": "0x401C419C"
+      },
+      "about": "Suck Cannon (item 9): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.bomb_glove.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C41B4",
+        "ntsc": "0x401C41B4"
+      },
+      "about": "Bomb Glove (item 10): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.devastator.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C41CC",
+        "ntsc": "0x401C41CC"
+      },
+      "about": "Devastator (item 11): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 60000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.blaster.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C422C",
+        "ntsc": "0x401C422C"
+      },
+      "about": "Blaster (item 15): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.pyrocitor.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C4244",
+        "ntsc": "0x401C4244"
+      },
+      "about": "Pyrocitor (item 16): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 30000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.mine_glove.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C425C",
+        "ntsc": "0x401C425C"
+      },
+      "about": "Mine Glove (item 17): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.tesla_claw.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C428C",
+        "ntsc": "0x401C428C"
+      },
+      "about": "Tesla Claw (item 19): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 60000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.glove_of_doom.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C42A4",
+        "ntsc": "0x401C42A4"
+      },
+      "about": "Glove of Doom (item 20): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.morph_o_ray.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C42BC",
+        "ntsc": "0x401C42BC"
+      },
+      "about": "Morph-o-Ray (item 21): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.weapon.decoy.gold_price",
+      "type": "u16",
+      "address": {
+        "pal": "0x401C431C",
+        "ntsc": "0x401C431C"
+      },
+      "about": "Decoy Glove (item 25): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535."
+    },
+    {
+      "name": "omni.challenge",
+      "type": "i32",
+      "address": {
+        "pal": "0x0015EF20",
+        "ntsc": "0x0015EE20"
+      },
+      "about": "The New Game+ (challenge mode) counter: 0 on the first playthrough, +1 each time New Game+ is started (kept in the save)."
+    },
+    {
+      "name": "omni.hero.held_moby",
+      "type": "u32",
+      "address": {
+        "pal": "0x001404E0",
+        "ntsc": "0x001403E0"
+      },
+      "about": "The moby of the weapon in Ratchet's hand: word 0 of hero item slot 0 (slot table 0x1403e0, stride 0x50). 0 when nothing is held. The Blaster is class 168 (item 15; the Bomb Glove is 192); read its class with struct(\"moby\", addr).class. The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.moby",
+      "type": "u32",
+      "address": {
+        "pal": "0x001414D0",
+        "ntsc": "0x001413D0"
+      },
+      "about": "Ratchet's own moby (a pointer cell; the owner argument of the weapon creators; class 0). Read it as struct(\"moby\", addr): position x/y/z, basis rows row0_x..row2_w. The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.health",
+      "type": "i32",
+      "address": {
+        "pal": "0x001416F8",
+        "ntsc": "0x001415F8"
+      },
+      "about": "Ratchet's health: the nanotech orbs the HUD shows (1 to omni.hero.max_health; 0 = dead). Hero_TakeDamage takes at most 1 a call; the game sets it to the maximum when a level starts and after a death, a nanotech pickup adds 1 (up to the maximum). A mod may write it (1 .. max while he is alive): the HUD meter shows the new value. Checked on both discs (PAL v1.00 and USA use the same address, 2026-10-25); the pal column is ntsc + 0x100 [?: unverified, the script binding reads the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.max_health",
+      "type": "i32",
+      "address": {
+        "pal": "0x0015EEA0",
+        "ntsc": "0x0015EDA0"
+      },
+      "about": "Ratchet's maximum health in nanotech orbs: 4, 5 with Premium Nanotech, 8 with Ultra Nanotech (the game sets it from the upgrades; its HUD draws at most 8). Checked on both discs (same address, initial value 4 in the boot data, 2026-10-25); the pal column is ntsc + 0x100 [?: unverified, the script binding reads the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.right_hand.x",
+      "type": "f32",
+      "address": {
+        "pal": "0x0013FF40",
+        "ntsc": "0x0013FE40"
+      },
+      "about": "World x (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.right_hand.y",
+      "type": "f32",
+      "address": {
+        "pal": "0x0013FF44",
+        "ntsc": "0x0013FE44"
+      },
+      "about": "World y (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
+    },
+    {
+      "name": "omni.hero.right_hand.z",
+      "type": "f32",
+      "address": {
+        "pal": "0x0013FF48",
+        "ntsc": "0x0013FE48"
+      },
+      "about": "World z (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc]."
     }
   ]
 }

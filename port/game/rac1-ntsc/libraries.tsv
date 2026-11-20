@@ -422,13 +422,58 @@ FUN_L00_00211250	hero	Hero_OnKilled	wrap	a hero dead at the end of his dying sta
 FUN_L00_00276bd0	level	update_pause_menu	wrap	the pause menu's tick: the level's mobys go on under it while a mod asks for it, with the level's camera put up, and the level is drawn under the menu (rac1/host/world.c, interface 1.9); PAL func_L00_00277A88	void (void)
 FUN_001fce28	game	update_mode_freeze	wrap	a freeze dialog's tick: the level's mobys go on under it while a mod asks for it (rac1/host/world.c); PAL func_001FD3E8	void (void)
 FUN_L00_00259a88	moby	record_moby_hit	wrap	a hit copied from a record to a moby: the game's C, then the mods told of it (rac1/host/world.c); PAL func_L00_0025AAC0	void (unsigned int, unsigned int)
+FUN_L00_00259a88	moby	Damage_HitVictim	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_0025AAC0
 FUN_0020c828	moby	DeleteMoby	wrap	a moby deleted: its slot's deletion noted first (whose update deleted it, or a mod), then the game's C (rac1/host/world.c, interface 1.9: moby_deletion); PAL func_0020D678	void (unsigned int)
+FUN_0020c828	moby	moby_delete	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_0020D678
 FUN_00204a40	game	select_world_object_resource_tables	wrap	a weapon's or gadget's class decoded into one of the two buffers they share: the figures' pieces drawn from the buffer decoded over go first (rac1/host/figure_items.c, interface 1.9); PAL func_00205270	void (int, int)
 FUN_L00_002caf70	moby	spawn_homing_shot	wrap	a Blaster shot: the hero's noted for the mods, a figure's made with it (rac1/host/figure_shots.c, interface 1.9); PAL func_L00_002CC3C0	unsigned int (unsigned int, unsigned int, unsigned int, float, float, float, float)
+FUN_L00_002caf70	moby	Weapon_Blaster_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002CC3C0
 FUN_L00_002acfd8	moby	launch_bomb	wrap	a bomb thrown from the Bomb Glove: the hero's noted for the mods, a figure's thrown with it (rac1/host/figure_shots.c, interface 1.9); PAL func_L00_002AE278	void (unsigned int, unsigned int, unsigned int)
+FUN_L00_002acfd8	moby	Weapon_BombGlove_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002AE278
 FUN_L00_0025a9f8	moby	SendRadialMessageToMobys	wrap	a blast's hits on the mobys around it: none for a figure's bomb (rac1/host/figure_shots.c, interface 1.9); PAL func_L00_0025BA50	void (unsigned int, unsigned int, unsigned int, int, unsigned int, int, int, int, float, float, float)
+FUN_L00_0025a9f8	moby	blast_apply	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_0025BA50
 FUN_0020d868	game	build_resident_visibility_list	wrap	a tick's run list: run by the host, whose target list (the scratchpad's, copied to the pointer table D_001C7900) holds at most 511 mobys where retail writes past both with more, which the bigger moby pool makes reachable (rac1/host/moby_pool.c); PAL func_0020E6B8	unsigned int (void)
 FUN_L00_0025e450	effects	SpawnExplosion	wrap	the original explosion, with a one-shot visual water impulse (rac1/host/water.c); gameplay unchanged; PAL func_L00_0025F4A8	void (unsigned int, unsigned int, unsigned int, float, float, int, int, int, float, float, float, float, int, float, int, int, int, unsigned char)
+# ---- the omni extension's hook points (Arsenal Mastery; rac-rs's binding, carried to NTSC by code hash: openrac-switch2/tools/find_ntsc_hooks.py) ----
+FUN_L00_00259888	omni	Damage_BuildHit	hook	a hook point for mods, rac1.omni.damage.build_hit (docs/port/MODS.md); the game's C with none; PAL func_L00_0025A8C0
+FUN_L00_00259d08	omni	Wrench_SwingSweep	hook	a hook point for mods, rac1.omni.wrench.swing (docs/port/MODS.md); the game's C with none; PAL func_L00_0025AD60
+FUN_L00_00217658	omni	Wrench_ThrowRelease	hook	a hook point for mods, rac1.omni.wrench.throw (docs/port/MODS.md); the game's C with none; PAL func_L00_00217DE0
+FUN_L00_002a84c8	moby	Wrench_Update	hook	a hook point for mods, rac1.moby.wrench.update, rac1.omni.wrench.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002A9768
+FUN_L00_002da790	moby	Weapon_SuckCannon_Update	hook	a hook point for mods, rac1.moby.suck_cannon.update, rac1.omni.weapon.suck_cannon.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002DBC40
+FUN_L00_002c26c8	moby	Weapon_BombGlove_Update	hook	a hook point for mods, rac1.moby.moby192.update, rac1.omni.weapon.bomb_glove.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002C39D0
+FUN_L00_002b2100	omni	Weapon_Devastator_Update	hook	a hook point for mods, rac1.omni.weapon.devastator.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B33E8
+FUN_L00_002b3058	moby	Weapon_Visibomb_Update	hook	a hook point for mods, rac1.moby.moby163.update, rac1.omni.weapon.visibomb.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B4340
+FUN_L00_002b6f10	moby	Weapon_Taunter_Update	hook	a hook point for mods, rac1.moby.moby175.update, rac1.omni.weapon.taunter.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B8208
+FUN_L00_002b49a8	omni	Weapon_Blaster_Update	hook	a hook point for mods, rac1.omni.weapon.blaster.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B5C98
+FUN_L00_002b77f0	moby	Weapon_Pyrocitor_Update	hook	a hook point for mods, rac1.moby.pyrocitor.update, rac1.omni.weapon.pyrocitor.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B8AE8
+FUN_L00_002c1ad0	moby	Weapon_MineGlove_Update	hook	a hook point for mods, rac1.moby.mine_glove.update, rac1.omni.weapon.mine_glove.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002C2DD8
+FUN_L00_002bb558	moby	Weapon_Walloper_Update	hook	a hook point for mods, rac1.moby.moby180.update, rac1.omni.weapon.walloper.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002BC860
+FUN_L00_002b87e0	omni	Weapon_TeslaClaw_Update	hook	a hook point for mods, rac1.omni.weapon.tesla_claw.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B9AD8
+FUN_L00_002c7a58	moby	Weapon_GloveOfDoom_Update	hook	a hook point for mods, rac1.moby.carrier.update, rac1.omni.weapon.glove_of_doom.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002C8DB8
+FUN_L00_002bc7e8	moby	Weapon_MorphORay_Update	hook	a hook point for mods, rac1.moby.morphoray.update, rac1.omni.weapon.morph_o_ray.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002BDAF0
+FUN_L00_002cc608	moby	Weapon_Ryno_Update	hook	a hook point for mods, rac1.moby.ryno.update, rac1.omni.weapon.ryno.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002CDAB8
+FUN_L00_002d2670	moby	Weapon_Decoy_Update	hook	a hook point for mods, rac1.moby.decoy_glove.update, rac1.omni.weapon.decoy.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002D3B20
+FUN_L00_002c53c0	moby	Ammo_Pickup	hook	a hook point for mods, rac1.moby.ammo_pickup.update, rac1.omni.ammo.pickup (docs/port/MODS.md); the game's C with none; PAL func_L00_002C6720
+FUN_L00_00233e40	omni	Ammo_Add	hook	a hook point for mods, rac1.omni.ammo.add (docs/port/MODS.md); the game's C with none; PAL func_L00_002346C0
+FUN_L00_0020fea0	omni	Hero_ItemRequestApply	hook	a hook point for mods, rac1.omni.weapon.select (docs/port/MODS.md); the game's C with none; PAL func_L00_00210558
+FUN_00213928	omni	Damage_Resolve	hook	a hook point for mods, rac1.omni.damage.resolve (docs/port/MODS.md); the game's C with none; PAL func_L00_0025B4D0
+; the executable's resolver, which every level's copy of the address runs
+FUN_L01_002e1ac0	moby	Moby_GoldWeaponCase_Update	hook	the Gold Weapon Case's update (classes gold_weapon_case 304 and the gold weapons' display mobys), each tick: a hook point for mods, rac1.moby.item_offer.update, rac1.omni.goldcase.update (docs/port/MODS.md); the game's C with none; PAL func_L01_002E2E38
+FUN_L00_0026b230	omni	Pyrocitor_FlameCreate	hook	a hook point for mods, rac1.omni.weapon.flame.create (docs/port/MODS.md); the game's C with none; PAL func_L00_0026C0D0
+FUN_L00_002b58d8	omni	Weapon_Visibomb_Fire	hook	a hook point for mods, rac1.omni.weapon.visibomb.fire (docs/port/MODS.md); the game's C with none; PAL func_L00_002B6BC8
+FUN_0020c4f8	omni	moby_create	hook	a hook point for mods, rac1.omni.moby.create (docs/port/MODS.md); the game's C with none; PAL func_L00_0024F870
+FUN_L00_002adb30	moby	projectile_bomb_update	hook	a hook point for mods, rac1.moby.hero_bomb.update, rac1.omni.projectile.bomb.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002AEDD0
+FUN_L00_002aa670	moby	projectile_mine_update	hook	a hook point for mods, rac1.moby.mine.update, rac1.omni.projectile.mine.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002AB910
+FUN_L00_002cb418	moby	projectile_blaster_shot_update	hook	a hook point for mods, rac1.moby.moby305.update, rac1.omni.projectile.blaster_shot.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002CC868
+FUN_L00_002cd1f0	moby	projectile_ryno_rocket_update	hook	a hook point for mods, rac1.moby.rocket_steer.update, rac1.omni.projectile.ryno_rocket.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002CE6A0
+FUN_L00_002bffa8	moby	projectile_doom_agent_update	hook	a hook point for mods, rac1.moby.doom_bot.update, rac1.omni.projectile.doom_agent.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002C12B0
+FUN_L00_002c89e8	moby	projectile_doom_capsule_update	hook	a hook point for mods, rac1.moby.bomb_230.update, rac1.omni.projectile.doom_capsule.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002C9DC8
+FUN_L00_002b6140	moby	projectile_visibomb_update	hook	a hook point for mods, rac1.moby.visibomb_missile.update, rac1.omni.projectile.visibomb.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B7430
+FUN_L00_002b03a0	moby	projectile_devastator_rocket_update	hook	a hook point for mods, rac1.moby.missile.update, rac1.omni.projectile.devastator_rocket.update (docs/port/MODS.md); the game's C with none; PAL func_L00_002B1688
+FUN_L00_001efc70	omni	collide_segment	hook	a hook point for mods, rac1.omni.collide.segment (docs/port/MODS.md); the game's C with none; PAL func_L00_001EFBF0
+FUN_L00_0020f580	omni	HeroItems_Attach	hook	a hook point for mods, rac1.omni.hero.items_attach (docs/port/MODS.md); the game's C with none; PAL func_L00_0020FC18
+FUN_L00_002c5be8	omni	Ammo_Collect	hook	a hook point for mods, rac1.omni.ammo.collect (docs/port/MODS.md); the game's C with none; PAL func_L00_002C6F48
+
 # ---- generated by sdk/tools/gen_binding.py: the behaviour catalogue's hook points; do not edit ----
 FUN_00215420	moby	Moby_Class1750_Update	hook	The update of class 1750, each tick; it gets no moby: a hook point for mods, rac1.moby.class_1750.update (docs/port/MODS.md); retail with none
 FUN_0023ab78	moby	Moby_Class676_Update	hook	The update of class 676, each tick: a hook point for mods, rac1.moby.class_676.update (docs/port/MODS.md); retail with none
@@ -437,40 +482,20 @@ FUN_L00_002a4cd8	moby	Moby_Class809_Update	hook	The update of class 809, each ti
 FUN_L00_002a4e48	moby	Moby_CameraObject_Update	hook	The update of class camera_object (1007), each tick: a hook point for mods, rac1.moby.camera_object.update (docs/port/MODS.md); retail with none
 FUN_L00_002a57a8	moby	Moby_Vendor_Update	hook	The update of class vendor (11), each tick: a hook point for mods, rac1.moby.light_beam.update (docs/port/MODS.md); retail with none
 FUN_L00_002a5dd8	moby	Moby_Bolt_Update	hook	The update of classes bolt (13), bolt_hexnut (14), bolt_starnut (15), bolt_circlenut (16), each tick: a hook point for mods, rac1.moby.bolt.update (docs/port/MODS.md); retail with none
-FUN_L00_002a84c8	moby	Moby_Wrench_Update	hook	The update of class wrench (71), each tick: a hook point for mods, rac1.moby.wrench.update (docs/port/MODS.md); retail with none
-FUN_L00_002aa670	moby	Moby_Mine_Update	hook	The update of class mine (74), each tick: a hook point for mods, rac1.moby.mine.update (docs/port/MODS.md); retail with none
 FUN_L00_002acad8	moby	Moby_Class112_Update	hook	The update of classes 112, 1192, each tick: a hook point for mods, rac1.moby.spin_fade_out.update (docs/port/MODS.md); retail with none
-FUN_L00_002adb30	moby	Moby_Class121_Update	hook	The update of class 121, each tick: a hook point for mods, rac1.moby.hero_bomb.update (docs/port/MODS.md); retail with none
 FUN_L00_002af5b8	moby	Moby_Class122_Update	hook	The update of class 122, each tick: a hook point for mods, rac1.moby.falling_spark.update (docs/port/MODS.md); retail with none
 FUN_L00_002afa48	moby	Moby_NanotechCrateFragment_Update	hook	The update of classes 149, nanotech_crate_fragment (348), nanotech_crate_fragment (349), metal_crate_fragment (354) and 7 more, each tick: a hook point for mods, rac1.moby.debris_bounce.update (docs/port/MODS.md); retail with none
-FUN_L00_002b03a0	moby	Moby_GoldDevastatorMissile_Update	hook	The update of class gold_devastator_missile (153), each tick: a hook point for mods, rac1.moby.missile.update (docs/port/MODS.md); retail with none
-FUN_L00_002b3058	moby	Moby_Visibomb_Update	hook	The update of class visibomb (163), each tick: a hook point for mods, rac1.moby.moby163.update (docs/port/MODS.md); retail with none
 FUN_L00_002b3458	moby	Moby_Class166_Update	hook	The update of class 166, each tick: a hook point for mods, rac1.moby.moby166.update (docs/port/MODS.md); retail with none
 FUN_L00_002b4198	moby	Moby_Class167_Update	hook	The update of class 167, each tick: a hook point for mods, rac1.moby.moby167.update (docs/port/MODS.md); retail with none
-FUN_L00_002b6140	moby	Moby_VisibombMissile_Update	hook	The update of class visibomb_missile (172), each tick: a hook point for mods, rac1.moby.visibomb_missile.update (docs/port/MODS.md); retail with none
-FUN_L00_002b6f10	moby	Moby_Taunter_Update	hook	The update of class taunter (175), each tick: a hook point for mods, rac1.moby.moby175.update (docs/port/MODS.md); retail with none
-FUN_L00_002b77f0	moby	Moby_Pyrocitor_Update	hook	The update of class pyrocitor (176), each tick: a hook point for mods, rac1.moby.pyrocitor.update (docs/port/MODS.md); retail with none
 FUN_L00_002bb400	moby	Moby_Class179_Update	hook	The update of class 179, each tick: a hook point for mods, rac1.moby.moby179.update (docs/port/MODS.md); retail with none
-FUN_L00_002bb558	moby	Moby_Walloper_Update	hook	The update of class walloper (180), each tick: a hook point for mods, rac1.moby.moby180.update (docs/port/MODS.md); retail with none
-FUN_L00_002bc7e8	moby	Moby_Morphoray_Update	hook	The update of class morphoray (185), each tick: a hook point for mods, rac1.moby.morphoray.update (docs/port/MODS.md); retail with none
-FUN_L00_002bffa8	moby	Moby_DoomBot_Update	hook	The update of class doom_bot (186), each tick: a hook point for mods, rac1.moby.doom_bot.update (docs/port/MODS.md); retail with none
 FUN_L00_002c1718	moby	Moby_Trespasser_Update	hook	The update of class trespasser (188), each tick: a hook point for mods, rac1.moby.moby188.update (docs/port/MODS.md); retail with none
-FUN_L00_002c1ad0	moby	Moby_MineGlove_Update	hook	The update of class mine_glove (190), each tick: a hook point for mods, rac1.moby.mine_glove.update (docs/port/MODS.md); retail with none
-FUN_L00_002c26c8	moby	Moby_BombGlove_Update	hook	The update of class bomb_glove (192), each tick: a hook point for mods, rac1.moby.moby192.update (docs/port/MODS.md); retail with none
 FUN_L00_002c4380	moby	Moby_Decoy_Update	hook	The update of classes decoy (203), gold_decoy (1900), each tick: a hook point for mods, rac1.moby.thrown_object.update (docs/port/MODS.md); retail with none
-FUN_L00_002c53c0	moby	Moby_DevestatorAmmo_Update	hook	The update of classes devestator_ammo (204), tesla_claw_ammo (213), pyrocitor_ammo (214), visibomb_ammo (222) and 7 more, each tick: a hook point for mods, rac1.moby.ammo_pickup.update (docs/port/MODS.md); retail with none
 FUN_L00_002c7070	moby	Moby_SwingshotHook_Update	hook	The update of class swingshot_hook (209), each tick: a hook point for mods, rac1.moby.moby209.update (docs/port/MODS.md); retail with none
-FUN_L00_002c7a58	moby	Moby_GloveOfDoom_Update	hook	The update of class glove_of_doom (229), each tick: a hook point for mods, rac1.moby.carrier.update (docs/port/MODS.md); retail with none
-FUN_L00_002c89e8	moby	Moby_Bomb_Update	hook	The update of class bomb (230), each tick: a hook point for mods, rac1.moby.bomb_230.update (docs/port/MODS.md); retail with none
 FUN_L00_002c97e0	moby	Moby_MorphorayChicken_Update	hook	The update of class morphoray_chicken (270), each tick: a hook point for mods, rac1.moby.morphoray_chicken.update (docs/port/MODS.md); retail with none
-FUN_L00_002cb418	moby	Moby_Class305_Update	hook	The update of class 305, each tick: a hook point for mods, rac1.moby.moby305.update (docs/port/MODS.md); retail with none
 FUN_L00_002cc210	moby	Moby_Class428_Update	hook	The update of class 428, each tick: a hook point for mods, rac1.moby.moby428.update (docs/port/MODS.md); retail with none
-FUN_L00_002cc608	moby	Moby_Ryno_Update	hook	The update of class ryno (454), each tick: a hook point for mods, rac1.moby.ryno.update (docs/port/MODS.md); retail with none
-FUN_L00_002cd1f0	moby	Moby_Rocket_Update	hook	The update of class rocket (457), each tick: a hook point for mods, rac1.moby.rocket_steer.update (docs/port/MODS.md); retail with none
 FUN_L00_002ce358	moby	Moby_Drone_Update	hook	The update of class drone (479), each tick: a hook point for mods, rac1.moby.drone.update (docs/port/MODS.md); retail with none
 FUN_L00_002cf218	moby	Moby_BoltCrate_Update	hook	The update of classes bolt_crate (500), nanotech_crate (501), metal_crate (502), oom_oom_box (505) and 1 more, each tick: a hook point for mods, rac1.moby.crate.update (docs/port/MODS.md); retail with none
 FUN_L00_002d1e80	moby	Moby_VeldinShip_Update	hook	The update of class veldin_ship (530), each tick: a hook point for mods, rac1.moby.veldin_ship.update (docs/port/MODS.md); retail with none
-FUN_L00_002d2670	moby	Moby_DecoyGlove_Update	hook	The update of class decoy_glove (562), each tick: a hook point for mods, rac1.moby.decoy_glove.update (docs/port/MODS.md); retail with none
 FUN_L00_002d2ee8	moby	Moby_MetalDetector_Update	hook	The update of class metal_detector (585), each tick: a hook point for mods, rac1.moby.target_tracker.update (docs/port/MODS.md); retail with none
 FUN_L00_002d37d0	moby	Moby_Helipack_Update	hook	The update of class helipack (607), each tick: a hook point for mods, rac1.moby.clank_pack.update (docs/port/MODS.md); retail with none
 FUN_L00_002d3a10	moby	Moby_Class639_Update	hook	The update of class 639, each tick: a hook point for mods, rac1.moby.moby639.update (docs/port/MODS.md); retail with none
@@ -481,7 +506,6 @@ FUN_L00_002d7f38	moby	Moby_Class775_Update	hook	The update of class 775, each ti
 FUN_L00_002d7f88	moby	Moby_Class804_Update	hook	The update of class 804, each tick: a hook point for mods, rac1.moby.trail_moby.update (docs/port/MODS.md); retail with none
 FUN_L00_002d89f0	moby	Moby_NanotechBall_Update	hook	The update of class nanotech_ball (806), each tick: a hook point for mods, rac1.moby.nanotech_ball.update (docs/port/MODS.md); retail with none
 FUN_L00_002d9dc8	moby	Moby_ClankCutsceneTrigger_Update	hook	The update of class clank_cutscene_trigger (834), each tick: a hook point for mods, rac1.moby.moby834.update (docs/port/MODS.md); retail with none
-FUN_L00_002da790	moby	Moby_Suckcannon_Update	hook	The update of class suckcannon (849), each tick: a hook point for mods, rac1.moby.suck_cannon.update (docs/port/MODS.md); retail with none
 FUN_L00_002df4f8	moby	Moby_RedOrb_Update	hook	The update of class red_orb (1060), each tick: a hook point for mods, rac1.moby.pulsing_color_moby.update (docs/port/MODS.md); retail with none
 FUN_0023a2c0	moby	Moby_Class1138_Update	hook	The update of class 1138, each tick: a hook point for mods, rac1.moby.quad_moby.update (docs/port/MODS.md); retail with none
 FUN_L00_002df730	moby	Moby_VendorOrb_Update	hook	The update of class vendor_orb (1143), each tick: a hook point for mods, rac1.moby.moby1143.update (docs/port/MODS.md); retail with none
@@ -498,7 +522,6 @@ FUN_L01_002b9eb0	moby	Moby_NovalisElevator_Update	hook	The update of classes nov
 FUN_L01_002bd100	moby	Moby_Class27_Update	hook	The update of class 27, each tick: a hook point for mods, rac1.moby.particle_emitter.update (docs/port/MODS.md); retail with none
 FUN_L01_002c7530	moby	Moby_Class156_Update	hook	The update of class 156, each tick: a hook point for mods, rac1.moby.moby156.update (docs/port/MODS.md); retail with none
 FUN_L01_002e0c68	moby	Moby_BoltCrank_Update	hook	The update of class bolt_crank (280), each tick: a hook point for mods, rac1.moby.bolt_crank.update (docs/port/MODS.md); retail with none
-FUN_L01_002e1ac0	moby	Moby_GoldWeaponCase_Update	hook	The update of classes gold_weapon_case (304), gold_bomb_glove (1456), gold_pyrocitor (1457), gold_blaster (1458) and 7 more, each tick: a hook point for mods, rac1.moby.item_offer.update (docs/port/MODS.md); retail with none
 FUN_L01_002e3f20	moby	Moby_SandMouse_Update	hook	The update of class sand_mouse (437), each tick: a hook point for mods, rac1.moby.sand_mouse.update (docs/port/MODS.md); retail with none
 FUN_L01_002e6bf0	moby	Moby_Birdbot_Update	hook	The update of class birdbot (459), each tick: a hook point for mods, rac1.moby.birdbot.update (docs/port/MODS.md); retail with none
 FUN_L01_002eda00	moby	Moby_Class567_Update	hook	The update of class 567, each tick: a hook point for mods, rac1.moby.burning_debris.update (docs/port/MODS.md); retail with none
@@ -1084,9 +1107,13 @@ FUN_L00_002a3ec8	render	NovalisPoolImpulse	wrap	Bypass original Novalis pool imp
 FUN_L01_00262618	render	NovalisWaterVertices	wrap	Use static rest heights instead of original scrolling-water displacement	void(gaddr)
 FUN_L01_00309bf8	render	NovalisCaveWater_00309bf8	wrap	Tag the three cave water surfaces for enhanced materials	void(void)
 FUN_L00_002afc70	moby	spawn_devastator_missile	wrap	a Devastator missile: the hero's noted for the mods (hero_shots2), a figure's made with it (rac1/host/figure_shots.c, interface 1.14); PAL func_L00_002B0F58	unsigned int (unsigned int, unsigned int, unsigned int, float, float, float, float, float)
+FUN_L00_002afc70	moby	Weapon_Devastator_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002B0F58
 FUN_L00_002ccee0	moby	spawn_ryno_rocket	wrap	an R.Y.N.O. rocket: the hero's noted for the mods (hero_shots2), a figure's made with it (rac1/host/figure_shots.c, interface 1.14); PAL func_L00_002CE390	unsigned int (int, unsigned int, unsigned int, float, float, float)
+FUN_L00_002ccee0	moby	Weapon_Ryno_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002CE390
 FUN_L00_002c82f0	moby	release_glove_of_doom_held_moby	wrap	the Glove of Doom's throw: the hero's noted for the mods (hero_shots2) (rac1/host/figure_shots.c, interface 1.14); PAL func_L00_002C96D0	void (unsigned int, unsigned int, unsigned int)
+FUN_L00_002c82f0	moby	Weapon_GloveOfDoom_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002C96D0
 FUN_L00_002aa008	moby	initialize_moby_motion_at_position	wrap	the Mine Glove's throw: the hero's noted for the mods (hero_shots2) (rac1/host/figure_shots.c, interface 1.14); PAL func_L00_002AB2A8	void (unsigned int, unsigned int, unsigned int)
+FUN_L00_002aa008	moby	Weapon_MineGlove_Fire	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_002AB2A8
 FUN_L00_002c3888	moby	release_moby_with_collision_check	wrap	the Decoy Glove's throw: the hero's noted for the mods (hero_shots2) (rac1/host/figure_shots.c, interface 1.14); PAL func_L00_002C4B90	void (unsigned int, unsigned int, unsigned int)
 FUN_L00_002223f8	hero	HeroEnterMoveState	wrap	the hero put in a move state; under a stand-in only the state the update sees changes, for the player standing in is not this game's hero (rac1/host/hero_grab.c); PAL func_L00_00222B80	int (int, int)
 FUN_L01_0023cf98	hero	Hero_SetMoveState	wrap	the hero put in a move state; under a stand-in only the state the update sees changes, for the player standing in is not this game's hero (rac1/host/hero_grab.c); PAL func_L01_0023D688	int (int, int)
@@ -1109,3 +1136,4 @@ FUN_L00_0029a6b0	vendor	Vendor_OpenMenu	hook	opens the vendor purchase menu, inc
 
 FUN_L01_00302438	draw	DrawVisibombStatic	wrap	The out-of-range static tiles cover the whole widescreen target; retain the retail draw and scope the whole-target marker to it. PAL func_L01_00303810
 FUN_L00_00239810	hud	draw_health_hud_panel	wrap	optional connected health background sized for 4/5/8 orbs; off preserves PS2 layout (rac1/host/hud_panels.c); PAL func_L00_0023A1A0	int (unsigned int)
+FUN_L00_00239810	hud	Hud_HealthDraw	hook	a hook point for mods under the port's own wrapper (docs/port/MODS.md): the omni extension's, for Arsenal Mastery; PAL func_L00_0023A1A0

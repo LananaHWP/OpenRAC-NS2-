@@ -225,12 +225,12 @@ gaddr func_L00_002CC3C0(
         s.target_key = key_of_target(target);
         note_shot(&s);
     }
-    return func_L00_002CC3C0__game(owner, start, target, yaw, pitch, yaw0, pitch0);
+    return func_L00_002CC3C0__hooked(owner, start, target, yaw, pitch, yaw0, pitch0);
 }
 
 /* launch_bomb: a bomb the hero's glove throws noted, with its velocity as launched. */
 void func_L00_002AE278(gaddr pos, gaddr bomb, gaddr velocity) {
-    func_L00_002AE278__game(pos, bomb, velocity);
+    func_L00_002AE278__hooked(pos, bomb, velocity);
     if (firing_for_figure || bomb == 0) {
         return;
     }
@@ -269,7 +269,7 @@ gaddr func_L00_002B0F58(
         s.target_key = key_of_target(target);
         note_shot(&s);
     }
-    return func_L00_002B0F58__game(owner, start, target, yaw, pitch, height, yaw0, pitch0);
+    return func_L00_002B0F58__hooked(owner, start, target, yaw, pitch, height, yaw0, pitch0);
 }
 
 /* spawn_ryno_rocket: the hero's noted, with his target. */
@@ -284,7 +284,7 @@ gaddr func_L00_002CE390(int owner, gaddr start, gaddr target, float height, floa
         s.target_key = key_of_target(target);
         note_shot(&s);
     }
-    return func_L00_002CE390__game(owner, start, target, height, yaw, pitch);
+    return func_L00_002CE390__hooked(owner, start, target, height, yaw, pitch);
 }
 
 /* A thrown thing noted as its release left it. */
@@ -305,13 +305,13 @@ static void note_thrown(int32_t item, gaddr moby, unsigned velocity) {
 
 /* release_glove_of_doom_held_moby. */
 void func_L00_002C96D0(gaddr pos, gaddr moby, gaddr velocity) {
-    func_L00_002C96D0__game(pos, moby, velocity);
+    func_L00_002C96D0__hooked(pos, moby, velocity);
     note_thrown(ITEM_GLOVE_OF_DOOM, moby, 0);
 }
 
 /* The Mine Glove's release (initialize_moby_motion_at_position). */
 void func_L00_002AB2A8(gaddr pos, gaddr moby, gaddr velocity) {
-    func_L00_002AB2A8__game(pos, moby, velocity);
+    func_L00_002AB2A8__hooked(pos, moby, velocity);
     note_thrown(ITEM_MINE_GLOVE, moby, 0);
 }
 
@@ -901,5 +901,5 @@ void func_L00_0025BA50(
         rac1_figure_hit_dropped("blast");
         return;
     }
-    func_L00_0025BA50__game(source, centre, list, count, template_, mask, a6, a7, a8, a9, a10);
+    func_L00_0025BA50__hooked(source, centre, list, count, template_, mask, a6, a7, a8, a9, a10);
 }

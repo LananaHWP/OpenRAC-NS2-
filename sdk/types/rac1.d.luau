@@ -8,7 +8,10 @@
 -- whose names may still change; their ids do not.
 
 type HookPoint =
-      "rac1.pad.process_report"
+      "rac1.moby.item_offer.update"
+    | "rac1.omni.weapon.ryno.fire"
+    | "rac1.omni.moby.delete"
+    | "rac1.pad.process_report"
     | "rac1.player.update_motion_input"
     | "rac1.player.turn_to_heading"
     | "rac1.player.set_planar_velocity"
@@ -66,6 +69,51 @@ type HookPoint =
     | "rac1.text.msg_string"
     | "rac1.vendor.open_menu"
     | "rac1.gold_bolt.count_unspent"
+    | "rac1.omni.damage.build_hit"
+    | "rac1.omni.damage.hit_victim"
+    | "rac1.omni.wrench.swing"
+    | "rac1.omni.wrench.throw"
+    | "rac1.moby.wrench.update"
+    | "rac1.moby.suck_cannon.update"
+    | "rac1.moby.moby192.update"
+    | "rac1.omni.weapon.devastator.update"
+    | "rac1.moby.moby163.update"
+    | "rac1.moby.moby175.update"
+    | "rac1.omni.weapon.blaster.update"
+    | "rac1.moby.pyrocitor.update"
+    | "rac1.moby.mine_glove.update"
+    | "rac1.moby.moby180.update"
+    | "rac1.omni.weapon.tesla_claw.update"
+    | "rac1.moby.carrier.update"
+    | "rac1.moby.morphoray.update"
+    | "rac1.moby.ryno.update"
+    | "rac1.moby.decoy_glove.update"
+    | "rac1.moby.ammo_pickup.update"
+    | "rac1.omni.ammo.add"
+    | "rac1.omni.weapon.select"
+    | "rac1.omni.damage.resolve"
+    | "rac1.omni.weapon.flame.create"
+    | "rac1.omni.weapon.bomb_glove.fire"
+    | "rac1.omni.weapon.mine_glove.fire"
+    | "rac1.omni.weapon.glove_of_doom.fire"
+    | "rac1.omni.weapon.devastator.fire"
+    | "rac1.omni.weapon.visibomb.fire"
+    | "rac1.omni.weapon.blaster.fire"
+    | "rac1.omni.moby.create"
+    | "rac1.moby.hero_bomb.update"
+    | "rac1.moby.mine.update"
+    | "rac1.moby.moby305.update"
+    | "rac1.moby.rocket_steer.update"
+    | "rac1.moby.doom_bot.update"
+    | "rac1.moby.bomb_230.update"
+    | "rac1.moby.visibomb_missile.update"
+    | "rac1.moby.missile.update"
+    | "rac1.omni.collide.segment"
+    | "rac1.omni.collide.sphere_mobys"
+    | "rac1.omni.blast.apply"
+    | "rac1.omni.hero.items_attach"
+    | "rac1.omni.ammo.collect"
+    | "rac1.omni.hud.health_draw"
     | "rac1.moby.class_1750.update"
     | "rac1.moby.class_676.update"
     | "rac1.moby.class_482.update"
@@ -73,40 +121,20 @@ type HookPoint =
     | "rac1.moby.camera_object.update"
     | "rac1.moby.light_beam.update"
     | "rac1.moby.bolt.update"
-    | "rac1.moby.wrench.update"
-    | "rac1.moby.mine.update"
     | "rac1.moby.spin_fade_out.update"
-    | "rac1.moby.hero_bomb.update"
     | "rac1.moby.falling_spark.update"
     | "rac1.moby.debris_bounce.update"
-    | "rac1.moby.missile.update"
-    | "rac1.moby.moby163.update"
     | "rac1.moby.moby166.update"
     | "rac1.moby.moby167.update"
-    | "rac1.moby.visibomb_missile.update"
-    | "rac1.moby.moby175.update"
-    | "rac1.moby.pyrocitor.update"
     | "rac1.moby.moby179.update"
-    | "rac1.moby.moby180.update"
-    | "rac1.moby.morphoray.update"
-    | "rac1.moby.doom_bot.update"
     | "rac1.moby.moby188.update"
-    | "rac1.moby.mine_glove.update"
-    | "rac1.moby.moby192.update"
     | "rac1.moby.thrown_object.update"
-    | "rac1.moby.ammo_pickup.update"
     | "rac1.moby.moby209.update"
-    | "rac1.moby.carrier.update"
-    | "rac1.moby.bomb_230.update"
     | "rac1.moby.morphoray_chicken.update"
-    | "rac1.moby.moby305.update"
     | "rac1.moby.moby428.update"
-    | "rac1.moby.ryno.update"
-    | "rac1.moby.rocket_steer.update"
     | "rac1.moby.drone.update"
     | "rac1.moby.crate.update"
     | "rac1.moby.veldin_ship.update"
-    | "rac1.moby.decoy_glove.update"
     | "rac1.moby.target_tracker.update"
     | "rac1.moby.clank_pack.update"
     | "rac1.moby.moby639.update"
@@ -117,7 +145,6 @@ type HookPoint =
     | "rac1.moby.trail_moby.update"
     | "rac1.moby.nanotech_ball.update"
     | "rac1.moby.moby834.update"
-    | "rac1.moby.suck_cannon.update"
     | "rac1.moby.pulsing_color_moby.update"
     | "rac1.moby.quad_moby.update"
     | "rac1.moby.moby1143.update"
@@ -134,7 +161,6 @@ type HookPoint =
     | "rac1.moby.particle_emitter.update"
     | "rac1.moby.moby156.update"
     | "rac1.moby.bolt_crank.update"
-    | "rac1.moby.item_offer.update"
     | "rac1.moby.sand_mouse.update"
     | "rac1.moby.birdbot.update"
     | "rac1.moby.burning_debris.update"
@@ -703,19 +729,28 @@ type HookPoint =
     | "rac1.moby.moby1584.update"
     | "rac1.moby.moby1799.update"
     | "rac1.moby.moby1906.update"
+    | "Ammo_Add"
     | "Ammo_ChooseDrop"
+    | "Ammo_Collect"
+    | "Ammo_Pickup"
     | "Ammo_SpawnDrop"
+    | "Damage_BuildHit"
+    | "Damage_HitVictim"
+    | "Damage_Resolve"
     | "FollowCamera_ApplyOverrides"
     | "GoldBolts_CountCollected"
     | "GoldBolts_CountUnspent"
     | "Help_Request"
+    | "HeroItems_Attach"
     | "Hero_AdvanceAnimation"
     | "Hero_ApproachSpeed"
+    | "Hero_ItemRequestApply"
     | "Hero_SetPlanarVelocity"
     | "Hero_TakeDamage"
     | "Hero_TurnToHeading"
     | "Hero_Update"
     | "Hero_UpdateMotionInput"
+    | "Hud_HealthDraw"
     | "Hud_QuickSelect_Draw"
     | "Hud_QuickSelect_Init"
     | "Hud_QuickSelect_Update"
@@ -791,8 +826,6 @@ type HookPoint =
     | "Moby_Bomb545_Update"
     | "Moby_Bomb882_Update"
     | "Moby_Bomb938_Update"
-    | "Moby_BombGlove_Update"
-    | "Moby_Bomb_Update"
     | "Moby_BomberJet_Update"
     | "Moby_BomberTank_Update"
     | "Moby_Bombomatic_Update"
@@ -850,7 +883,6 @@ type HookPoint =
     | "Moby_Class1199_Update"
     | "Moby_Class1206_Update"
     | "Moby_Class1219_Update"
-    | "Moby_Class121_Update"
     | "Moby_Class1221_Update"
     | "Moby_Class1224_Update"
     | "Moby_Class1225_Update"
@@ -978,7 +1010,6 @@ type HookPoint =
     | "Moby_Class279_Update"
     | "Moby_Class27_Update"
     | "Moby_Class293_Update"
-    | "Moby_Class305_Update"
     | "Moby_Class313_Update"
     | "Moby_Class317_Update"
     | "Moby_Class320_Update"
@@ -1084,14 +1115,11 @@ type HookPoint =
     | "Moby_ConveyorBelt_Update"
     | "Moby_CraneArm_Update"
     | "Moby_Crane_Update"
-    | "Moby_DecoyGlove_Update"
     | "Moby_Decoy_Update"
     | "Moby_DeplanetizerGun1568_Update"
     | "Moby_DeplanetizerGun_Update"
     | "Moby_DestroyableCaveWall_Update"
-    | "Moby_DevestatorAmmo_Update"
     | "Moby_Display_Update"
-    | "Moby_DoomBot_Update"
     | "Moby_Door1359_Update"
     | "Moby_Door196_Update"
     | "Moby_Door647_Update"
@@ -1146,9 +1174,7 @@ type HookPoint =
     | "Moby_Gate_Update"
     | "Moby_GetHitMessage"
     | "Moby_GiantClankPad_Update"
-    | "Moby_GloveOfDoom_Update"
     | "Moby_GoldBolt_Update"
-    | "Moby_GoldDevastatorMissile_Update"
     | "Moby_GoldWeaponCase_Update"
     | "Moby_GrabCrane_Update"
     | "Moby_GreenMushroom_Update"
@@ -1198,14 +1224,11 @@ type HookPoint =
     | "Moby_Mine77_Update"
     | "Moby_Mine83_Update"
     | "Moby_Mine933_Update"
-    | "Moby_MineGlove_Update"
     | "Moby_MineLayer_Update"
-    | "Moby_Mine_Update"
     | "Moby_Miner_Update"
     | "Moby_Minibomber_Update"
     | "Moby_Morphoray1354_Update"
     | "Moby_MorphorayChicken_Update"
-    | "Moby_Morphoray_Update"
     | "Moby_MovingPlatformSmall_Update"
     | "Moby_MushroomUnderside_Update"
     | "Moby_Mushroom_Update"
@@ -1244,7 +1267,6 @@ type HookPoint =
     | "Moby_Puffoid_Update"
     | "Moby_PurpleShip533_Update"
     | "Moby_PurpleShip_Update"
-    | "Moby_Pyrocitor_Update"
     | "Moby_QwarkOltanis_Update"
     | "Moby_QwarkUmbris_Update"
     | "Moby_QwarksBouncer_Update"
@@ -1281,9 +1303,7 @@ type HookPoint =
     | "Moby_RocketDoor1_Update"
     | "Moby_RocketLauncher_Update"
     | "Moby_RocketTank_Update"
-    | "Moby_Rocket_Update"
     | "Moby_Rocks_Update"
-    | "Moby_Ryno_Update"
     | "Moby_Sam_Update"
     | "Moby_SandMouse_Update"
     | "Moby_SandSharkNest_Update"
@@ -1320,11 +1340,9 @@ type HookPoint =
     | "Moby_StationaryShip_Update"
     | "Moby_Statue_Update"
     | "Moby_SuckCannon_Update"
-    | "Moby_Suckcannon_Update"
     | "Moby_SwingshotHook_Update"
     | "Moby_SwingshotVersatarget_Update"
     | "Moby_TallShroom_Update"
-    | "Moby_Taunter_Update"
     | "Moby_Taxi1012_Update"
     | "Moby_Taxi1410_Update"
     | "Moby_Taxi712_Update"
@@ -1363,10 +1381,7 @@ type HookPoint =
     | "Moby_VeldinShip_Update"
     | "Moby_VendorOrb_Update"
     | "Moby_Vendor_Update"
-    | "Moby_VisibombMissile_Update"
-    | "Moby_Visibomb_Update"
     | "Moby_WallButton_Update"
-    | "Moby_Walloper_Update"
     | "Moby_Water902_Update"
     | "Moby_WaterCurrent_Update"
     | "Moby_WaterLily_Update"
@@ -1374,9 +1389,9 @@ type HookPoint =
     | "Moby_Water_Update"
     | "Moby_WhiteFlower_Update"
     | "Moby_WoodcutBot_Update"
-    | "Moby_Wrench_Update"
     | "Pad_ProcessReport"
     | "Planet_Unlock"
+    | "Pyrocitor_FlameCreate"
     | "Save_NewGame"
     | "Save_NewGamePlus"
     | "Save_Prepare"
@@ -1392,12 +1407,49 @@ type HookPoint =
     | "Vendor_InitializeSelected"
     | "Vendor_MenuUpdate"
     | "Vendor_OpenMenu"
+    | "Weapon_Blaster_Fire"
     | "Weapon_Blaster_PickTarget"
+    | "Weapon_Blaster_Update"
+    | "Weapon_BombGlove_Fire"
+    | "Weapon_BombGlove_Update"
+    | "Weapon_Decoy_Update"
+    | "Weapon_Devastator_Fire"
+    | "Weapon_Devastator_Update"
     | "Weapon_Drone_PickTarget"
+    | "Weapon_GloveOfDoom_Fire"
+    | "Weapon_GloveOfDoom_Update"
     | "Weapon_GoldDevastator_PickTarget"
+    | "Weapon_MineGlove_Fire"
+    | "Weapon_MineGlove_Update"
+    | "Weapon_MorphORay_Update"
+    | "Weapon_Pyrocitor_Update"
+    | "Weapon_Ryno_Fire"
     | "Weapon_Ryno_PickTarget"
+    | "Weapon_Ryno_Update"
+    | "Weapon_SuckCannon_Update"
     | "Weapon_TakeAmmo"
+    | "Weapon_Taunter_Update"
+    | "Weapon_TeslaClaw_Update"
+    | "Weapon_Visibomb_Fire"
+    | "Weapon_Visibomb_Update"
+    | "Weapon_Walloper_Update"
+    | "Wrench_SwingSweep"
+    | "Wrench_ThrowRelease"
+    | "Wrench_Update"
+    | "blast_apply"
+    | "collide_segment"
+    | "collide_sphere_mobys"
+    | "moby_create"
+    | "moby_delete"
     | "msg_string"
+    | "projectile_blaster_shot_update"
+    | "projectile_bomb_update"
+    | "projectile_devastator_rocket_update"
+    | "projectile_doom_agent_update"
+    | "projectile_doom_capsule_update"
+    | "projectile_mine_update"
+    | "projectile_ryno_rocket_update"
+    | "projectile_visibomb_update"
 type MemoryType = "u8" | "i8" | "u16" | "i16" | "u32" | "i32" | "f32"
 
 type Fields = {
@@ -1412,8 +1464,143 @@ type Fields = {
         state: number, -- read-only; His state: 0 standing, 2 running, 7 jumping, ...
     },
     bolts: number, -- The player's bolts.
+    omni: {
+        weapon: {
+            wrench: {
+                have: number, -- Omniwrench (item 8): 1 when the player owns it (the have byte table at 0x13d4c0).
+            },
+            suck_cannon: {
+                have: number, -- Suck Cannon (item 9): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Suck Cannon (item 9): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Suck Cannon (item 9): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                gold_price: number, -- Suck Cannon (item 9): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            bomb_glove: {
+                have: number, -- Bomb Glove (item 10): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Bomb Glove (item 10): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Bomb Glove (item 10): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Bomb Glove (item 10): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 40). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Bomb Glove (item 10): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            devastator: {
+                have: number, -- Devastator (item 11): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Devastator (item 11): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Devastator (item 11): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Devastator (item 11): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Devastator (item 11): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 60000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            visibomb: {
+                have: number, -- Visibomb Gun (item 13): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Visibomb Gun (item 13): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Visibomb Gun (item 13): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Visibomb Gun (item 13): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+            },
+            taunter: {
+                have: number, -- Taunter (item 14): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Taunter (item 14): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Taunter (item 14): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+            },
+            blaster: {
+                have: number, -- Blaster (item 15): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Blaster (item 15): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Blaster (item 15): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Blaster (item 15): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 200). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Blaster (item 15): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            pyrocitor: {
+                have: number, -- Pyrocitor (item 16): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Pyrocitor (item 16): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Pyrocitor (item 16): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Pyrocitor (item 16): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 240). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Pyrocitor (item 16): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 30000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            mine_glove: {
+                have: number, -- Mine Glove (item 17): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Mine Glove (item 17): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Mine Glove (item 17): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Mine Glove (item 17): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 50). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Mine Glove (item 17): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            walloper: {
+                have: number, -- Walloper (item 18): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Walloper (item 18): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Walloper (item 18): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+            },
+            tesla_claw: {
+                have: number, -- Tesla Claw (item 19): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Tesla Claw (item 19): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Tesla Claw (item 19): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Tesla Claw (item 19): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 240). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Tesla Claw (item 19): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 60000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            glove_of_doom: {
+                have: number, -- Glove of Doom (item 20): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Glove of Doom (item 20): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Glove of Doom (item 20): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Glove of Doom (item 20): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 10). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Glove of Doom (item 20): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            morph_o_ray: {
+                have: number, -- Morph-o-Ray (item 21): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Morph-o-Ray (item 21): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Morph-o-Ray (item 21): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                gold_price: number, -- Morph-o-Ray (item 21): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 20000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            ryno: {
+                have: number, -- R.Y.N.O. (item 23): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- R.Y.N.O. (item 23): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- R.Y.N.O. (item 23): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- R.Y.N.O. (item 23): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 50). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+            },
+            drone_device: {
+                have: number, -- Drone Device (item 24): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Drone Device (item 24): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Drone Device (item 24): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Drone Device (item 24): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 10). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+            },
+            decoy: {
+                have: number, -- Decoy Glove (item 25): 1 when the player owns it (the have byte table at 0x13d4c0).
+                ammo: number, -- Decoy Glove (item 25): its ammo (the ammo int table at 0x13d428).
+                gold: number, -- Decoy Glove (item 25): 1 when it is the gold version (byte table at 0x13e520, saved with the game).
+                max_ammo: number, -- Decoy Glove (item 25): the most ammo it can hold (u16 at +0xe of its price row; AddAmmo caps at it; retail 20). Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels; the game reloads the table with every level, so a mod writes it again on `level_loaded`.
+                gold_price: number, -- Decoy Glove (item 25): the price of its gold version in bolts (u16 at +0x14 of its price row; retail 10000). The Gold Weapon Cases charge this and print it in their offer text. Overlay data: the address is in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded); the game reloads the table with every level, so a mod writes it again on `level_loaded`. A u16: at most 65535.
+            },
+            equipped: number, -- The item id in the hero's first item slot (the equipped weapon: 8 wrench, 10 Bomb Glove, ...; slot table 0x1403e0, stride 0x50, id at +0x28). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+            quick_select: number, -- Quick-select wheel entry 0: an item id (0 = empty). The wheel has 8 entries of 4 bytes: omni.weapon.quick_select.1 .. .7 are the others.
+        },
+        menu: {
+            weapons_page: {
+                highlight_class: number, -- Pause menu, Weapons page: the moby class of the 3D model of the highlighted item (overlay global 0x1b9e10 in Veldin, written by the page's item function 0x27b808 when the cursor lands on a weapon; 0xFFFFFFFF = nothing yet; e.g. Bomb Glove 192, item 16 -> 176, item 15 -> 168, item 11 -> 157, item 19 -> 177; it follows the cursor one tick later). Overlay data in the host's overlay window: reads fail outside a level. It is the model class, not the item id: the id is *(u16*)(*(S+0x48) + *(S+0x3c)*10 + 6) with S = *(*(0x1b9cf4)+0x40) (a pointer chain, no plain field).
+            },
+        },
+        hud: {
+            ammo_box: {
+                max: number, -- The HUD ammo box: the maximum it shows right now, the N of the printed "count/N" (element +0x08). The game copies it from the weapon's cap only when the box is created, so after a cap change on the weapon that stays held (a level-up) the box keeps the old N until the weapon is switched or holstered; a mod writes the new cap here (and to def_max) and the box shows it on the next frame. Meaningful only while the box shows (the id field says which weapon it belongs to). Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box.
+                def_max: number, -- The HUD ammo box: the maximum the game compares when it re-requests the box every tick (element +0x28). If it differs from the weapon's current cap the game restarts the box (fade out, fade in) to load the new one; write the same value as omni.hud.ammo_box.max so the compare finds an identical request and no restart happens. Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box.
+                id: number, -- The HUD ammo box: the id of the element in slot 0 (element +0x20): 60000 + the item id of the weapon the box shows, 0xFFFF when the slot is empty. Read-only for mods; check it before writing max / def_max. Overlay data in the host's overlay window (0x40000000 + the NTSC-U level-0 address, the host maps it to the level now loaded), so a read or write works in a level and fails on the title screen / between levels. Slot 0 of the game's 4-slot HUD element array (stride 0x90; Veldin 0x17dc50) is the ammo box.
+            },
+        },
+        challenge: number, -- The New Game+ (challenge mode) counter: 0 on the first playthrough, +1 each time New Game+ is started (kept in the save).
+        hero: {
+            held_moby: number, -- The moby of the weapon in Ratchet's hand: word 0 of hero item slot 0 (slot table 0x1403e0, stride 0x50). 0 when nothing is held. The Blaster is class 168 (item 15; the Bomb Glove is 192); read its class with struct("moby", addr).class. The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+            moby: number, -- Ratchet's own moby (a pointer cell; the owner argument of the weapon creators; class 0). Read it as struct("moby", addr): position x/y/z, basis rows row0_x..row2_w. The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+            health: number, -- Ratchet's health: the nanotech orbs the HUD shows (1 to omni.hero.max_health; 0 = dead). Hero_TakeDamage takes at most 1 a call; the game sets it to the maximum when a level starts and after a death, a nanotech pickup adds 1 (up to the maximum). A mod may write it (1 .. max while he is alive): the HUD meter shows the new value. Checked on both discs (PAL v1.00 and USA use the same address, 2026-10-25); the pal column is ntsc + 0x100 [?: unverified, the script binding reads the ntsc column on this disc].
+            max_health: number, -- Ratchet's maximum health in nanotech orbs: 4, 5 with Premium Nanotech, 8 with Ultra Nanotech (the game sets it from the upgrades; its HUD draws at most 8). Checked on both discs (same address, initial value 4 in the boot data, 2026-10-25); the pal column is ntsc + 0x100 [?: unverified, the script binding reads the ntsc column on this disc].
+            right_hand: {
+                x: number, -- World x (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+                y: number, -- World y (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+                z: number, -- World z (metres) of the hero's right hand attach point (attach matrix 0, the weapon grip: the translation row at +0x30 of the 4x4 world matrix at 0x13fe10 that HeroComputeAttachMatrices fills each tick). A held weapon sits exactly here after HeroItemsAttach. The other attach matrices (9 of them, stride 0x40) are not fields: call moby_attach_to_joint (left hand = attach 14). The pal column of every omni.* field is ntsc + 0x100 [?: unverified, the script binding replaces it with the ntsc column on this disc].
+            },
+        },
+    },
 }
 
+-- rac1.moby.item_offer.update (Moby_GoldWeaponCase_Update) void(u32): Per-tick update of a Gold Weapon Case (moby class 304) and of its display moby (classes 1456..1465), the retail seller of gold weapons (Novalis and Gerhardt's gold weapons): it tests the bolts, the item and the player's pad and sells. The omni extension's rac1.omni.goldcase.update. Levels of the Oozla family only.
+type Moby_GoldWeaponCase_UpdateFn = (moby: number) -> ()
+-- rac1.omni.weapon.ryno.fire (Weapon_Ryno_Fire) u32(u32,u32,u32,f32,f32,f32): Creates an R.Y.N.O. rocket (class 457): height = a height offset added to the target aim point, yaw and pitch of the rocket, owner = the moby that fires, pos = its start, target = the aimed target. Returns the rocket moby. Every level. (The script is given the floats first, as the omni extension lists them.)
+type Weapon_Ryno_FireFn = (owner: number, pos: number, target: number, height: number, yaw: number, pitch: number) -> number
+-- rac1.omni.moby.delete (moby_delete) void(u32): The game's moby deletion (DeleteMoby, in the executable: every level's copy of the address runs it): removes a moby (a projectile's death, a killed enemy). The only code that writes the deleted state. Every level.
+type moby_deleteFn = (moby: number) -> ()
 -- rac1.pad.process_report (Pad_ProcessReport) void(u32,u32,i32): One pad report into the pad's state (PadState, at pad), each poll, before the tick reads it.
 type Pad_ProcessReportFn = (pad: number, report: number, size: number) -> ()
 -- rac1.player.update_motion_input (Hero_UpdateMotionInput) void(): The stick read into the hero, early in his update each tick.
@@ -1530,6 +1717,96 @@ type msg_stringFn = (id: number) -> number
 type Vendor_OpenMenuFn = (moby: number) -> ()
 -- rac1.gold_bolt.count_unspent (GoldBolts_CountUnspent) i32(): Unspent gold bolts available for purchases; retail subtracts four per purchased gold weapon. Mods may separate purchases from gold weapon ownership.
 type GoldBolts_CountUnspentFn = () -> number
+-- rac1.omni.damage.build_hit (Damage_BuildHit) void(u32,u32,u32,f32,u32): hit_desc_build: fills a hit descriptor (0x24+ bytes) for a hit on an enemy: the 16-byte direction vector at +0, attacker moby +0x10, mask +0x14, damage f32 +0x1c, +0x20 = 1. Every attack that hurts an enemy builds one (the wrench on the stack right before its swing sweep), so a hook that calls the original with another damage changes what is dealt. Checked against the wrench update's call (a0 = descriptor on the stack, a1 = attacker moby, a2 = mask, a3 = vec4 direction, f12 = damage). Every level.
+type Damage_BuildHitFn = (desc: number, attacker: number, mask: number, damage: number, dir: number) -> ()
+-- rac1.omni.damage.hit_victim (Damage_HitVictim) void(u32,u32): hit_ring_write: posts a hit descriptor on the victim moby into the 64-entry hit queue at 0x178100 (stride 0x40) unless the victim already holds a stronger hit this tick (victim byte +0xa4 = queue slot); the victim reads it in MobyGetHitMessage (rac1.combat.get_hit). To hurt an enemy from a mod: build a descriptor with omni.with_stack and the build_hit function, then call this. a0 = victim, a1 = descriptor (asm of the prologue). Every level.
+type Damage_HitVictimFn = (victim: number, desc: number) -> ()
+-- rac1.omni.wrench.swing (Wrench_SwingSweep) u32(u32,u32,u32,u32,u32,u32,i32): The wrench swing sweep: five segment casts between the previous and the current wrench joint poses (four vec4 pointers into the hero struct +0x9f0, +0xa00, +0xa10, +0xa20), owner = the word at hero +0x2080, attack = the hit descriptor built just before (damage at +0x1c), steps = 5. Returns 1 when something was hit. Only caller: the class 71 update. Argument registers a0..a3, t0, t1, t2 checked in the caller's asm. Every level.
+type Wrench_SwingSweepFn = (prev_a: number, prev_b: number, cur_a: number, cur_b: number, owner: number, attack: number, steps: number) -> number
+-- rac1.omni.wrench.throw (Wrench_ThrowRelease) void(): Comet-Strike release: aims and launches the thrown wrench (sets the wrench byte +0x20 = 10 and the byte at 0x1403fa). No arguments (the callers set none for it). Callers: the try-fire dispatcher and 0x217550 (Veldin). Every level.
+type Wrench_ThrowReleaseFn = () -> ()
+-- rac1.moby.wrench.update (Wrench_Update) void(u32): Per-tick update of the held Omniwrench (moby class 71): combo state, swing damage literals, calls the swing sweep and the hit descriptor builder. Every level.
+type Wrench_UpdateFn = (moby: number) -> ()
+-- rac1.moby.suck_cannon.update (Weapon_SuckCannon_Update) void(u32): Per-tick update of the held Suck Cannon (moby class 849, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_SuckCannon_UpdateFn = (moby: number) -> ()
+-- rac1.moby.moby192.update (Weapon_BombGlove_Update) void(u32): Per-tick update of the held Bomb Glove (moby class 192, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_BombGlove_UpdateFn = (moby: number) -> ()
+-- rac1.omni.weapon.devastator.update (Weapon_Devastator_Update) void(u32): Per-tick update of the held Devastator (moby class 157, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Devastator_UpdateFn = (moby: number) -> ()
+-- rac1.moby.moby163.update (Weapon_Visibomb_Update) void(u32): Per-tick update of the held Visibomb Gun (moby class 163, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Visibomb_UpdateFn = (moby: number) -> ()
+-- rac1.moby.moby175.update (Weapon_Taunter_Update) void(u32): Per-tick update of the held Taunter (moby class 175, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Taunter_UpdateFn = (moby: number) -> ()
+-- rac1.omni.weapon.blaster.update (Weapon_Blaster_Update) void(u32): Per-tick update of the held Blaster (moby class 168, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Blaster_UpdateFn = (moby: number) -> ()
+-- rac1.moby.pyrocitor.update (Weapon_Pyrocitor_Update) void(u32): Per-tick update of the held Pyrocitor (moby class 176, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Pyrocitor_UpdateFn = (moby: number) -> ()
+-- rac1.moby.mine_glove.update (Weapon_MineGlove_Update) void(u32): Per-tick update of the held Mine Glove (moby class 190, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_MineGlove_UpdateFn = (moby: number) -> ()
+-- rac1.moby.moby180.update (Weapon_Walloper_Update) void(u32): Per-tick update of the held Walloper (moby class 180, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Walloper_UpdateFn = (moby: number) -> ()
+-- rac1.omni.weapon.tesla_claw.update (Weapon_TeslaClaw_Update) void(u32): Per-tick update of the held Tesla Claw (moby class 177, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_TeslaClaw_UpdateFn = (moby: number) -> ()
+-- rac1.moby.carrier.update (Weapon_GloveOfDoom_Update) void(u32): Per-tick update of the held Glove of Doom (moby class 229, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_GloveOfDoom_UpdateFn = (moby: number) -> ()
+-- rac1.moby.morphoray.update (Weapon_MorphORay_Update) void(u32): Per-tick update of the held Morph-o-Ray (moby class 185, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_MorphORay_UpdateFn = (moby: number) -> ()
+-- rac1.moby.ryno.update (Weapon_Ryno_Update) void(u32): Per-tick update of the held R.Y.N.O. (moby class 454, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Ryno_UpdateFn = (moby: number) -> ()
+-- rac1.moby.decoy_glove.update (Weapon_Decoy_Update) void(u32): Per-tick update of the held Decoy Glove (moby class 562, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+type Weapon_Decoy_UpdateFn = (moby: number) -> ()
+-- rac1.moby.ammo_pickup.update (Ammo_Pickup) void(u32): Per-tick update of an ammo pickup moby (Veldin 0x2c4d68, names row func_L00_002C6720; classes 204 213 214 222 223 225 226 1006 1438 1447 1449, the broken crates' ammo): physics in states 1/3/4, and in the waiting state a jump-table case INLINES the pickup (distance to the hero, AddAmmo, banner, state 2). Every ammo the hero collects by walking into a pickup is given inside this call, so a mod that wraps `original` sees AddAmmo (rac1.omni.ammo.add) run inside it and can tell a pickup from a vendor purchase. The moby's pvar (moby+0x78) holds pvar[0] = amount, pvar[2] = item id, readable before `original`. Stage AP1: this id used to be the collect helper 0x2c5590, which this path never calls (see rac1.omni.ammo.collect). Every level.
+type Ammo_PickupFn = (moby: number) -> ()
+-- rac1.omni.ammo.add (Ammo_Add) i32(i32,i32): AddAmmo: adds amount to the ammo int of item (0x13d428 + item * 4) and caps it at the max ammo of the price row; returns the overflow. Shared by pickups, the vendor and UnlockGadget. Every level.
+type Ammo_AddFn = (item: number, amount: number) -> number
+-- rac1.omni.weapon.select (Hero_ItemRequestApply) void(u32): Applies the requested item (0x141408 and the kind words) for hero item slot `slot`; the equip path of Square (wrench), Circle (last weapon) and the quick-select commit. Decomp name hero_item_request_apply, names tsv label UpdateWrenchSelected; 2216 bytes, callers 0x210290 and 0x229750 (Veldin). Not in the code of Rilgar (5) and Kalebo III (16): no hook there. Argument a0 = slot checked in the caller's asm and the Ghidra C.
+type Hero_ItemRequestApplyFn = (slot: number) -> ()
+-- rac1.omni.damage.resolve (Damage_Resolve) u32(u32,u32,u32,u32,u32,u32,u32,u32): The shared hit resolver (Veldin FUN_0025a088, names row hit_knockback): every enemy class calls it once per tick from its prestep with the hit entry that rac1.combat.get_hit returned. a0 = the victim moby, a1 = the hit queue entry (0 = none; +0x20 attacker moby, +0x2c strength), a2 = the victim's component block (pvar +0x20: the health float, +8 the component byte), a3 = 0 in every caller read, t0 = u32 out (status: 0, or 1 = no usable hit), t1 = f32 out (the STRENGTH the class subtracts from its health; may be 0 = no pointer), t2 = u32 out (-1 or untouched, may be 0), t3 = mode (4 = take it from the component byte). The return value is the reaction class (0 nothing, 0xb, 0xd, jump-table cases), NOT the strength: the strength is written to *t1 (= entry +0x2c, which the resolver sets from the attacker table for Blaster classes 0x131 and 0xa8). A mod scales damage dealt to enemies by calling original and then multiplying the f32 at strength_out (when it is not 0) and entry +0x2c; it reads the victim's health first through the pvars/structs (enemy.health). Signature checked in the asm prologue (a0..a3, t0..t3 stored/used) and the Ghidra C (8 parameters) and a caller (toad prestep FUN_002d4b08: a0 victim, a1 entry, a2 pvar+0x20, a3 0, t0 &status, t1 &strength, t2 0, t3 4). Every level.
+type Damage_ResolveFn = (victim: number, entry: number, component: number, arg3: number, status_out: number, strength_out: number, extra_out: number, mode: number) -> number
+-- rac1.omni.weapon.flame.create (Pyrocitor_FlameCreate) u32(u32,u32,u8,f32): The Pyrocitor flame effect creator (names tsv PartType12Spawn; shared with the flame effect of other callers): f12 = the flame reach / life float, a0 = position vec4 address, a1 = velocity vec4 address, a2 = flags byte (bit 2 always set, bit 0 = lead flame vs trailing). The held update calls it 2 leading and 2 trailing times per tick. A mod calls original again with its own vel vector (omni.with_stack) for extra flames. Argument registers checked by argscan and the caller at 0x2b7880 (Ghidra C: FUN_0026abc0(float, vec*, vec*, byte)). Every level.
+type Pyrocitor_FlameCreateFn = (pos: number, vel: number, flags: number, range: number) -> number
+-- rac1.omni.weapon.bomb_glove.fire (Weapon_BombGlove_Fire) void(u32,u32,u32): Launches the held bomb (FUN_002ac980, state 3 of the held update 0x2c2070 once per throw, then the held bomb pointer is cleared): a0 = a stack vec (aim), a1 = the bomb moby (spawned by FUN_002ac818), a2 = its pvar (moby +0x78). Every level.
+type Weapon_BombGlove_FireFn = (pos_ptr: number, bomb: number, pvar: number) -> ()
+-- rac1.omni.weapon.mine_glove.fire (Weapon_MineGlove_Fire) void(u32,u32,u32): Launches the held mine (FUN_002a99b0, state 3 of the held update 0x2c1478 once per throw): a0 = a stack vec (aim), a1 = the mine moby (class 74, created by FUN_002a9878), a2 = its pvar (moby +0x78). Every level.
+type Weapon_MineGlove_FireFn = (pos_ptr: number, mine: number, pvar: number) -> ()
+-- rac1.omni.weapon.glove_of_doom.fire (Weapon_GloveOfDoom_Fire) void(u32,u32,u32): Launches the held Glove of Doom capsule (FUN_002c7c98, once per shot; the caller then clears the held pointer): a0 = hero + 0x40 vec, a1 = the capsule moby (class 230, created by FUN_002c7bc0), a2 = its pvar (moby +0x78). Every level.
+type Weapon_GloveOfDoom_FireFn = (pos_ptr: number, capsule: number, pvar: number) -> ()
+-- rac1.omni.weapon.devastator.fire (Weapon_Devastator_Fire) u32(u32,u32,u32,f32,f32,f32,f32,f32): Creates a Devastator rocket (FUN_002af618, class 153; once per rocket, two call sites in the held update 0x2b1aa8): a0 = word stored in the rocket pvar +0x10, a1 = spawn position vec4 address, a2 = the owner moby (its component is read), f12 = float stored at the rocket pvar +0x2c, f13 and f14 = floats kept in the creator, f15 = stored at moby +0x48, f16 = stored at moby +0x44 (meaning of the floats [?]); returns the rocket moby. Register reads checked by argscan and the prologue asm (a0, a1, a2, f12..f16; Ghidra's 8 parameters are an artefact). Every level.
+type Weapon_Devastator_FireFn = (pvar_arg: number, pos: number, owner: number, f0: number, f1: number, f2: number, f3: number, f4: number) -> number
+-- rac1.omni.weapon.visibomb.fire (Weapon_Visibomb_Fire) u32(u32,u32,f32,f32): Creates the Visibomb missile (FUN_002b5280, class 172; once per shot from the held update 0x2b2a00): f12, f13 = floats (speed / aim [?]), a0 = the owner moby, a1 = a vec4 address (launch direction); returns the missile moby (stored in the held pvar word 1). Registers by argscan. Every level.
+type Weapon_Visibomb_FireFn = (owner: number, dir: number, f0: number, f1: number) -> number
+-- rac1.omni.weapon.blaster.fire (Weapon_Blaster_Fire) u32(u32,u32,u32,f32,f32,f32,f32): Creates a Blaster shot (FUN_002ca918, class 305 = 0x131, the attacker class whose strength comes from the table at gp -0x6bc0; once per shot from the held update 0x2b4350): f12..f15 = four floats (shot speed / direction components [?]), a0 = the word at 0x1413d0, a1 = a vec address, a2 = a moby pointer; returns the shot moby. Registers by argscan and the caller (7 parameters in the Ghidra C). Every level.
+type Weapon_Blaster_FireFn = (iarg: number, vec: number, target: number, f0: number, f1: number, f2: number, f3: number) -> number
+-- rac1.omni.moby.create (moby_create) u32(u32): Retail CreateMoby (Veldin 0x24e448): allocates a moby of a class with its pvar block, returns the moby (0 when full). The class init then runs on its first update. Every level. Every dynamic spawn of the game (projectiles, sparks, glow spheres, debris) goes through it; placed mobies of a level do not (use level_loaded + mobys). Hot: hundreds of calls per second in a fight, so a mod filters by class first and returns. A hook must not spawn the same class from inside it.
+type moby_createFn = (class: number) -> number
+-- rac1.moby.hero_bomb.update (projectile_bomb_update) void(u32): Bomb Glove bomb (class 121) per-tick update (Veldin 0x2ad4d8, 6.3 KB). Every level.
+type projectile_bomb_updateFn = (moby: number) -> ()
+-- rac1.moby.mine.update (projectile_mine_update) void(u32): Mine Glove mine (class 74) per-tick update (Veldin 0x2aa018). Every level.
+type projectile_mine_updateFn = (moby: number) -> ()
+-- rac1.moby.moby305.update (projectile_blaster_shot_update) void(u32): Blaster shot (class 305) per-tick update (Veldin 0x2cadc0): steers to the point in pvar+0, moves 0.8 u/tick along yaw/pitch, ray test, gold bounce. Every level.
+type projectile_blaster_shot_updateFn = (moby: number) -> ()
+-- rac1.moby.rocket_steer.update (projectile_ryno_rocket_update) void(u32): R.Y.N.O. rocket (class 457) per-tick update (Veldin 0x2ccb98): homes on the moby in pvar+0x28. Every level.
+type projectile_ryno_rocket_updateFn = (moby: number) -> ()
+-- rac1.moby.doom_bot.update (projectile_doom_agent_update) void(u32): Glove of Doom agent (class 186) per-tick update (Veldin 0x2bf950): state machine, state 0xb = explode. Every level.
+type projectile_doom_agent_updateFn = (moby: number) -> ()
+-- rac1.moby.bomb_230.update (projectile_doom_capsule_update) void(u32): Glove of Doom capsule (class 230) per-tick update (Veldin 0x2c8390). Every level.
+type projectile_doom_capsule_updateFn = (moby: number) -> ()
+-- rac1.moby.visibomb_missile.update (projectile_visibomb_update) void(u32): Visibomb missile (class 172) per-tick update (Veldin 0x2b5ae8; player-steered missile). Every level.
+type projectile_visibomb_updateFn = (moby: number) -> ()
+-- rac1.moby.missile.update (projectile_devastator_rocket_update) void(u32): Devastator rocket (class 153) per-tick update (Veldin 0x2afd48): steers to its target, gold bounces 3 times. Every level.
+type projectile_devastator_rocket_updateFn = (moby: number) -> ()
+-- rac1.omni.collide.segment (collide_segment) u32(u32,u32,u32,u32,u32): Retail seg_collide (Veldin 0x1efbf0): segment start..end vs mobys and terrain; a3 = moby to ignore, t0 = hit descriptor (0 = none; when set and the hit moby takes hits the hit is posted into the hit ring). Returns 1 on a hit; result block at the level block RES (Veldin 0x173e40): +0x18 hit moby (0 = terrain), +0x1c record word, +0x20 contact point vec4, +0x40 surface normal vec4. Hot function (every projectile, the camera, the hero). Every level.
+type collide_segmentFn = (start: number, end: number, mask: number, self: number, attack: number) -> number
+-- rac1.omni.collide.sphere_mobys (collide_sphere_mobys) u32(f32,u32,u32,u32,u32): Retail sphere_list_mobys (Veldin 0x1f27e8): list the mobys within radius of pos (mask 0x10 = hittable); the list lands at 0x177f00 (Veldin), returns the count. Blasts call it right before blast.apply. Every level.
+type collide_sphere_mobysFn = (radius: number, pos: number, mask: number, self: number, filter: number) -> number
+-- rac1.omni.blast.apply (blast_apply) void(u32,u32,u32,u32,u32,u32,u32,u32,f32,f32,f32): Retail apply_blast_damage (Veldin 0x25a608): posts one hit (hit_desc_build + hit_ring_write) per listed moby; attacker = the projectile (its class is the weapon). Every level.
+type blast_applyFn = (attacker: number, pos: number, list: number, count: number, exclude: number, mask: number, cat: number, sub: number, strength: number, hscale: number, vimpulse: number) -> ()
+-- rac1.omni.hero.items_attach (HeroItems_Attach) void(): Retail HeroItemsAttach (Veldin 0x20f0c8, names row HeroItemsAttach, shared code, once per tick, no arguments): glues every item the hero holds to the hero. For each hero item slot (table 0x1403e0, stride 0x50) it copies the attach matrix of the item's attach point (the Blaster and other weapons: the right hand) into the held moby: position +0x10, basis rows +0xc0/0xd0/0xe0, pitch/yaw, sets moby flags |= 6 (not scheduled, no transform) and copies the light words from the hero. Hook it after `original` to place or update extra mobies that follow the hero (read omni.hero.held_moby; the held weapon is already in its final place for this tick).
+type HeroItems_AttachFn = () -> ()
+-- rac1.omni.ammo.collect (Ammo_Collect) u32(u32): The ammo pickup collect helper (Veldin 0x2c5590, names row func_L00_002C6F48, 480 bytes), the second way an ammo pickup is collected: called by the code that scans the mobys near the hero or a blast (Veldin callers 0x2a7c68 and 0x2deb88), NOT by the pickup moby's own update (rac1.omni.ammo.pickup inlines the same job). pvar[0] = amount, pvar[2] = item id; adds it with AddAmmo, shows the banner, returns 1 when collected. A mod that changes pickup ammo wraps both ids the same way. Stage AP1: this was rac1.omni.ammo.pickup before. Every level.
+type Ammo_CollectFn = (moby: number) -> number
+-- rac1.omni.hud.health_draw (Hud_HealthDraw) u32(u32): Draws the HUD's nanotech meter (the health orbs and their bar) for its HUD element and returns the word at element +0x58. The meter fades in and out in steps 0..8 (struct hud_health: fade_bar at +0x70, fade_orbs at +0x71); it shows 100 ticks after the health changes (180 at a level start) and stays up at 1 orb. A mod that draws its own health replaces it: skip the original and return the word at +0x58 (hud_health.result). Every level.
+type Hud_HealthDrawFn = (element: number) -> number
 -- rac1.moby.<class>.update (experimental): (moby: number) -> (), or () -> () where it gets no moby.
 type MobyUpdateFn = (moby: number) -> ()
 

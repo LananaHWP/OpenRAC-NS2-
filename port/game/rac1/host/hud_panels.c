@@ -28,7 +28,7 @@ static void panel_slice(unsigned long long texture, int x, int y, int w, int h,
 /* draw_health_hud_panel. */
 int func_L00_0023A1A0(unsigned int element) {
     if (!*openrac_game_fix("fix_nanotech_hud_panel")) {
-        return func_L00_0023A1A0__game(element);
+        return func_L00_0023A1A0__hooked(element);
     }
     const int vehicle = GREF(uint8_t, HERO + 0x20A4);
     const int capacity = vehicle == 1 ? GREF(int, HERO + 0x22AC)
@@ -40,7 +40,7 @@ int func_L00_0023A1A0(unsigned int element) {
     if (vehicle == 2 || GREF(int, HERO + 0x2084) == 0x32
         || visible == 0 || limit <= 0 || cap <= 0
         || (capacity != 4 && capacity != 5 && capacity != 8)) {
-        return func_L00_0023A1A0__game(element);
+        return func_L00_0023A1A0__hooked(element);
     }
     const float fraction = visible < limit ? (float)visible / (float)limit : 1.0f;
     const int half_width = (int)((capacity == 5 ? 32 : 48) * fraction);
@@ -54,7 +54,7 @@ int func_L00_0023A1A0(unsigned int element) {
     const int end = func_00200198(0x7580, 1);
     const int middle = func_00200198(0x7580, 0);
     if (end < 0 || middle < 0) {
-        return func_L00_0023A1A0__game(element);
+        return func_L00_0023A1A0__hooked(element);
     }
     const unsigned long long cap_texture = func_00200248(end);
     const unsigned long long body_texture = func_00200248(middle);
@@ -86,7 +86,7 @@ int func_L00_0023A1A0(unsigned int element) {
     /* Zero-height original background quads draw nothing. Only this drawing
      * call sees the temporary size; all orb placement and game data survive. */
     GREF(int, cap_address) = 0;
-    const int result = func_L00_0023A1A0__game(element);
+    const int result = func_L00_0023A1A0__hooked(element);
     GREF(int, cap_address) = cap;
     return result;
 }

@@ -87,6 +87,9 @@ static inline unsigned rac1_moby_vtbl_address(int level) {
 /* The hero's position (PAL gHeroPos D_0013F4D0: the hero record D_0013F450, here 0x0013F350,
  * plus 0x80), for crash reports (boot.c). */
 #define RAC1_HERO_POS 0x0013F3D0u
+/* The omni extension's moby pool: its cells (start, pool start, end words) and the target registry, in level 0's data (rac-rs's binding "mobys"). */
+#define RAC1_OMNI_MOBY_CELLS 0x0015FFD8u
+#define RAC1_OMNI_MOBY_REGISTRY 0x001ABA00u
 /* The game's folder on the memory card, where its save files are (play.c, the mods' saves). */
 #define RAC1_SAVE_FOLDER "BASCUS-97199RATCHET"
 /* The game's memory card record (play.c): memory_card_state, whose card is 8 bytes shorter here
@@ -762,5 +765,17 @@ static inline unsigned rac1_moby_vtbl_address(int level) {
 #define func_00222848__game game_FUN_00221800__game
 #define func_L00_00290030 game_FUN_L00_0028ed58
 #define func_L00_00290030__game game_FUN_L00_0028ed58__game
+
+#define func_L00_002CC3C0__hooked game_FUN_L00_002caf70__hooked
+#define func_L00_002AE278__hooked game_FUN_L00_002acfd8__hooked
+#define func_L00_002B0F58__hooked game_FUN_L00_002afc70__hooked
+#define func_L00_002C96D0__hooked game_FUN_L00_002c82f0__hooked
+#define func_L00_002AB2A8__hooked game_FUN_L00_002aa008__hooked
+#define func_L00_0025BA50__hooked game_FUN_L00_0025a9f8__hooked
+#define func_L00_0025AAC0__hooked game_FUN_L00_00259a88__hooked
+#define func_L00_0023A1A0__hooked game_FUN_L00_00239810__hooked
+
+#define func_L00_002CE390__hooked game_FUN_L00_002ccee0__hooked
+#define func_0020D678__hooked game_FUN_0020c828__hooked
 
 #endif /* OPENRAC_RAC1_VERSION_H */

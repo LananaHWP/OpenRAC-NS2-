@@ -305,6 +305,181 @@ static int hero_position(float xyz[3]) {
 #endif
 }
 
+
+#ifdef RAC1_OMNI_MOBY_CELLS
+/* The moby queries of the omni extension (game_host.h), after rac-rs's walk of the level's pool: the pool's start and end words are in level data;
+ * a slot is 0x100 bytes with its state byte at +0x20 (0xff marks the tail, 0x80 and above is deleted), class at +0xa6, position at +0x10. The target
+ * registry is a zero-terminated array of the mobys the scheduler admitted. An enemy is registered (flags +0x34 & 0x1000) with a component
+ * (& 0x20), its class (pointer at +0x24) of type 5 (s16 at +0x46), and a component block (the pvar's first word) whose health float is above 0. */
+#define MOBY_STRIDE 0x100u
+#define MOBY_MAX_SLOTS 4096u
+
+static int moby_pool(uint32_t* start, uint32_t* tail) {
+    if (!in_level()) {
+        return 0;
+    }
+    const gaddr cells = OPENRAC_LDATA(0, RAC1_OMNI_MOBY_CELLS);
+    const uint32_t first = GREF(uint32_t, cells);
+    const uint32_t end = GREF(uint32_t, cells + 8u);
+    if (first >= end || first % 4u != 0 || (end - first) % MOBY_STRIDE != 0 || (end - first) / MOBY_STRIDE > MOBY_MAX_SLOTS
+        || end > openrac_guest_ram_size) {
+        return 0;
+    }
+    uint32_t stop = end;
+    for (uint32_t a = first; a < end; a += MOBY_STRIDE) {
+        if (GREF(uint8_t, a + 0x20u) == 0xffu) {
+            stop = a;
+            break;
+        }
+    }
+    *start = first;
+    *tail = stop;
+    return 1;
+}
+
+static int moby_is_live(uint32_t start, uint32_t tail, uint32_t a) {
+    return a >= start && a < tail && (a - start) % MOBY_STRIDE == 0 && GREF(uint8_t, a + 0x20u) < 0x80u;
+}
+
+static int moby_enemy_at(uint32_t a) {
+    const uint32_t flags = GREF(uint16_t, a + 0x34u);
+    if ((flags & 0x1000u) == 0 || (flags & 0x20u) == 0) {
+        return 0;
+    }
+    const uint32_t class_pointer = GREF(uint32_t, a + 0x24u);
+    if (class_pointer == 0 || class_pointer >= openrac_guest_ram_size || (int)GREF(int16_t, class_pointer + 0x46u) != 5) {
+        return 0;
+    }
+    const uint32_t pvar = GREF(uint32_t, a + 0x78u);
+    if (pvar == 0 || pvar >= openrac_guest_ram_size) {
+        return 0;
+    }
+    const uint32_t component = GREF(uint32_t, pvar);
+    return component != 0 && component < openrac_guest_ram_size && GREF(float, component) > 0.0f;
+}
+
+static int moby_valid(uint32_t a) {
+    uint32_t start, tail;
+    return moby_pool(&start, &tail) && moby_is_live(start, tail, a);
+}
+
+static int moby_enemy(uint32_t a) {
+    uint32_t start, tail;
+    return moby_pool(&start, &tail) && moby_is_live(start, tail, a) && moby_enemy_at(a);
+}
+
+typedef struct {
+    float d2;
+    uint32_t moby;
+} moby_hit;
+
+static int moby_hit_less(const moby_hit* x, const moby_hit* y) {
+    return x->d2 < y->d2 || (x->d2 == y->d2 && x->moby < y->moby);
+}
+
+static int moby_query(const openrac_moby_query* q, uint32_t* out, uint32_t capacity) {
+    uint32_t start, tail;
+    if (!in_level()) {
+        return -1;
+    }
+    if (!moby_pool(&start, &tail)) {
+        return 0;
+    }
+    static moby_hit hits[256];
+    const uint32_t cap = q->max == 0 ? 32u : q->max > 256u ? 256u : q->max;
+    const uint32_t classes = q->class_count > OPENRAC_MOBY_QUERY_CLASSES ? OPENRAC_MOBY_QUERY_CLASSES : q->class_count;
+    const int near = (q->flags & OPENRAC_MOBY_QUERY_NEAR) != 0;
+    uint32_t count = 0;
+    uint32_t walk = 0;
+    const uint32_t registry = OPENRAC_LDATA(0, RAC1_OMNI_MOBY_REGISTRY);
+    for (uint32_t i = 0;; ++i) {
+        uint32_t a;
+        if ((q->flags & OPENRAC_MOBY_QUERY_REGISTRY) != 0) {
+            if (i >= MOBY_MAX_SLOTS) {
+                break;
+            }
+            a = GREF(uint32_t, registry + 4u * i);
+            if (a == 0) {
+                break;
+            }
+            if (!moby_is_live(start, tail, a)) {
+                continue;
+            }
+        } else {
+            a = start + walk;
+            walk += MOBY_STRIDE;
+            if (a >= tail) {
+                break;
+            }
+            if (GREF(uint8_t, a + 0x20u) >= 0x80u) {
+                continue;
+            }
+        }
+        if (classes != 0) {
+            const int32_t class_id = (int32_t)GREF(int16_t, a + 0xa6u);
+            uint32_t k = 0;
+            while (k < classes && q->classes[k] != class_id) {
+                ++k;
+            }
+            if (k == classes) {
+                continue;
+            }
+        }
+        float d2 = 0.0f;
+        if (near) {
+            float p[3];
+            int finite = 1;
+            for (int c = 0; c < 3; ++c) {
+                p[c] = GREF(float, a + 0x10u + 4u * (unsigned)c);
+                if (!(p[c] - p[c] == 0.0f)) {
+                    finite = 0;
+                }
+            }
+            if (!finite) {
+                continue;
+            }
+            for (int c = 0; c < 3; ++c) {
+                d2 += (p[c] - q->near[c]) * (p[c] - q->near[c]);
+            }
+            if (q->radius > 0.0f && d2 > q->radius * q->radius) {
+                continue;
+            }
+        }
+        if ((q->flags & OPENRAC_MOBY_QUERY_ENEMY) != 0 && !moby_enemy_at(a)) {
+            continue;
+        }
+        if (count < 256u) {
+            hits[count].d2 = d2;
+            hits[count].moby = a;
+            ++count;
+        }
+        if (!near && count >= cap) {
+            break;
+        }
+    }
+    if (near) {
+        /* nearest first (insertion sort: the list is short) */
+        for (uint32_t i = 1; i < count; ++i) {
+            const moby_hit item = hits[i];
+            uint32_t j = i;
+            while (j > 0 && moby_hit_less(&item, &hits[j - 1])) {
+                hits[j] = hits[j - 1];
+                --j;
+            }
+            hits[j] = item;
+        }
+    }
+    uint32_t n = count > cap ? cap : count;
+    if (n > capacity) {
+        n = capacity;
+    }
+    for (uint32_t i = 0; i < n; ++i) {
+        out[i] = hits[i].moby;
+    }
+    return (int)n;
+}
+#endif
+
 /* For OPENRAC_TRACE: the hero (D_0013F450, include/hero.h: the motion's position at +0x80 and
  * rotation at +0x90, the state id at +0x2084), at this version's address (rac1_version.h). */
 #define HERO RAC1_ADDR(0x0013F450u)
@@ -383,6 +558,11 @@ __attribute__((constructor)) static void install_direct_start(void) {
     openrac_game_skip_buttons = skip_buttons;
     openrac_game_skip = skip;
     openrac_game_mode = game_mode;
+#ifdef RAC1_OMNI_MOBY_CELLS
+    openrac_game_moby_query = moby_query;
+    openrac_game_moby_valid = moby_valid;
+    openrac_game_moby_enemy = moby_enemy;
+#endif
     openrac_game_hero_position = hero_position;
     openrac_game_hero = hero;
     openrac_game_touch = rac1_touch;

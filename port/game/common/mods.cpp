@@ -448,6 +448,21 @@ std::string hook_signature_form(std::string signature) {
     return signature;
 }
 
+// Whether a hook point whose signature is `slot` takes a replacement of the signature `asked`: the same, or the same parameters where the point's C is
+// declared void (the decompilation's is, where the retail function returned something the callers never read) and the replacement returns a
+// value: the value is dropped by the caller, and the original's is whatever the register held.
+bool hook_signature_accepted(const std::string& slot, const std::string& asked) {
+    const std::string a = hook_signature_form(slot);
+    const std::string b = hook_signature_form(asked);
+    if (a == b) {
+        return true;
+    }
+    const size_t pa = a.find(0x28);
+    const size_t pb = b.find(0x28);
+    return pa != std::string::npos && pb != std::string::npos && a.compare(0, pa, "void") == 0 && b.compare(0, pb, "void") != 0
+           && a.compare(pa, std::string::npos, b, pb, std::string::npos) == 0;
+}
+
 int api_hook(openrac_mod* mod, const char* name, const char* signature, void* replacement, void** original) {
     if (mod == nullptr || mod != g_loading || g_host == nullptr) {
         return OPENRAC_HOOK_TOO_LATE;
@@ -462,8 +477,7 @@ int api_hook(openrac_mod* mod, const char* name, const char* signature, void* re
         if (p.name == nullptr || std::strcmp(hook_id(*g_host, p.name), id) != 0) {
             continue;
         }
-        if (signature == nullptr
-            || hook_signature_form(p.signature) != hook_signature_form(signature)) {
+        if (signature == nullptr || !hook_signature_accepted(p.signature, signature)) {
             mod->hook_refused = true;
             mod->failure = std::format("hook point {} is {} here, not {}", name, p.signature,
                                        signature != nullptr ? signature : "(none)");
@@ -590,6 +604,20 @@ std::uint32_t api_take_developer_menu_action(openrac_mod* mod) {
 
 // The mod's own folder (1.11): <mod data>/<its id>, made on the first ask. An id that is not a plain
 // name (a separator, "." or "..") has none.
+bool api_hook_exists(const char* name) {
+    if (g_host == nullptr || name == nullptr) {
+        return false;
+    }
+    const char* id = hook_id(*g_host, name);
+    for (int i = 0; i < g_host->hook_count; ++i) {
+        const HookPoint& p = g_host->hooks[i];
+        if (p.name != nullptr && std::strcmp(hook_id(*g_host, p.name), id) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 const char* api_data_dir(openrac_mod* mod) {
     if (mod == nullptr || g_host == nullptr || g_host->mod_data.empty() || mod->id.empty()
         || mod->id == "." || mod->id == ".."
@@ -2138,7 +2166,13 @@ bool load_one(const fs::path& folder, const Candidate& c, std::unique_ptr<openra
             api_setting_set_float,
             api_setting_set_string,
             api_on_settings,
-            settings_of
+            settings_of,
+            api_data_dir,
+            api_hook_exists,
+            api_on_overlay,
+            api_save_data_set,
+            api_save_data_get,
+            api_on_save_data
         };
         std::string why;
         g_loading = mod.get();

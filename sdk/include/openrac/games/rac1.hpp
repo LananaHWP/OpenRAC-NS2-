@@ -11,6 +11,30 @@
 
 namespace openrac::rac1 {
 
+// Per-tick update of a Gold Weapon Case (moby class 304) and of its display moby (classes 1456..1465), the retail seller of gold weapons (Novalis and Gerhardt's gold weapons): it tests the bolts, the item and the player's pad and sells. The omni extension's rac1.omni.goldcase.update. Levels of the Oozla family only.
+struct Moby_GoldWeaponCase_Update {
+    static constexpr const char* id = "rac1.moby.item_offer.update";
+    static constexpr const char* name = "Moby_GoldWeaponCase_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Creates an R.Y.N.O. rocket (class 457): height = a height offset added to the target aim point, yaw and pitch of the rocket, owner = the moby that fires, pos = its start, target = the aimed target. Returns the rocket moby. Every level. (The script is given the floats first, as the omni extension lists them.)
+struct Weapon_Ryno_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.ryno.fire";
+    static constexpr const char* name = "Weapon_Ryno_Fire";
+    static constexpr const char* signature = "u32(u32,u32,u32,f32,f32,f32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, float, float, float);
+};
+
+// The game's moby deletion (DeleteMoby, in the executable: every level's copy of the address runs it): removes a moby (a projectile's death, a killed enemy). The only code that writes the deleted state. Every level.
+struct moby_delete {
+    static constexpr const char* id = "rac1.omni.moby.delete";
+    static constexpr const char* name = "moby_delete";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
 // One pad report into the pad's state (PadState, at pad), each poll, before the tick reads it.
 struct Pad_ProcessReport {
     static constexpr const char* id = "rac1.pad.process_report";
@@ -475,6 +499,366 @@ struct GoldBolts_CountUnspent {
     using fn = int32_t (*)();
 };
 
+// hit_desc_build: fills a hit descriptor (0x24+ bytes) for a hit on an enemy: the 16-byte direction vector at +0, attacker moby +0x10, mask +0x14, damage f32 +0x1c, +0x20 = 1. Every attack that hurts an enemy builds one (the wrench on the stack right before its swing sweep), so a hook that calls the original with another damage changes what is dealt. Checked against the wrench update's call (a0 = descriptor on the stack, a1 = attacker moby, a2 = mask, a3 = vec4 direction, f12 = damage). Every level.
+struct Damage_BuildHit {
+    static constexpr const char* id = "rac1.omni.damage.build_hit";
+    static constexpr const char* name = "Damage_BuildHit";
+    static constexpr const char* signature = "void(u32,u32,u32,f32,u32)";
+    using fn = void (*)(uint32_t, uint32_t, uint32_t, float, uint32_t);
+};
+
+// hit_ring_write: posts a hit descriptor on the victim moby into the 64-entry hit queue at 0x178100 (stride 0x40) unless the victim already holds a stronger hit this tick (victim byte +0xa4 = queue slot); the victim reads it in MobyGetHitMessage (rac1.combat.get_hit). To hurt an enemy from a mod: build a descriptor with omni.with_stack and the build_hit function, then call this. a0 = victim, a1 = descriptor (asm of the prologue). Every level.
+struct Damage_HitVictim {
+    static constexpr const char* id = "rac1.omni.damage.hit_victim";
+    static constexpr const char* name = "Damage_HitVictim";
+    static constexpr const char* signature = "void(u32,u32)";
+    using fn = void (*)(uint32_t, uint32_t);
+};
+
+// The wrench swing sweep: five segment casts between the previous and the current wrench joint poses (four vec4 pointers into the hero struct +0x9f0, +0xa00, +0xa10, +0xa20), owner = the word at hero +0x2080, attack = the hit descriptor built just before (damage at +0x1c), steps = 5. Returns 1 when something was hit. Only caller: the class 71 update. Argument registers a0..a3, t0, t1, t2 checked in the caller's asm. Every level.
+struct Wrench_SwingSweep {
+    static constexpr const char* id = "rac1.omni.wrench.swing";
+    static constexpr const char* name = "Wrench_SwingSweep";
+    static constexpr const char* signature = "u32(u32,u32,u32,u32,u32,u32,i32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, int32_t);
+};
+
+// Comet-Strike release: aims and launches the thrown wrench (sets the wrench byte +0x20 = 10 and the byte at 0x1403fa). No arguments (the callers set none for it). Callers: the try-fire dispatcher and 0x217550 (Veldin). Every level.
+struct Wrench_ThrowRelease {
+    static constexpr const char* id = "rac1.omni.wrench.throw";
+    static constexpr const char* name = "Wrench_ThrowRelease";
+    static constexpr const char* signature = "void()";
+    using fn = void (*)();
+};
+
+// Per-tick update of the held Omniwrench (moby class 71): combo state, swing damage literals, calls the swing sweep and the hit descriptor builder. Every level.
+struct Wrench_Update {
+    static constexpr const char* id = "rac1.moby.wrench.update";
+    static constexpr const char* name = "Wrench_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Suck Cannon (moby class 849, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_SuckCannon_Update {
+    static constexpr const char* id = "rac1.moby.suck_cannon.update";
+    static constexpr const char* name = "Weapon_SuckCannon_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Bomb Glove (moby class 192, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_BombGlove_Update {
+    static constexpr const char* id = "rac1.moby.moby192.update";
+    static constexpr const char* name = "Weapon_BombGlove_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Devastator (moby class 157, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Devastator_Update {
+    static constexpr const char* id = "rac1.omni.weapon.devastator.update";
+    static constexpr const char* name = "Weapon_Devastator_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Visibomb Gun (moby class 163, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Visibomb_Update {
+    static constexpr const char* id = "rac1.moby.moby163.update";
+    static constexpr const char* name = "Weapon_Visibomb_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Taunter (moby class 175, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Taunter_Update {
+    static constexpr const char* id = "rac1.moby.moby175.update";
+    static constexpr const char* name = "Weapon_Taunter_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Blaster (moby class 168, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Blaster_Update {
+    static constexpr const char* id = "rac1.omni.weapon.blaster.update";
+    static constexpr const char* name = "Weapon_Blaster_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Pyrocitor (moby class 176, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Pyrocitor_Update {
+    static constexpr const char* id = "rac1.moby.pyrocitor.update";
+    static constexpr const char* name = "Weapon_Pyrocitor_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Mine Glove (moby class 190, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_MineGlove_Update {
+    static constexpr const char* id = "rac1.moby.mine_glove.update";
+    static constexpr const char* name = "Weapon_MineGlove_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Walloper (moby class 180, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Walloper_Update {
+    static constexpr const char* id = "rac1.moby.moby180.update";
+    static constexpr const char* name = "Weapon_Walloper_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Tesla Claw (moby class 177, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_TeslaClaw_Update {
+    static constexpr const char* id = "rac1.omni.weapon.tesla_claw.update";
+    static constexpr const char* name = "Weapon_TeslaClaw_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Glove of Doom (moby class 229, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_GloveOfDoom_Update {
+    static constexpr const char* id = "rac1.moby.carrier.update";
+    static constexpr const char* name = "Weapon_GloveOfDoom_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Morph-o-Ray (moby class 185, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_MorphORay_Update {
+    static constexpr const char* id = "rac1.moby.morphoray.update";
+    static constexpr const char* name = "Weapon_MorphORay_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held R.Y.N.O. (moby class 454, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Ryno_Update {
+    static constexpr const char* id = "rac1.moby.ryno.update";
+    static constexpr const char* name = "Weapon_Ryno_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of the held Decoy Glove (moby class 562, the class table's update function; a mod reads omni.weapon.* fields and the hero state). Every level.
+struct Weapon_Decoy_Update {
+    static constexpr const char* id = "rac1.moby.decoy_glove.update";
+    static constexpr const char* name = "Weapon_Decoy_Update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Per-tick update of an ammo pickup moby (Veldin 0x2c4d68, names row func_L00_002C6720; classes 204 213 214 222 223 225 226 1006 1438 1447 1449, the broken crates' ammo): physics in states 1/3/4, and in the waiting state a jump-table case INLINES the pickup (distance to the hero, AddAmmo, banner, state 2). Every ammo the hero collects by walking into a pickup is given inside this call, so a mod that wraps `original` sees AddAmmo (rac1.omni.ammo.add) run inside it and can tell a pickup from a vendor purchase. The moby's pvar (moby+0x78) holds pvar[0] = amount, pvar[2] = item id, readable before `original`. Stage AP1: this id used to be the collect helper 0x2c5590, which this path never calls (see rac1.omni.ammo.collect). Every level.
+struct Ammo_Pickup {
+    static constexpr const char* id = "rac1.moby.ammo_pickup.update";
+    static constexpr const char* name = "Ammo_Pickup";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// AddAmmo: adds amount to the ammo int of item (0x13d428 + item * 4) and caps it at the max ammo of the price row; returns the overflow. Shared by pickups, the vendor and UnlockGadget. Every level.
+struct Ammo_Add {
+    static constexpr const char* id = "rac1.omni.ammo.add";
+    static constexpr const char* name = "Ammo_Add";
+    static constexpr const char* signature = "i32(i32,i32)";
+    using fn = int32_t (*)(int32_t, int32_t);
+};
+
+// Applies the requested item (0x141408 and the kind words) for hero item slot `slot`; the equip path of Square (wrench), Circle (last weapon) and the quick-select commit. Decomp name hero_item_request_apply, names tsv label UpdateWrenchSelected; 2216 bytes, callers 0x210290 and 0x229750 (Veldin). Not in the code of Rilgar (5) and Kalebo III (16): no hook there. Argument a0 = slot checked in the caller's asm and the Ghidra C.
+struct Hero_ItemRequestApply {
+    static constexpr const char* id = "rac1.omni.weapon.select";
+    static constexpr const char* name = "Hero_ItemRequestApply";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// The shared hit resolver (Veldin FUN_0025a088, names row hit_knockback): every enemy class calls it once per tick from its prestep with the hit entry that rac1.combat.get_hit returned. a0 = the victim moby, a1 = the hit queue entry (0 = none; +0x20 attacker moby, +0x2c strength), a2 = the victim's component block (pvar +0x20: the health float, +8 the component byte), a3 = 0 in every caller read, t0 = u32 out (status: 0, or 1 = no usable hit), t1 = f32 out (the STRENGTH the class subtracts from its health; may be 0 = no pointer), t2 = u32 out (-1 or untouched, may be 0), t3 = mode (4 = take it from the component byte). The return value is the reaction class (0 nothing, 0xb, 0xd, jump-table cases), NOT the strength: the strength is written to *t1 (= entry +0x2c, which the resolver sets from the attacker table for Blaster classes 0x131 and 0xa8). A mod scales damage dealt to enemies by calling original and then multiplying the f32 at strength_out (when it is not 0) and entry +0x2c; it reads the victim's health first through the pvars/structs (enemy.health). Signature checked in the asm prologue (a0..a3, t0..t3 stored/used) and the Ghidra C (8 parameters) and a caller (toad prestep FUN_002d4b08: a0 victim, a1 entry, a2 pvar+0x20, a3 0, t0 &status, t1 &strength, t2 0, t3 4). Every level.
+struct Damage_Resolve {
+    static constexpr const char* id = "rac1.omni.damage.resolve";
+    static constexpr const char* name = "Damage_Resolve";
+    static constexpr const char* signature = "u32(u32,u32,u32,u32,u32,u32,u32,u32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+};
+
+// The Pyrocitor flame effect creator (names tsv PartType12Spawn; shared with the flame effect of other callers): f12 = the flame reach / life float, a0 = position vec4 address, a1 = velocity vec4 address, a2 = flags byte (bit 2 always set, bit 0 = lead flame vs trailing). The held update calls it 2 leading and 2 trailing times per tick. A mod calls original again with its own vel vector (omni.with_stack) for extra flames. Argument registers checked by argscan and the caller at 0x2b7880 (Ghidra C: FUN_0026abc0(float, vec*, vec*, byte)). Every level.
+struct Pyrocitor_FlameCreate {
+    static constexpr const char* id = "rac1.omni.weapon.flame.create";
+    static constexpr const char* name = "Pyrocitor_FlameCreate";
+    static constexpr const char* signature = "u32(u32,u32,u8,f32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint8_t, float);
+};
+
+// Launches the held bomb (FUN_002ac980, state 3 of the held update 0x2c2070 once per throw, then the held bomb pointer is cleared): a0 = a stack vec (aim), a1 = the bomb moby (spawned by FUN_002ac818), a2 = its pvar (moby +0x78). Every level.
+struct Weapon_BombGlove_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.bomb_glove.fire";
+    static constexpr const char* name = "Weapon_BombGlove_Fire";
+    static constexpr const char* signature = "void(u32,u32,u32)";
+    using fn = void (*)(uint32_t, uint32_t, uint32_t);
+};
+
+// Launches the held mine (FUN_002a99b0, state 3 of the held update 0x2c1478 once per throw): a0 = a stack vec (aim), a1 = the mine moby (class 74, created by FUN_002a9878), a2 = its pvar (moby +0x78). Every level.
+struct Weapon_MineGlove_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.mine_glove.fire";
+    static constexpr const char* name = "Weapon_MineGlove_Fire";
+    static constexpr const char* signature = "void(u32,u32,u32)";
+    using fn = void (*)(uint32_t, uint32_t, uint32_t);
+};
+
+// Launches the held Glove of Doom capsule (FUN_002c7c98, once per shot; the caller then clears the held pointer): a0 = hero + 0x40 vec, a1 = the capsule moby (class 230, created by FUN_002c7bc0), a2 = its pvar (moby +0x78). Every level.
+struct Weapon_GloveOfDoom_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.glove_of_doom.fire";
+    static constexpr const char* name = "Weapon_GloveOfDoom_Fire";
+    static constexpr const char* signature = "void(u32,u32,u32)";
+    using fn = void (*)(uint32_t, uint32_t, uint32_t);
+};
+
+// Creates a Devastator rocket (FUN_002af618, class 153; once per rocket, two call sites in the held update 0x2b1aa8): a0 = word stored in the rocket pvar +0x10, a1 = spawn position vec4 address, a2 = the owner moby (its component is read), f12 = float stored at the rocket pvar +0x2c, f13 and f14 = floats kept in the creator, f15 = stored at moby +0x48, f16 = stored at moby +0x44 (meaning of the floats [?]); returns the rocket moby. Register reads checked by argscan and the prologue asm (a0, a1, a2, f12..f16; Ghidra's 8 parameters are an artefact). Every level.
+struct Weapon_Devastator_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.devastator.fire";
+    static constexpr const char* name = "Weapon_Devastator_Fire";
+    static constexpr const char* signature = "u32(u32,u32,u32,f32,f32,f32,f32,f32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, float, float, float, float, float);
+};
+
+// Creates the Visibomb missile (FUN_002b5280, class 172; once per shot from the held update 0x2b2a00): f12, f13 = floats (speed / aim [?]), a0 = the owner moby, a1 = a vec4 address (launch direction); returns the missile moby (stored in the held pvar word 1). Registers by argscan. Every level.
+struct Weapon_Visibomb_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.visibomb.fire";
+    static constexpr const char* name = "Weapon_Visibomb_Fire";
+    static constexpr const char* signature = "u32(u32,u32,f32,f32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, float, float);
+};
+
+// Creates a Blaster shot (FUN_002ca918, class 305 = 0x131, the attacker class whose strength comes from the table at gp -0x6bc0; once per shot from the held update 0x2b4350): f12..f15 = four floats (shot speed / direction components [?]), a0 = the word at 0x1413d0, a1 = a vec address, a2 = a moby pointer; returns the shot moby. Registers by argscan and the caller (7 parameters in the Ghidra C). Every level.
+struct Weapon_Blaster_Fire {
+    static constexpr const char* id = "rac1.omni.weapon.blaster.fire";
+    static constexpr const char* name = "Weapon_Blaster_Fire";
+    static constexpr const char* signature = "u32(u32,u32,u32,f32,f32,f32,f32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, float, float, float, float);
+};
+
+// Retail CreateMoby (Veldin 0x24e448): allocates a moby of a class with its pvar block, returns the moby (0 when full). The class init then runs on its first update. Every level. Every dynamic spawn of the game (projectiles, sparks, glow spheres, debris) goes through it; placed mobies of a level do not (use level_loaded + mobys). Hot: hundreds of calls per second in a fight, so a mod filters by class first and returns. A hook must not spawn the same class from inside it.
+struct moby_create {
+    static constexpr const char* id = "rac1.omni.moby.create";
+    static constexpr const char* name = "moby_create";
+    static constexpr const char* signature = "u32(u32)";
+    using fn = uint32_t (*)(uint32_t);
+};
+
+// Bomb Glove bomb (class 121) per-tick update (Veldin 0x2ad4d8, 6.3 KB). Every level.
+struct projectile_bomb_update {
+    static constexpr const char* id = "rac1.moby.hero_bomb.update";
+    static constexpr const char* name = "projectile_bomb_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Mine Glove mine (class 74) per-tick update (Veldin 0x2aa018). Every level.
+struct projectile_mine_update {
+    static constexpr const char* id = "rac1.moby.mine.update";
+    static constexpr const char* name = "projectile_mine_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Blaster shot (class 305) per-tick update (Veldin 0x2cadc0): steers to the point in pvar+0, moves 0.8 u/tick along yaw/pitch, ray test, gold bounce. Every level.
+struct projectile_blaster_shot_update {
+    static constexpr const char* id = "rac1.moby.moby305.update";
+    static constexpr const char* name = "projectile_blaster_shot_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// R.Y.N.O. rocket (class 457) per-tick update (Veldin 0x2ccb98): homes on the moby in pvar+0x28. Every level.
+struct projectile_ryno_rocket_update {
+    static constexpr const char* id = "rac1.moby.rocket_steer.update";
+    static constexpr const char* name = "projectile_ryno_rocket_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Glove of Doom agent (class 186) per-tick update (Veldin 0x2bf950): state machine, state 0xb = explode. Every level.
+struct projectile_doom_agent_update {
+    static constexpr const char* id = "rac1.moby.doom_bot.update";
+    static constexpr const char* name = "projectile_doom_agent_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Glove of Doom capsule (class 230) per-tick update (Veldin 0x2c8390). Every level.
+struct projectile_doom_capsule_update {
+    static constexpr const char* id = "rac1.moby.bomb_230.update";
+    static constexpr const char* name = "projectile_doom_capsule_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Visibomb missile (class 172) per-tick update (Veldin 0x2b5ae8; player-steered missile). Every level.
+struct projectile_visibomb_update {
+    static constexpr const char* id = "rac1.moby.visibomb_missile.update";
+    static constexpr const char* name = "projectile_visibomb_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Devastator rocket (class 153) per-tick update (Veldin 0x2afd48): steers to its target, gold bounces 3 times. Every level.
+struct projectile_devastator_rocket_update {
+    static constexpr const char* id = "rac1.moby.missile.update";
+    static constexpr const char* name = "projectile_devastator_rocket_update";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Retail seg_collide (Veldin 0x1efbf0): segment start..end vs mobys and terrain; a3 = moby to ignore, t0 = hit descriptor (0 = none; when set and the hit moby takes hits the hit is posted into the hit ring). Returns 1 on a hit; result block at the level block RES (Veldin 0x173e40): +0x18 hit moby (0 = terrain), +0x1c record word, +0x20 contact point vec4, +0x40 surface normal vec4. Hot function (every projectile, the camera, the hero). Every level.
+struct collide_segment {
+    static constexpr const char* id = "rac1.omni.collide.segment";
+    static constexpr const char* name = "collide_segment";
+    static constexpr const char* signature = "u32(u32,u32,u32,u32,u32)";
+    using fn = uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+};
+
+// Retail sphere_list_mobys (Veldin 0x1f27e8): list the mobys within radius of pos (mask 0x10 = hittable); the list lands at 0x177f00 (Veldin), returns the count. Blasts call it right before blast.apply. Every level.
+struct collide_sphere_mobys {
+    static constexpr const char* id = "rac1.omni.collide.sphere_mobys";
+    static constexpr const char* name = "collide_sphere_mobys";
+    static constexpr const char* signature = "u32(f32,u32,u32,u32,u32)";
+    using fn = uint32_t (*)(float, uint32_t, uint32_t, uint32_t, uint32_t);
+};
+
+// Retail apply_blast_damage (Veldin 0x25a608): posts one hit (hit_desc_build + hit_ring_write) per listed moby; attacker = the projectile (its class is the weapon). Every level.
+struct blast_apply {
+    static constexpr const char* id = "rac1.omni.blast.apply";
+    static constexpr const char* name = "blast_apply";
+    static constexpr const char* signature = "void(u32,u32,u32,u32,u32,u32,u32,u32,f32,f32,f32)";
+    using fn = void (*)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, float, float, float);
+};
+
+// Retail HeroItemsAttach (Veldin 0x20f0c8, names row HeroItemsAttach, shared code, once per tick, no arguments): glues every item the hero holds to the hero. For each hero item slot (table 0x1403e0, stride 0x50) it copies the attach matrix of the item's attach point (the Blaster and other weapons: the right hand) into the held moby: position +0x10, basis rows +0xc0/0xd0/0xe0, pitch/yaw, sets moby flags |= 6 (not scheduled, no transform) and copies the light words from the hero. Hook it after `original` to place or update extra mobies that follow the hero (read omni.hero.held_moby; the held weapon is already in its final place for this tick).
+struct HeroItems_Attach {
+    static constexpr const char* id = "rac1.omni.hero.items_attach";
+    static constexpr const char* name = "HeroItems_Attach";
+    static constexpr const char* signature = "void()";
+    using fn = void (*)();
+};
+
+// The ammo pickup collect helper (Veldin 0x2c5590, names row func_L00_002C6F48, 480 bytes), the second way an ammo pickup is collected: called by the code that scans the mobys near the hero or a blast (Veldin callers 0x2a7c68 and 0x2deb88), NOT by the pickup moby's own update (rac1.omni.ammo.pickup inlines the same job). pvar[0] = amount, pvar[2] = item id; adds it with AddAmmo, shows the banner, returns 1 when collected. A mod that changes pickup ammo wraps both ids the same way. Stage AP1: this was rac1.omni.ammo.pickup before. Every level.
+struct Ammo_Collect {
+    static constexpr const char* id = "rac1.omni.ammo.collect";
+    static constexpr const char* name = "Ammo_Collect";
+    static constexpr const char* signature = "u32(u32)";
+    using fn = uint32_t (*)(uint32_t);
+};
+
+// Draws the HUD's nanotech meter (the health orbs and their bar) for its HUD element and returns the word at element +0x58. The meter fades in and out in steps 0..8 (struct hud_health: fade_bar at +0x70, fade_orbs at +0x71); it shows 100 ticks after the health changes (180 at a level start) and stays up at 1 orb. A mod that draws its own health replaces it: skip the original and return the word at +0x58 (hud_health.result). Every level.
+struct Hud_HealthDraw {
+    static constexpr const char* id = "rac1.omni.hud.health_draw";
+    static constexpr const char* name = "Hud_HealthDraw";
+    static constexpr const char* signature = "u32(u32)";
+    using fn = uint32_t (*)(uint32_t);
+};
+
 // The update of class 1750, each tick; it gets no moby. Experimental: from the behaviour catalogue.
 struct Moby_Class1750_Update {
     static constexpr const char* id = "rac1.moby.class_1750.update";
@@ -531,34 +915,10 @@ struct Moby_Bolt_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class wrench (71), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Wrench_Update {
-    static constexpr const char* id = "rac1.moby.wrench.update";
-    static constexpr const char* name = "Moby_Wrench_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class mine (74), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Mine_Update {
-    static constexpr const char* id = "rac1.moby.mine.update";
-    static constexpr const char* name = "Moby_Mine_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of classes 112, 1192, each tick. Experimental: from the behaviour catalogue.
 struct Moby_Class112_Update {
     static constexpr const char* id = "rac1.moby.spin_fade_out.update";
     static constexpr const char* name = "Moby_Class112_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class 121, each tick. Experimental: from the behaviour catalogue.
-struct Moby_Class121_Update {
-    static constexpr const char* id = "rac1.moby.hero_bomb.update";
-    static constexpr const char* name = "Moby_Class121_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -579,22 +939,6 @@ struct Moby_NanotechCrateFragment_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class gold_devastator_missile (153), each tick. Experimental: from the behaviour catalogue.
-struct Moby_GoldDevastatorMissile_Update {
-    static constexpr const char* id = "rac1.moby.missile.update";
-    static constexpr const char* name = "Moby_GoldDevastatorMissile_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class visibomb (163), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Visibomb_Update {
-    static constexpr const char* id = "rac1.moby.moby163.update";
-    static constexpr const char* name = "Moby_Visibomb_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of class 166, each tick. Experimental: from the behaviour catalogue.
 struct Moby_Class166_Update {
     static constexpr const char* id = "rac1.moby.moby166.update";
@@ -611,58 +955,10 @@ struct Moby_Class167_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class visibomb_missile (172), each tick. Experimental: from the behaviour catalogue.
-struct Moby_VisibombMissile_Update {
-    static constexpr const char* id = "rac1.moby.visibomb_missile.update";
-    static constexpr const char* name = "Moby_VisibombMissile_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class taunter (175), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Taunter_Update {
-    static constexpr const char* id = "rac1.moby.moby175.update";
-    static constexpr const char* name = "Moby_Taunter_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class pyrocitor (176), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Pyrocitor_Update {
-    static constexpr const char* id = "rac1.moby.pyrocitor.update";
-    static constexpr const char* name = "Moby_Pyrocitor_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of class 179, each tick. Experimental: from the behaviour catalogue.
 struct Moby_Class179_Update {
     static constexpr const char* id = "rac1.moby.moby179.update";
     static constexpr const char* name = "Moby_Class179_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class walloper (180), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Walloper_Update {
-    static constexpr const char* id = "rac1.moby.moby180.update";
-    static constexpr const char* name = "Moby_Walloper_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class morphoray (185), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Morphoray_Update {
-    static constexpr const char* id = "rac1.moby.morphoray.update";
-    static constexpr const char* name = "Moby_Morphoray_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class doom_bot (186), each tick. Experimental: from the behaviour catalogue.
-struct Moby_DoomBot_Update {
-    static constexpr const char* id = "rac1.moby.doom_bot.update";
-    static constexpr const char* name = "Moby_DoomBot_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -675,34 +971,10 @@ struct Moby_Trespasser_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class mine_glove (190), each tick. Experimental: from the behaviour catalogue.
-struct Moby_MineGlove_Update {
-    static constexpr const char* id = "rac1.moby.mine_glove.update";
-    static constexpr const char* name = "Moby_MineGlove_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class bomb_glove (192), each tick. Experimental: from the behaviour catalogue.
-struct Moby_BombGlove_Update {
-    static constexpr const char* id = "rac1.moby.moby192.update";
-    static constexpr const char* name = "Moby_BombGlove_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of classes decoy (203), gold_decoy (1900), each tick. Experimental: from the behaviour catalogue.
 struct Moby_Decoy_Update {
     static constexpr const char* id = "rac1.moby.thrown_object.update";
     static constexpr const char* name = "Moby_Decoy_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of classes devestator_ammo (204), tesla_claw_ammo (213), pyrocitor_ammo (214), visibomb_ammo (222) and 7 more, each tick. Experimental: from the behaviour catalogue.
-struct Moby_DevestatorAmmo_Update {
-    static constexpr const char* id = "rac1.moby.ammo_pickup.update";
-    static constexpr const char* name = "Moby_DevestatorAmmo_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -715,22 +987,6 @@ struct Moby_SwingshotHook_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class glove_of_doom (229), each tick. Experimental: from the behaviour catalogue.
-struct Moby_GloveOfDoom_Update {
-    static constexpr const char* id = "rac1.moby.carrier.update";
-    static constexpr const char* name = "Moby_GloveOfDoom_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class bomb (230), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Bomb_Update {
-    static constexpr const char* id = "rac1.moby.bomb_230.update";
-    static constexpr const char* name = "Moby_Bomb_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of class morphoray_chicken (270), each tick. Experimental: from the behaviour catalogue.
 struct Moby_MorphorayChicken_Update {
     static constexpr const char* id = "rac1.moby.morphoray_chicken.update";
@@ -739,34 +995,10 @@ struct Moby_MorphorayChicken_Update {
     using fn = void (*)(uint32_t);
 };
 
-// The update of class 305, each tick. Experimental: from the behaviour catalogue.
-struct Moby_Class305_Update {
-    static constexpr const char* id = "rac1.moby.moby305.update";
-    static constexpr const char* name = "Moby_Class305_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
 // The update of class 428, each tick. Experimental: from the behaviour catalogue.
 struct Moby_Class428_Update {
     static constexpr const char* id = "rac1.moby.moby428.update";
     static constexpr const char* name = "Moby_Class428_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class ryno (454), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Ryno_Update {
-    static constexpr const char* id = "rac1.moby.ryno.update";
-    static constexpr const char* name = "Moby_Ryno_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class rocket (457), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Rocket_Update {
-    static constexpr const char* id = "rac1.moby.rocket_steer.update";
-    static constexpr const char* name = "Moby_Rocket_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -791,14 +1023,6 @@ struct Moby_BoltCrate_Update {
 struct Moby_VeldinShip_Update {
     static constexpr const char* id = "rac1.moby.veldin_ship.update";
     static constexpr const char* name = "Moby_VeldinShip_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class decoy_glove (562), each tick. Experimental: from the behaviour catalogue.
-struct Moby_DecoyGlove_Update {
-    static constexpr const char* id = "rac1.moby.decoy_glove.update";
-    static constexpr const char* name = "Moby_DecoyGlove_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -879,14 +1103,6 @@ struct Moby_NanotechBall_Update {
 struct Moby_ClankCutsceneTrigger_Update {
     static constexpr const char* id = "rac1.moby.moby834.update";
     static constexpr const char* name = "Moby_ClankCutsceneTrigger_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of class suckcannon (849), each tick. Experimental: from the behaviour catalogue.
-struct Moby_Suckcannon_Update {
-    static constexpr const char* id = "rac1.moby.suck_cannon.update";
-    static constexpr const char* name = "Moby_Suckcannon_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -1015,14 +1231,6 @@ struct Moby_Class156_Update {
 struct Moby_BoltCrank_Update {
     static constexpr const char* id = "rac1.moby.bolt_crank.update";
     static constexpr const char* name = "Moby_BoltCrank_Update";
-    static constexpr const char* signature = "void(u32)";
-    using fn = void (*)(uint32_t);
-};
-
-// The update of classes gold_weapon_case (304), gold_bomb_glove (1456), gold_pyrocitor (1457), gold_blaster (1458) and 7 more, each tick. Experimental: from the behaviour catalogue.
-struct Moby_GoldWeaponCase_Update {
-    static constexpr const char* id = "rac1.moby.item_offer.update";
-    static constexpr const char* name = "Moby_GoldWeaponCase_Update";
     static constexpr const char* signature = "void(u32)";
     using fn = void (*)(uint32_t);
 };
@@ -5654,7 +5862,7 @@ namespace hooks {
             using update = rac1::Moby_Class317_Update;
         }  // namespace ambient_stream_l07
         namespace ammo_pickup {
-            using update = rac1::Moby_DevestatorAmmo_Update;
+            using update = rac1::Ammo_Pickup;
         }  // namespace ammo_pickup
         namespace amoeboid {
             using update = rac1::Moby_LargeAmoeboid_Update;
@@ -5744,7 +5952,7 @@ namespace hooks {
             using update = rac1::Moby_BoltThief923_Update;
         }  // namespace bolt_thief
         namespace bomb_230 {
-            using update = rac1::Moby_Bomb_Update;
+            using update = rac1::projectile_doom_capsule_update;
         }  // namespace bomb_230
         namespace bomb_248 {
             using update = rac1::Moby_Bomb248_Update;
@@ -5810,7 +6018,7 @@ namespace hooks {
             using update = rac1::Moby_Class440_Update;
         }  // namespace cannon
         namespace carrier {
-            using update = rac1::Moby_GloveOfDoom_Update;
+            using update = rac1::Weapon_GloveOfDoom_Update;
         }  // namespace carrier
         namespace challenge {
             using update = rac1::Moby_Class1347_Update;
@@ -5967,7 +6175,7 @@ namespace hooks {
             using update = rac1::Moby_Class325_Update;
         }  // namespace debris_particle
         namespace decoy_glove {
-            using update = rac1::Moby_DecoyGlove_Update;
+            using update = rac1::Weapon_Decoy_Update;
         }  // namespace decoy_glove
         namespace delete_moby {
             using update = rac1::Moby_TransportShip_Update;
@@ -5976,7 +6184,7 @@ namespace hooks {
             using update = rac1::Moby_BataliaDeserter_Update;
         }  // namespace deserter
         namespace doom_bot {
-            using update = rac1::Moby_DoomBot_Update;
+            using update = rac1::projectile_doom_agent_update;
         }  // namespace doom_bot
         namespace door {
             using update = rac1::Moby_Door_Update;
@@ -6219,7 +6427,7 @@ namespace hooks {
             using update = rac1::Moby_Class558_Update;
         }  // namespace help_volume
         namespace hero_bomb {
-            using update = rac1::Moby_Class121_Update;
+            using update = rac1::projectile_bomb_update;
         }  // namespace hero_bomb
         namespace hideable_flower {
             using update = rac1::Moby_SwingshotVersatarget_Update;
@@ -6339,10 +6547,10 @@ namespace hooks {
             using update = rac1::Moby_MetropolisTrainCarriage_Update;
         }  // namespace metropolis_train_carriage
         namespace mine {
-            using update = rac1::Moby_Mine_Update;
+            using update = rac1::projectile_mine_update;
         }  // namespace mine
         namespace mine_glove {
-            using update = rac1::Moby_MineGlove_Update;
+            using update = rac1::Weapon_MineGlove_Update;
         }  // namespace mine_glove
         namespace mine_l14 {
             using update = rac1::Moby_Mine643_Update;
@@ -6357,7 +6565,7 @@ namespace hooks {
             using update = rac1::Moby_Minibomber_Update;
         }  // namespace minibomber
         namespace missile {
-            using update = rac1::Moby_GoldDevastatorMissile_Update;
+            using update = rac1::projectile_devastator_rocket_update;
         }  // namespace missile
         namespace moby1000 {
             using update = rac1::Moby_Class1000_Update;
@@ -6627,7 +6835,7 @@ namespace hooks {
             using update = rac1::Moby_Class1629_Update;
         }  // namespace moby1629
         namespace moby163 {
-            using update = rac1::Moby_Visibomb_Update;
+            using update = rac1::Weapon_Visibomb_Update;
         }  // namespace moby163
         namespace moby1632 {
             using update = rac1::Moby_Class1632_Update;
@@ -6648,7 +6856,7 @@ namespace hooks {
             using update = rac1::Moby_Class167_Update;
         }  // namespace moby167
         namespace moby175 {
-            using update = rac1::Moby_Taunter_Update;
+            using update = rac1::Weapon_Taunter_Update;
         }  // namespace moby175
         namespace moby1766 {
             using update = rac1::Moby_Shuttle1766_Update;
@@ -6663,7 +6871,7 @@ namespace hooks {
             using update = rac1::Moby_Class1799_Update;
         }  // namespace moby1799
         namespace moby180 {
-            using update = rac1::Moby_Walloper_Update;
+            using update = rac1::Weapon_Walloper_Update;
         }  // namespace moby180
         namespace moby1805 {
             using update = rac1::Moby_BlargShip1805_Update;
@@ -6714,7 +6922,7 @@ namespace hooks {
             using update = rac1::Moby_Gadgebot1906_Update;
         }  // namespace moby1906
         namespace moby192 {
-            using update = rac1::Moby_BombGlove_Update;
+            using update = rac1::Weapon_BombGlove_Update;
         }  // namespace moby192
         namespace moby209 {
             using update = rac1::Moby_SwingshotHook_Update;
@@ -6750,7 +6958,7 @@ namespace hooks {
             using update = rac1::Moby_GadgebotSpawnPad_Update;
         }  // namespace moby303
         namespace moby305 {
-            using update = rac1::Moby_Class305_Update;
+            using update = rac1::projectile_blaster_shot_update;
         }  // namespace moby305
         namespace moby309 {
             using update = rac1::Moby_Platform309_Update;
@@ -7002,7 +7210,7 @@ namespace hooks {
             using update = rac1::Moby_Class667_Update;
         }  // namespace moby_state_relay
         namespace morphoray {
-            using update = rac1::Moby_Morphoray_Update;
+            using update = rac1::Weapon_MorphORay_Update;
         }  // namespace morphoray
         namespace morphoray_chicken {
             using update = rac1::Moby_MorphorayChicken_Update;
@@ -7158,7 +7366,7 @@ namespace hooks {
             using update = rac1::Moby_ConveyorBelt_Update;
         }  // namespace pusher
         namespace pyrocitor {
-            using update = rac1::Moby_Pyrocitor_Update;
+            using update = rac1::Weapon_Pyrocitor_Update;
         }  // namespace pyrocitor
         namespace quad_moby {
             using update = rac1::Moby_Class1138_Update;
@@ -7225,7 +7433,7 @@ namespace hooks {
             using update = rac1::Moby_RocketLauncher_Update;
         }  // namespace rocket_launcher
         namespace rocket_steer {
-            using update = rac1::Moby_Rocket_Update;
+            using update = rac1::projectile_ryno_rocket_update;
         }  // namespace rocket_steer
         namespace rotate_platform {
             using update = rac1::Moby_Platform_Update;
@@ -7237,7 +7445,7 @@ namespace hooks {
             using update = rac1::Moby_Shuttle424_Update;
         }  // namespace route_platform
         namespace ryno {
-            using update = rac1::Moby_Ryno_Update;
+            using update = rac1::Weapon_Ryno_Update;
         }  // namespace ryno
         namespace sand_mouse {
             using update = rac1::Moby_SandMouse_Update;
@@ -7378,7 +7586,7 @@ namespace hooks {
             using update = rac1::Moby_Door1359_Update;
         }  // namespace stops_platform
         namespace suck_cannon {
-            using update = rac1::Moby_Suckcannon_Update;
+            using update = rac1::Weapon_SuckCannon_Update;
         }  // namespace suck_cannon
         namespace swarm {
             using update = rac1::Moby_Class86_Update;
@@ -7510,7 +7718,7 @@ namespace hooks {
             using update = rac1::Moby_Class644_Update;
         }  // namespace vendor_moby
         namespace visibomb_missile {
-            using update = rac1::Moby_VisibombMissile_Update;
+            using update = rac1::projectile_visibomb_update;
         }  // namespace visibomb_missile
         namespace wandering_helper {
             using update = rac1::Moby_Chomper_Update;
@@ -7546,9 +7754,73 @@ namespace hooks {
             using update = rac1::Moby_WoodcutBot_Update;
         }  // namespace wb_moby
         namespace wrench {
-            using update = rac1::Moby_Wrench_Update;
+            using update = rac1::Wrench_Update;
         }  // namespace wrench
     }  // namespace moby
+    namespace omni {
+        namespace ammo {
+            using add = rac1::Ammo_Add;
+            using collect = rac1::Ammo_Collect;
+        }  // namespace ammo
+        namespace blast {
+            using apply = rac1::blast_apply;
+        }  // namespace blast
+        namespace collide {
+            using segment = rac1::collide_segment;
+            using sphere_mobys = rac1::collide_sphere_mobys;
+        }  // namespace collide
+        namespace damage {
+            using build_hit = rac1::Damage_BuildHit;
+            using hit_victim = rac1::Damage_HitVictim;
+            using resolve = rac1::Damage_Resolve;
+        }  // namespace damage
+        namespace hero {
+            using items_attach = rac1::HeroItems_Attach;
+        }  // namespace hero
+        namespace hud {
+            using health_draw = rac1::Hud_HealthDraw;
+        }  // namespace hud
+        namespace moby {
+            using create = rac1::moby_create;
+            using delete_ = rac1::moby_delete;
+        }  // namespace moby
+        namespace weapon {
+            namespace blaster {
+                using fire = rac1::Weapon_Blaster_Fire;
+                using update = rac1::Weapon_Blaster_Update;
+            }  // namespace blaster
+            namespace bomb_glove {
+                using fire = rac1::Weapon_BombGlove_Fire;
+            }  // namespace bomb_glove
+            namespace devastator {
+                using fire = rac1::Weapon_Devastator_Fire;
+                using update = rac1::Weapon_Devastator_Update;
+            }  // namespace devastator
+            namespace flame {
+                using create = rac1::Pyrocitor_FlameCreate;
+            }  // namespace flame
+            namespace glove_of_doom {
+                using fire = rac1::Weapon_GloveOfDoom_Fire;
+            }  // namespace glove_of_doom
+            namespace mine_glove {
+                using fire = rac1::Weapon_MineGlove_Fire;
+            }  // namespace mine_glove
+            namespace ryno {
+                using fire = rac1::Weapon_Ryno_Fire;
+            }  // namespace ryno
+            using select = rac1::Hero_ItemRequestApply;
+            namespace tesla_claw {
+                using update = rac1::Weapon_TeslaClaw_Update;
+            }  // namespace tesla_claw
+            namespace visibomb {
+                using fire = rac1::Weapon_Visibomb_Fire;
+            }  // namespace visibomb
+        }  // namespace weapon
+        namespace wrench {
+            using swing = rac1::Wrench_SwingSweep;
+            using throw_ = rac1::Wrench_ThrowRelease;
+        }  // namespace wrench
+    }  // namespace omni
     namespace pad {
         using process_report = rac1::Pad_ProcessReport;
     }  // namespace pad

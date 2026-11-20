@@ -1,0 +1,27 @@
+-- SPDX-License-Identifier: GPL-3.0-or-later
+-- Copyright (c) 2026 the OpenRAC contributors
+local STRUCTS = {
+	moby = { x={16,"f32",false}, y={20,"f32",false}, z={24,"f32",false}, state={32,"u8",true}, flags={52,"u16",true}, pvar={120,"u32",true}, hit_slot={164,"u8",false}, class={166,"i16",true}, bolts={180,"i16",false}, rot_x={64,"f32",false}, rot_y={68,"f32",false}, yaw={72,"f32",false}, scale={44,"f32",false}, class_ptr={36,"u32",true}, next={40,"u32",true}, update={116,"u32",false}, index={172,"u32",true}, mission={176,"u8",false}, hit_flag={188,"u8",false}, tint={144,"u32",false}, visible={49,"u8",false}, light0={56,"u32",false}, light1={60,"u32",false}, clock0={80,"u32",false}, clock1={84,"u32",false}, clock2={88,"u32",false}, clock3={92,"u32",false}, row0_x={192,"f32",false}, row0_y={196,"f32",false}, row0_z={200,"f32",false}, row0_w={204,"f32",false}, row1_x={208,"f32",false}, row1_y={212,"f32",false}, row1_z={216,"f32",false}, row1_w={220,"f32",false}, row2_x={224,"f32",false}, row2_y={228,"f32",false}, row2_z={232,"f32",false}, row2_w={236,"f32",false}, flags_w={52,"u16",false}, sphere_x={0,"f32",false}, sphere_y={4,"f32",false}, sphere_z={8,"f32",false}, sphere_r={12,"f32",false}, update_dist={48,"u8",false}, draw_dist={50,"i16",false} },
+	enemy = { health={32,"f32",false} },
+	hit = { attacker={32,"u32",false}, strength={44,"f32",false} },
+	hit_desc = { attacker={16,"u32",false}, mask={20,"u32",false}, damage={28,"f32",false}, one={32,"u8",false}, type={24,"u8",false}, strength_class={25,"u8",false}, attacker_class={26,"u16",false} },
+	pvar0 = { component={0,"u32",false} },
+	component = { health={0,"f32",false}, reaction={8,"u8",false}, radius8={10,"u8",false}, aim_height={16,"f32",false}, alert={24,"u32",true} },
+	blaster_shot = { aim_x={0,"f32",false}, aim_y={4,"f32",false}, aim_z={8,"f32",false}, yaw_vel={16,"f32",false}, pitch_vel={20,"f32",false}, fallback_yaw={24,"f32",false}, fallback_pitch={28,"f32",false}, owner={32,"u32",false}, life={36,"i16",false}, life_max={38,"i16",false}, bounces={40,"i32",false} },
+	ryno_rocket = { aim_x={0,"f32",false}, aim_y={4,"f32",false}, aim_z={8,"f32",false}, owner={32,"u32",false}, age={36,"i32",false}, target={40,"u32",false}, aim_height={44,"f32",false}, speed={48,"f32",false}, turn_yaw={52,"f32",false}, turn_pitch={56,"f32",false}, wobble={68,"f32",false}, target_class={88,"i32",false} },
+	devastator_rocket = { last_hit={16,"u32",false}, life={20,"i32",false}, target={24,"u32",false}, aim_height={44,"f32",false}, bounces={64,"i32",false}, rearm={68,"i32",false}, max_dist={72,"f32",false} },
+	bomb = { vx={0,"f32",false}, vy={4,"f32",false}, vz={8,"f32",false}, owner={80,"u32",false}, fuse={84,"i16",false}, water={104,"i16",false}, tint={106,"i16",false} },
+	mine = { vx={0,"f32",false}, vy={4,"f32",false}, vz={8,"f32",false}, owner={48,"u32",false}, stuck_to={76,"u32",false}, landed={80,"i16",false}, target={84,"u32",true}, age={92,"u32",false}, chase_wide={120,"u32",false} },
+	doom_agent = { goal_x={0,"f32",false}, goal_y={4,"f32",false}, goal_z={8,"f32",false}, vx={16,"f32",false}, vy={20,"f32",false}, vz={24,"f32",false}, age={52,"i32",false}, target={56,"u32",false}, speed={92,"f32",false}, owner={96,"u32",false} },
+	visibomb = { life={16,"i32",false}, speed={72,"f32",false} },
+	gold_case = { index={64,"i32",true} },
+	matrix4 = { m00={0,"f32",false}, m01={4,"f32",false}, m02={8,"f32",false}, m03={12,"f32",false}, m10={16,"f32",false}, m11={20,"f32",false}, m12={24,"f32",false}, m13={28,"f32",false}, m20={32,"f32",false}, m21={36,"f32",false}, m22={40,"f32",false}, m23={44,"f32",false}, m30={48,"f32",false}, m31={52,"f32",false}, m32={56,"f32",false}, m33={60,"f32",false} },
+	decoy = { timer={68,"i16",false}, health={72,"f32",false} },
+	drone = { attacks_left={86,"i16",false} },
+	held_taunter = { range={8,"f32",false} },
+	held_morph = { target={16,"u32",true}, max={20,"f32",false}, time_left={24,"f32",false}, lock={68,"i32",false} },
+	tesla_claw = { target1={32,"u32",true}, target2={56,"u32",true}, marker={62,"i16",false} },
+	flame = { life={10,"u16",false}, start_life={61,"u8",false} },
+	vec4 = { x={0,"f32",false}, y={4,"f32",false}, z={8,"f32",false}, w={12,"f32",false} },
+	hud_health = { fade_bar={112,"u8",true}, fade_orbs={113,"u8",true}, result={88,"u32",true} },
+}

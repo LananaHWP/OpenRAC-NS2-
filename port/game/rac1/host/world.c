@@ -372,7 +372,7 @@ void func_0020D678(gaddr moby) {
         deletions[slot].seen = 1;
         deletions[slot].loads = rac1_moby_generation();
     }
-    func_0020D678__game(moby);
+    func_0020D678__hooked(moby);
 }
 
 int rac1_world_moby_deletion(int32_t slot, openrac_game_moby_deletion* out) {
@@ -724,7 +724,7 @@ void func_L00_0025AC00(gaddr victim, float damage, int attacker, int mask, gaddr
 void func_L00_0025AAC0(gaddr victim, gaddr source) {
     uint8_t old[HIT_SIZE];
     const uint8_t before = hit_before(victim, old);
-    func_L00_0025AAC0__game(victim, source);
+    func_L00_0025AAC0__hooked(victim, source);
     hit_written(victim, before, old);
 }
 

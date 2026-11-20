@@ -79,6 +79,7 @@
 #include "platform/pump.h"
 #include "platform/window.h"
 #include "renderer/gl/gl.h"
+#include "renderer/textures/button_glyphs.h"
 #include "renderer/textures/pack_pictures.h"
 #include "renderer/textures/pcsx2_pack.h"
 #include "renderer/textures/texture_pack.h"
@@ -241,6 +242,9 @@ int (*openrac_game_skip_buttons)(void) = nullptr;
 void (*openrac_game_skip)(void) = nullptr;
 int (*openrac_game_flight)(void) = nullptr;
 int (*openrac_game_mode)(uint32_t* mode) = nullptr;
+int (*openrac_game_moby_query)(const openrac_moby_query* query, uint32_t* out, uint32_t capacity) = nullptr;
+int (*openrac_game_moby_valid)(uint32_t moby) = nullptr;
+int (*openrac_game_moby_enemy)(uint32_t moby) = nullptr;
 int (*openrac_game_touch)(const char** context, const char* hints[OPENRAC_TOUCH_HINTS_MAX]) =
     nullptr;
 int (*openrac_game_hero_position)(float xyz[3]) = nullptr;
@@ -547,7 +551,38 @@ bool has_virtual_sector_mappings(const fs::path& mount) {
 
 }  // namespace
 
+#if defined(OPENRAC_SWITCH2)
+#include "../../platform_switch2/trace.h"
+extern "C" void openrac_switch2_load_env(void);
+#endif
+
+#if defined(OPENRAC_SWITCH2)
+namespace {
+// Whether a menu is up now (the game's own context, openrac_game_touch: the title's menus, the pause menu and its map, a dialogue, a vendor): there the pad's A
+// confirms and B goes back, the way a Nintendo pad is used, so the foot and the right button trade places (platform/input.h) and so do the pictures
+// of the two in the game's text (button_glyphs.h). Settings: game_menu_swap_ab = 0 keeps the game's own (Cross, the foot, confirms).
+bool in_a_menu() {
+    static const bool wanted = settings::game_option("game_menu_swap_ab", 1) != 0;
+    bool menu = false;
+    if (wanted && openrac_game_touch != nullptr) {
+        const char* context = nullptr;
+        const char* hints[OPENRAC_TOUCH_HINTS_MAX] = {};
+        if (openrac_game_touch(&context, hints) >= 0 && context != nullptr) {
+            menu = std::strcmp(context, "front_end") == 0 || std::strcmp(context, "menu") == 0 || std::strcmp(context, "map") == 0
+                   || std::strcmp(context, "dialog") == 0 || std::strcmp(context, "vendor") == 0;
+        }
+    }
+    renderer::button_glyphs::set_menu_context(menu);
+    return menu;
+}
+}  // namespace
+#endif
+
 int main(int argc, char** argv) {
+#if defined(OPENRAC_SWITCH2)
+    openrac_switch2_trace("main: start, argc %d", argc);
+    openrac_switch2_load_env();  // sdmc:/switch/openrac/env.txt (also read, earlier, by common/env.cpp)
+#endif
 #if defined(OPENRAC_IOS)
     auto ios_arguments = openrac::platform::ios_arguments();
     std::vector<char*> ios_argv;
@@ -715,6 +750,17 @@ int main(int argc, char** argv) {
         openrac_game_language = std::clamp(
             settings::game_option("game_language", kFirstLanguage), kFirstLanguage, kLastLanguage
         );
+        // The button pictures in the game's text: 0 the PlayStation's (the game's own), 1 letters (A B X Y), 2 the Switch's layout. The console's default
+        // is its own pad (settings.ini: game_button_glyphs).
+#if defined(OPENRAC_SWITCH2)
+        constexpr int kDefaultGlyphs = 2;
+#else
+        constexpr int kDefaultGlyphs = 0;
+#endif
+        renderer::button_glyphs::set_style(settings::game_option("game_button_glyphs", kDefaultGlyphs));
+#if defined(OPENRAC_SWITCH2)
+        platform::set_menu_context_query(in_a_menu);
+#endif
         if (settings::get().verbose_log && log::level() > log::Level::Verbose) {
             log::set_level(log::Level::Verbose);
             log::info("the settings ask for the detailed log (verbose_log = 1)");
@@ -828,6 +874,9 @@ int main(int argc, char** argv) {
     // What the console's start-up code did before main: the stack and heap are
     // the runtime's, .bss was zeroed by the loader.
     int ran = 0;
+#if defined(OPENRAC_SWITCH2)
+    openrac_switch2_trace("main: starting the game");
+#endif
 #ifdef OPENRAC_FRONTEND
     if (g_window) {
         // Beside the window's event pump, so the game goes on while the system holds the pump (a
@@ -838,6 +887,9 @@ int main(int argc, char** argv) {
     }
 #else
     ran = run_game_as_the_ee();
+#endif
+#if defined(OPENRAC_SWITCH2)
+    openrac_switch2_trace("main: the game returned %d", ran);
 #endif
 #ifdef OPENRAC_FRONTEND
     // A returning game must join rendering before process-static graphics state is destroyed.

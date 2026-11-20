@@ -42,6 +42,16 @@ struct Services {
     int (*setting_set_string)(openrac_mod* mod, const char* key, const char* value) = nullptr;
     int (*on_settings)(openrac_mod* mod, openrac_frame_fn fn, void* user) = nullptr;
     const std::map<std::string, SettingValue>* (*settings_of)(openrac_mod* mod) = nullptr;
+    // The mod's own data folder (openrac_api's data_dir), for the omni table's save store.
+    const char* (*data_dir)(openrac_mod* mod) = nullptr;
+    // Whether the running game has a hook point of this id or alias (the host's table, not only the binding).
+    bool (*hook_exists)(const char* name) = nullptr;
+    // The mod draws over the game once a frame (openrac_api's on_overlay), for the omni table's draw list. Only while loading.
+    int (*on_overlay)(openrac_mod* mod, openrac_overlay_fn fn, void* user) = nullptr;
+    // The mod's data for the game in progress (openrac_api's save_data_set, save_data_get, on_save_data): the omni table's save store.
+    int (*save_data_set)(openrac_mod* mod, const void* bytes, std::uint32_t size) = nullptr;
+    std::uint32_t (*save_data_get)(openrac_mod* mod, void* out, std::uint32_t size) = nullptr;
+    int (*on_save_data)(openrac_mod* mod, openrac_frame_fn fn, void* user) = nullptr;
 };
 
 struct Mod {

@@ -14,6 +14,7 @@
 #include <format>
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <sstream>
 
 #include "common/c_boundary.h"
@@ -23,6 +24,7 @@
 #include "luacode.h"
 #include "lualib.h"
 #include "mod_touch.h"
+#include "openrac/game_host.h"
 #include "openrac/guest.h"
 #include "openrac/keys.h"
 
@@ -37,11 +39,16 @@ constexpr std::uint32_t kRamSize = 32u * 1024u * 1024u;  // what read and write 
 using Clock = std::chrono::steady_clock;
 
 double g_budget_ms = [] {
-    const double v = env::number(env::Var::ScriptBudgetMs, 2.0);
+#if defined(OPENRAC_SWITCH2)
+    constexpr double kDefaultBudget = 250.0;  // the console's cores are far slower than a desktop's and a write to its card can stall a tick: a runaway script is still cut
+#else
+    constexpr double kDefaultBudget = 2.0;
+#endif
+    const double v = env::number(env::Var::ScriptBudgetMs, kDefaultBudget);
     if (v > 0.0) {
         return v;
     }
-    return 2.0;
+    return kDefaultBudget;
 }();
 
 struct State;
@@ -72,6 +79,15 @@ struct Callback {
     int fn = LUA_NOREF;
 };
 
+// One command of a mod's draw list (omni.draw): kind 1 rect, 2 text, 3 bar.
+struct DrawCmd {
+    int kind = 0;
+    float x = 0, y = 0, w = 0, h = 0, value = 0, size = 1;
+    std::uint32_t color = 0, shadow = 0;
+    int align = 0;  // 0 left, 1 centre, 2 right
+    std::string text;
+};
+
 struct State {
     Mod mod;
     Services services;
@@ -87,6 +103,12 @@ struct State {
     std::string where;  // what the call under way is: "load", "hook Hero_TurnToHeading", ...
     std::vector<std::unique_ptr<Link>> links;
     std::vector<std::unique_ptr<Callback>> callbacks;
+    // The omni table's draw list (omni.draw): the commands the scripts made this tick are `next`; `live` is the last complete tick's, which the
+    // overlay draws every frame until the next tick has made its own.
+    std::vector<DrawCmd> draw_next;
+    std::vector<DrawCmd> draw_live;
+    std::mutex draw_lock;
+    int save_event = 0;  // the game in progress changed: 1 a save with the mod's data, 2 a new game; read by omni's tick
 };
 
 std::vector<std::unique_ptr<State>> g_states;
@@ -105,8 +127,18 @@ void interrupt(lua_State* L, int gc) {
         return;
     }
     State* s = state_of(L);
-    if (s != nullptr && s->budget.running && elapsed(s->budget) * 1000.0 > g_budget_ms) {
-        luaL_error(L, "ran over its time budget (%g ms)", g_budget_ms);
+    if (s == nullptr || !s->budget.running) {
+        return;
+    }
+#if defined(OPENRAC_SWITCH2)
+    // A mod's first run (its files compiled, its modules set up) is a one-off that a desktop does in a few ms and the console's cores take
+    // far longer over.
+    const double limit = s->loading ? 1000.0 : g_budget_ms;
+#else
+    const double limit = g_budget_ms;
+#endif
+    if (elapsed(s->budget) * 1000.0 > limit) {
+        luaL_error(L, "ran over its time budget (%g ms)", limit);
     }
 }
 
@@ -967,6 +999,347 @@ void restrict_library(lua_State* L) {
     lua_setglobal(L, "require");
 }
 
+// ---- the omni table (mod_omni.luau): the host helpers it stands on ----
+
+// openrac level program that is loaded, 0..18, else -1 (the title, the boot executable, no level yet).
+int omni_level(lua_State* L) {
+    const int overlay = openrac_game_loaded_overlay();
+    lua_pushinteger(L, overlay >= 0 && overlay <= 18 ? overlay : -1);
+    return 1;
+}
+
+// The game mode word while a level is loaded (0 gameplay ... 7 sprite screen), else -1.
+int omni_mode(lua_State* L) {
+    std::uint32_t mode = 0;
+    if (openrac_game_mode != nullptr && openrac_game_mode(&mode) != 0) {
+        lua_pushinteger(L, static_cast<int>(mode));
+    } else {
+        lua_pushinteger(L, -1);
+    }
+    return 1;
+}
+
+// Whether the game's binding has a hook point of this id or alias.
+int omni_has_hook(lua_State* L) {
+    State* s = state_of(L);
+    const char* name = luaL_checkstring(L, 1);
+    bool found = false;
+    if (s->binding != nullptr) {
+        const char* id = openrac_script_hook_id(s->binding, name);
+        for (int i = 0; id != nullptr && i < s->binding->point_count; ++i) {
+            if (std::strcmp(s->binding->points[i].name, id) == 0) {
+                found = true;
+            }
+        }
+    }
+    // The binding lists what OpenRAC knows of; the game running may not carry it (a hook point left out of this version).
+    if (found && s->services.hook_exists != nullptr) {
+        found = s->services.hook_exists(name);
+    }
+    lua_pushboolean(L, found ? 1 : 0);
+    return 1;
+}
+
+// A file of the mod's own data folder (a plain name: letters, digits, '.', '-', '_'); empty when there is no such folder or name.
+std::filesystem::path omni_file(State* s, const char* name) {
+    const char* dir = s->services.data_dir != nullptr ? s->services.data_dir(s->mod.handle) : nullptr;
+    if (dir == nullptr || name == nullptr || *name == ' ' || std::strstr(name, "..") != nullptr) {
+        return {};
+    }
+    for (const char* c = name; *c != ' '; ++c) {
+        const bool ok = (*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <= 'Z') || (*c >= '0' && *c <= '9') || *c == '.' || *c == '-' || *c == '_';
+        if (!ok) {
+            return {};
+        }
+    }
+    return std::filesystem::path(dir) / name;
+}
+
+int omni_read_file(lua_State* L) {
+    const std::filesystem::path path = omni_file(state_of(L), luaL_checkstring(L, 1));
+    std::string text;
+    if (path.empty() || !read_file(path, text) || text.size() > (1u << 20)) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushlstring(L, text.data(), text.size());
+    return 1;
+}
+
+int omni_write_file(lua_State* L) {
+    const std::filesystem::path path = omni_file(state_of(L), luaL_checkstring(L, 1));
+    std::size_t size = 0;
+    const char* text = luaL_checklstring(L, 2, &size);
+    bool ok = false;
+    if (!path.empty() && size <= (1u << 20)) {
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec);
+        std::ofstream f(path, std::ios::binary | std::ios::trunc);
+        f.write(text, static_cast<std::streamsize>(size));
+        ok = static_cast<bool>(f);
+    }
+    lua_pushboolean(L, ok ? 1 : 0);
+    return 1;
+}
+
+
+// ---- the omni table: moby queries and drawing
+
+// A float the game passes by address (omni.out_f32): the address of a local of the function that called, which lives in the port's own region
+// (the game's stack, GUEST_STACK_*), not only in RAM. Anything else is refused.
+bool omni_float_address(double address) {
+    if (!(address > 0) || address >= 4294967296.0) {
+        return false;
+    }
+    const auto a = static_cast<std::uint64_t>(address);
+    const bool ram = a + 4 <= kRamSize;
+    const bool port = a >= GUEST_PORT && a + 4 <= static_cast<std::uint64_t>(GUEST_PORT) + GUEST_PORT_SIZE;
+    return (ram || port) && (a & 3u) == 0;
+}
+
+int omni_out_f32(lua_State* L) {
+    const double address = luaL_checknumber(L, 1);
+    if (!omni_float_address(address)) {
+        return 0;
+    }
+    float* p = static_cast<float*>(openrac_guest_ptr(static_cast<gaddr>(address)));
+    if (lua_isnoneornil(L, 2)) {
+        lua_pushnumber(L, static_cast<double>(*p));
+        return 1;
+    }
+    *p = static_cast<float>(luaL_checknumber(L, 2));
+    lua_pushboolean(L, 1);
+    return 1;
+}
+
+int omni_can_mobys(lua_State* L) {
+    lua_pushboolean(L, openrac_game_moby_query != nullptr ? 1 : 0);
+    return 1;
+}
+
+// mobys(flags, x, y, z, radius, max, classes): the addresses of the live mobys that match, nearest first when flags has NEAR (1); the
+// level's own answer is none (an empty table) outside a level.
+int omni_mobys(lua_State* L) {
+    lua_newtable(L);
+    if (openrac_game_moby_query == nullptr) {
+        return 1;
+    }
+    openrac_moby_query q{};
+    q.flags = static_cast<std::uint32_t>(luaL_optinteger(L, 1, 0));
+    for (int i = 0; i < 3; ++i) {
+        q.near[i] = static_cast<float>(luaL_optnumber(L, 2 + i, 0.0));
+    }
+    q.radius = static_cast<float>(luaL_optnumber(L, 5, 0.0));
+    q.max = static_cast<std::uint32_t>(luaL_optinteger(L, 6, 0));
+    if (lua_istable(L, 7)) {
+        const int count = std::min(lua_objlen(L, 7), OPENRAC_MOBY_QUERY_CLASSES);
+        for (int i = 1; i <= count; ++i) {
+            lua_rawgeti(L, 7, i);
+            q.classes[i - 1] = static_cast<std::int32_t>(lua_tointeger(L, -1));
+            lua_pop(L, 1);
+        }
+        q.class_count = static_cast<std::uint32_t>(count);
+    }
+    std::uint32_t out[256];
+    const int n = openrac_game_moby_query(&q, out, 256);
+    for (int i = 0; i < n; ++i) {
+        lua_pushnumber(L, static_cast<double>(out[i]));
+        lua_rawseti(L, -2, i + 1);  // the table is just below the number
+    }
+    return 1;
+}
+
+int omni_moby_valid(lua_State* L) {
+    const double address = luaL_checknumber(L, 1);
+    lua_pushboolean(
+        L, openrac_game_moby_valid != nullptr && address > 0 && address < 4294967296.0
+               && openrac_game_moby_valid(static_cast<std::uint32_t>(address)) != 0
+    );
+    return 1;
+}
+
+int omni_is_enemy(lua_State* L) {
+    const double address = luaL_checknumber(L, 1);
+    lua_pushboolean(
+        L, openrac_game_moby_enemy != nullptr && address > 0 && address < 4294967296.0
+               && openrac_game_moby_enemy(static_cast<std::uint32_t>(address)) != 0
+    );
+    return 1;
+}
+
+constexpr std::size_t kMaxDrawCommands = 600;
+constexpr float kTextHeightPerSize = 14.0f;  // omni.draw's text size 1.0, in the game's 512 x 448 picture
+
+int omni_draw_begin(lua_State* L) {
+    State* s = state_of(L);
+    const std::lock_guard guard(s->draw_lock);
+    const auto made = s->draw_next.size();
+    s->draw_live = std::move(s->draw_next);
+    s->draw_next.clear();
+    lua_pushinteger(L, static_cast<int>(made));
+    return 1;
+}
+
+// draw_cmd(kind, x, y, w, h, value, color, shadow, size, align, text)
+int omni_draw_cmd(lua_State* L) {
+    State* s = state_of(L);
+    DrawCmd c;
+    c.kind = static_cast<int>(luaL_checkinteger(L, 1));
+    c.x = static_cast<float>(luaL_optnumber(L, 2, 0.0));
+    c.y = static_cast<float>(luaL_optnumber(L, 3, 0.0));
+    c.w = static_cast<float>(luaL_optnumber(L, 4, 0.0));
+    c.h = static_cast<float>(luaL_optnumber(L, 5, 0.0));
+    c.value = static_cast<float>(luaL_optnumber(L, 6, 0.0));
+    c.color = static_cast<std::uint32_t>(static_cast<std::uint64_t>(luaL_optnumber(L, 7, 0.0)));
+    c.shadow = static_cast<std::uint32_t>(static_cast<std::uint64_t>(luaL_optnumber(L, 8, 0.0)));
+    c.size = static_cast<float>(luaL_optnumber(L, 9, 1.0));
+    c.align = static_cast<int>(luaL_optinteger(L, 10, 0));
+    if (const char* text = lua_tostring(L, 11)) {
+        c.text = text;
+    }
+    const std::lock_guard guard(s->draw_lock);
+    if (s->draw_next.size() < kMaxDrawCommands) {
+        s->draw_next.push_back(std::move(c));
+    }
+    return 0;
+}
+
+// The mod's draw list, over the game: after the world, once a frame (openrac_overlay_fn).
+void omni_overlay(void* user, const openrac_overlay* o) {
+    auto* s = static_cast<State*>(user);
+    if (s->stopped || o == nullptr || o->rect == nullptr || o->text == nullptr) {
+        return;
+    }
+    const std::lock_guard guard(s->draw_lock);
+    for (const DrawCmd& c : s->draw_live) {
+        switch (c.kind) {
+            case 1:
+                if ((c.color & 255u) != 0) {
+                    o->rect(o->context, c.x, c.y, c.w, c.h, c.color);
+                }
+                break;
+            case 3: {
+                if ((c.shadow & 255u) != 0) {
+                    o->rect(o->context, c.x, c.y, c.w, c.h, c.shadow);
+                }
+                const float fraction = std::isfinite(c.value) ? std::clamp(c.value, 0.0f, 1.0f) : 0.0f;
+                if ((c.color & 255u) != 0 && fraction > 0.0f) {
+                    o->rect(o->context, c.x, c.y, c.w * fraction, c.h, c.color);
+                }
+                break;
+            }
+            case 2: {
+                const float height = std::clamp(c.size, 0.1f, 16.0f) * kTextHeightPerSize;
+                float x = c.x;
+                if (c.align != 0 && o->text_width != nullptr) {
+                    const float width = o->text_width(o->context, height, c.text.c_str());
+                    x = c.align == 1 ? c.x - width / 2.0f : c.x - width;
+                }
+                if ((c.shadow & 255u) != 0) {
+                    o->text(o->context, x + 1.0f, c.y + 1.0f, height, c.shadow, c.text.c_str());
+                }
+                if ((c.color & 255u) != 0) {
+                    o->text(o->context, x, c.y, height, c.color, c.text.c_str());
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
+
+// ---- the omni table: the save's data
+
+// A save was loaded or a new game started (the port calls after the tick): the store follows at the mod's next tick.
+void omni_save_changed(void* user) {
+    auto* s = static_cast<State*>(user);
+    std::vector<std::uint8_t> bytes(OPENRAC_SAVE_DATA_MAX);
+    const std::uint32_t n = s->services.save_data_get != nullptr ? s->services.save_data_get(s->mod.handle, bytes.data(), OPENRAC_SAVE_DATA_MAX) : 0;
+    s->save_event = n > 0 ? 1 : 2;  // 1 a save with this mod's data, 2 a new game or a save without it
+}
+
+int omni_save_event(lua_State* L) {
+    State* s = state_of(L);
+    lua_pushinteger(L, s->save_event);
+    s->save_event = 0;
+    return 1;
+}
+
+int omni_save_get(lua_State* L) {
+    State* s = state_of(L);
+    if (s->services.save_data_get == nullptr) {
+        return 0;
+    }
+    std::vector<std::uint8_t> bytes(OPENRAC_SAVE_DATA_MAX);
+    const std::uint32_t n = s->services.save_data_get(s->mod.handle, bytes.data(), OPENRAC_SAVE_DATA_MAX);
+    if (n == 0) {
+        return 0;
+    }
+    lua_pushlstring(L, reinterpret_cast<const char*>(bytes.data()), std::min<std::size_t>(n, bytes.size()));
+    return 1;
+}
+
+int omni_save_put(lua_State* L) {
+    State* s = state_of(L);
+    std::size_t size = 0;
+    const char* text = luaL_checklstring(L, 1, &size);
+    if (s->services.save_data_set != nullptr && size <= OPENRAC_SAVE_DATA_MAX) {
+        s->services.save_data_set(s->mod.handle, text, static_cast<std::uint32_t>(size));
+    }
+    return 0;
+}
+
+// Runs the prelude that makes the `omni` global. Any failure leaves the mod without it (a mod that needs it says so) and the other
+// mods untouched.
+void install_omni(lua_State* L, State* s) {
+    static const char prelude[] =
+#include "mod_omni_prelude.inc"
+        ;
+    s->loading = true;  // the prelude takes on_frame callbacks, which are taken while the scripts first run
+    lua_newtable(L);
+    set_function(L, "level", omni_level);
+    set_function(L, "mode", omni_mode);
+    set_function(L, "has_hook", omni_has_hook);
+    set_function(L, "read_file", omni_read_file);
+    set_function(L, "write_file", omni_write_file);
+    set_function(L, "save_event", omni_save_event);
+    set_function(L, "save_get", omni_save_get);
+    set_function(L, "save_put", omni_save_put);
+    if (s->services.on_save_data != nullptr) {
+        s->services.on_save_data(s->mod.handle, omni_save_changed, s);
+    }
+    set_function(L, "can_mobys", omni_can_mobys);
+    set_function(L, "out_f32", omni_out_f32);
+    set_function(L, "mobys", omni_mobys);
+    set_function(L, "moby_valid", omni_moby_valid);
+    set_function(L, "is_enemy", omni_is_enemy);
+    set_function(L, "draw_begin", omni_draw_begin);
+    set_function(L, "draw_cmd", omni_draw_cmd);
+    lua_pushboolean(L, s->services.on_overlay != nullptr ? 1 : 0);
+    lua_setfield(L, -2, "can_draw");
+    if (s->services.on_overlay != nullptr) {
+        s->services.on_overlay(s->mod.handle, omni_overlay, s);
+    }
+    std::size_t size = 0;
+    char* bytecode = luau_compile(prelude, sizeof(prelude) - 1, nullptr, &size);
+    const int status = luau_load(L, "=omni", bytecode, size, 0);
+    std::free(bytecode);
+    if (status != 0) {
+        log_line(s, OPENRAC_LOG_WARN, std::format("the omni table does not compile: {}", lua_tostring(L, -1)));
+        lua_pop(L, 2);
+        return;
+    }
+    lua_insert(L, -2);  // function, helpers
+    if (lua_pcall(L, 1, 1, 0) != 0) {
+        log_line(s, OPENRAC_LOG_WARN, std::format("the omni table failed: {}", lua_tostring(L, -1)));
+        lua_pop(L, 1);
+        return;
+    }
+    lua_setglobal(L, "omni");
+}
+
 void push_openrac(lua_State* L, State* s) {
     lua_newtable(L);
     set_string(L, "game", s->mod.game);
@@ -1072,6 +1445,7 @@ bool load(const Mod& mod, const openrac_script_binding* binding, const Services&
     make_metatables(L);
     push_openrac(L, st);
     lua_setglobal(L, "openrac");
+    install_omni(L, st);
     luaL_sandbox(L);
     st->T = lua_newthread(L);
     st->thread_ref = lua_ref(L, -1);

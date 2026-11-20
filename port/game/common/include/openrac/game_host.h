@@ -184,6 +184,26 @@ extern int (*openrac_game_updating_moby)(openrac_game_moby* out);
  * rotation (game axes; z the yaw) and state id. 0 when there is none now (no level loaded). */
 extern int (*openrac_game_hero)(float position[3], float rotation[3], int32_t* state);
 
+/* The omni extension's moby queries (Arsenal Mastery), when a game installs them (rac1: boot.c): which mobys of the level are alive, filtered by
+ * class, distance and "is a living enemy", nearest first with OPENRAC_MOBY_QUERY_NEAR. Read only: no game code runs. A result is valid for the
+ * tick. The query returns the count written to `out`, -1 when no level is loaded. */
+#define OPENRAC_MOBY_QUERY_NEAR 1u
+#define OPENRAC_MOBY_QUERY_ENEMY 2u
+#define OPENRAC_MOBY_QUERY_REGISTRY 4u
+#define OPENRAC_MOBY_QUERY_CLASSES 16
+typedef struct openrac_moby_query {
+    uint32_t flags;
+    uint32_t class_count;
+    int32_t classes[OPENRAC_MOBY_QUERY_CLASSES];
+    float near[3];
+    float radius;
+    uint32_t max;
+} openrac_moby_query;
+extern int (*openrac_game_moby_query)(const openrac_moby_query* query, uint32_t* out, uint32_t capacity);
+/* Whether `moby` is a live moby of the pool now; whether it is a living enemy (of the enemy class type, with health above 0). */
+extern int (*openrac_game_moby_valid)(uint32_t moby);
+extern int (*openrac_game_moby_enemy)(uint32_t moby);
+
 /* For the picture's late camera latch (settings responsive_controls, frontend/camera_latch.cpp),
  * when a game installs it (rac1: camera_latch.c): the turn its follow camera would make over the
  * next `ticks` ticks (a fraction too) with the right stick held from now on at `right_x` (the pad's

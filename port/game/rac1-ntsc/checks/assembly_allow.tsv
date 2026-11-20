@@ -1,3 +1,8 @@
 # Functions this program may leave to their assembly although translated code reaches them
 # (hostgen.json "assembly_allow"; hostgen.py assembly_guard). Every other one fails the build.
 # name	reason
+FUN_001251e8	retail libm/vector helper called by FUN_L00_0025aca0; translated from the retail instructions
+func_00118338	retail libc routine called by _vfprintf_r; translated from the retail instructions
+func_001271D8	retail routine jumped to by _doMC; translated from the retail instructions
+func_0012A2D8	retail DMA handler formed by _doCSC2; translated from the retail instructions
+malloc_extend_top	retail libc malloc helper called by _malloc_r; translated from the retail instructions
