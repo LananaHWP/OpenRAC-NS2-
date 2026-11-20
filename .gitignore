@@ -36,3 +36,8 @@ Thumbs.db
 
 # Local click-picker diagnostic snapshot
 moby-picker.json
+
+# Switch 2 builds and setup bundles
+/dist/
+/switch2/out/
+/switch2/build.log

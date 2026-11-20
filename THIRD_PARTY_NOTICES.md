@@ -379,3 +379,12 @@ to `<build>/licenses/lz4/LICENSE.txt` for distribution with the binaries.
 The source files retain their copyright and license notices.
 See the [LZ4 library license](https://github.com/lz4/lz4/blob/v1.10.0/lib/LICENSE)
 and the [bundled xxHash notice](https://github.com/lz4/lz4/blob/v1.10.0/lib/xxhash.c).
+
+## Switch button pictures
+
+`port/renderer/textures/switch_glyph_art.inc` (the Switch style of the button pictures in the game's text,
+`port/renderer/textures/button_glyphs.cpp`) and the Controls help picture made by `tools/make_controls_help.py` are based on
+*Switch Button Icons and Controls* by Zacksly (Licensed under CC BY 3.0 - https://zacksly.itch.io;
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)). The pictures were changed: cut to their shapes and scaled down to the game's button
+cells (written out as numbers by `tools/make_switch_glyphs.py`), and the controller picture was edited (its logo covered) and set with labels.
+Nintendo Switch is a trademark of Nintendo; the pack and this project are not affiliated with or sponsored by Nintendo.

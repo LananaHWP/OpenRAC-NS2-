@@ -1,0 +1,60 @@
+{"id": "rac1.gold_bolt.count_collected", "rac_rs_entry": "0x252288", "len": "0x70", "ntsc": [["L00", "0x264588"], ["boot", "0x215290"]]}
+{"id": "rac1.player.take_damage", "rac_rs_entry": "0x1fe4f8", "len": "0x4c", "ntsc": [["L00", "0x2050c0"]]}
+{"id": "rac1.omni.damage.build_hit", "rac_rs_entry": "0x259498", "len": "0x24", "ntsc": [["L00", "0x259888"]]}
+{"id": "rac1.omni.damage.hit_victim", "rac_rs_entry": "0x259698", "len": "0x13c", "ntsc": [["L00", "0x259a88"]]}
+{"id": "rac1.omni.wrench.swing", "rac_rs_entry": "0x259918", "len": "0x14c", "ntsc": [["L00", "0x259d08"]]}
+{"id": "rac1.omni.wrench.throw", "rac_rs_entry": "0x217238", "len": "0x318", "ntsc": [["L00", "0x217658"]]}
+{"id": "rac1.omni.wrench.update", "rac_rs_entry": "0x2a7e70", "len": "0x122c", "ntsc": [["L00", "0x2a84c8"]]}
+{"id": "rac1.omni.weapon.suck_cannon.update", "rac_rs_entry": "0x2da138", "len": "0x10b4", "ntsc": [["L00", "0x2da790"]]}
+{"id": "rac1.omni.weapon.bomb_glove.update", "rac_rs_entry": "0x2c2070", "len": "0xaf4", "ntsc": [["L00", "0x2c26c8"]]}
+{"id": "rac1.omni.weapon.devastator.update", "rac_rs_entry": "0x2b1aa8", "len": "0xf58", "ntsc": [["L00", "0x2b2100"]]}
+{"id": "rac1.omni.weapon.visibomb.update", "rac_rs_entry": "0x2b2a00", "len": "0x3fc", "ntsc": [["L00", "0x2b3058"]]}
+{"id": "rac1.omni.weapon.taunter.update", "rac_rs_entry": "0x2b68b8", "len": "0x488", "ntsc": [["L00", "0x2b6f10"]]}
+{"id": "rac1.omni.weapon.blaster.update", "rac_rs_entry": "0x2b4350", "len": "0xd24", "ntsc": [["L00", "0x2b49a8"]]}
+{"id": "rac1.omni.weapon.pyrocitor.update", "rac_rs_entry": "0x2b7198", "len": "0xa40", "ntsc": [["L00", "0x2b77f0"]]}
+{"id": "rac1.omni.weapon.mine_glove.update", "rac_rs_entry": "0x2c1478", "len": "0x9b8", "ntsc": [["L00", "0x2c1ad0"]]}
+{"id": "rac1.omni.weapon.walloper.update", "rac_rs_entry": "0x2baf00", "len": "0x5a8", "ntsc": [["L00", "0x2bb558"]]}
+{"id": "rac1.omni.weapon.tesla_claw.update", "rac_rs_entry": "0x2b8188", "len": "0xb2c", "ntsc": [["L00", "0x2b87e0"]]}
+{"id": "rac1.omni.weapon.glove_of_doom.update", "rac_rs_entry": "0x2c7400", "len": "0x3a0", "ntsc": [["L00", "0x2c7a58"]]}
+{"id": "rac1.omni.weapon.morph_o_ray.update", "rac_rs_entry": "0x2bc190", "len": "0x7b0", "ntsc": [["L00", "0x2bc7e8"]]}
+{"id": "rac1.omni.weapon.ryno.update", "rac_rs_entry": "0x2cbfb0", "len": "0x8d8", "ntsc": [["L00", "0x2cc608"]]}
+{"id": "rac1.omni.weapon.decoy.update", "rac_rs_entry": "0x2d2018", "len": "0x41c", "ntsc": [["L00", "0x2d2670"]]}
+{"id": "rac1.omni.ammo.pickup", "rac_rs_entry": "0x2b6758", "len": "0x1f8", "ntsc": [["L00", "0x2c53c0"]]}
+{"id": "rac1.omni.ammo.add", "rac_rs_entry": "0x233a20", "len": "0x58", "ntsc": [["L00", "0x233e40"]]}
+{"id": "rac1.omni.weapon.select", "rac_rs_entry": "0x20f9e8", "len": "0x8a8", "ntsc": [["L00", "0x20fea0"]]}
+{"id": "rac1.omni.weapon.quick_select", "rac_rs_entry": "0x237780", "len": "0x6fc", "ntsc": [["L00", "0x237ba0"]]}
+{"id": "rac1.omni.vendor.open", "rac_rs_entry": "0x29a058", "len": "0x4c0", "ntsc": [["L00", "0x29a6b0"]]}
+{"id": "rac1.omni.vendor.buy", "rac_rs_entry": "0x29b420", "len": "0xbd0", "ntsc": [["L00", "0x29ba78"]]}
+{"id": "rac1.omni.menu.weapons_page.update", "rac_rs_entry": "0x27b808", "len": "0x3d8", "ntsc": [["L00", "0x27be78"]]}
+{"id": "rac1.omni.menu.weapons_page.draw", "rac_rs_entry": "0x27bbe0", "len": "0x8c", "ntsc": [["L00", "0x27c250"]]}
+{"id": "rac1.omni.damage.resolve", "rac_rs_entry": "0x25a088", "len": "0x4f0", "ntsc": [["L00", "0x25a478"]]}
+{"id": "rac1.omni.weapon.flame.create", "rac_rs_entry": "0x26abc0", "len": "0x2d0", "ntsc": [["L00", "0x26b230"]]}
+{"id": "rac1.omni.weapon.bomb_glove.fire", "rac_rs_entry": "0x2ac980", "len": "0x434", "ntsc": [["L00", "0x2acfd8"]]}
+{"id": "rac1.omni.weapon.mine_glove.fire", "rac_rs_entry": "0x2a99b0", "len": "0x2a0", "ntsc": [["L00", "0x2aa008"]]}
+{"id": "rac1.omni.weapon.glove_of_doom.fire", "rac_rs_entry": "0x2c7c98", "len": "0x150", "ntsc": [["L00", "0x2c82f0"]]}
+{"id": "rac1.omni.weapon.devastator.fire", "rac_rs_entry": "0x2af618", "len": "0x2e0", "ntsc": [["L00", "0x2afc70"]]}
+{"id": "rac1.omni.weapon.visibomb.fire", "rac_rs_entry": "0x2b5280", "len": "0x244", "ntsc": [["L00", "0x2b58d8"]]}
+{"id": "rac1.omni.weapon.blaster.fire", "rac_rs_entry": "0x2ca918", "len": "0x4a4", "ntsc": [["L00", "0x2caf70"]]}
+{"id": "rac1.omni.moby.create", "rac_rs_entry": "0x24e448", "len": "0xf8", "ntsc": [["L00", "0x24e838"], ["boot", "0x20c4f8"]]}
+{"id": "rac1.omni.moby.delete", "rac_rs_entry": "0x24e778", "len": "0x58", "ntsc": [["L00", "0x24eb68"], ["boot", "0x20c828"]]}
+{"id": "rac1.omni.projectile.bomb.update", "rac_rs_entry": "0x2ad4d8", "len": "0x1920", "ntsc": [["L00", "0x2adb30"]]}
+{"id": "rac1.omni.projectile.mine.update", "rac_rs_entry": "0x2aa018", "len": "0x2298", "ntsc": [["L00", "0x2aa670"]]}
+{"id": "rac1.omni.projectile.blaster_shot.update", "rac_rs_entry": "0x2cadc0", "len": "0x8a4", "ntsc": [["L00", "0x2cb418"]]}
+{"id": "rac1.omni.projectile.ryno_rocket.update", "rac_rs_entry": "0x2ccb98", "len": "0xac8", "ntsc": [["L00", "0x2cd1f0"]]}
+{"id": "rac1.omni.projectile.doom_agent.update", "rac_rs_entry": "0x2bf950", "len": "0x176c", "ntsc": [["L00", "0x2bffa8"]]}
+{"id": "rac1.omni.projectile.doom_capsule.update", "rac_rs_entry": "0x2c8390", "len": "0x8f0", "ntsc": [["L00", "0x2c89e8"]]}
+{"id": "rac1.omni.projectile.visibomb.update", "rac_rs_entry": "0x2b5ae8", "len": "0xa88", "ntsc": [["L00", "0x2b6140"]]}
+{"id": "rac1.omni.projectile.devastator_rocket.update", "rac_rs_entry": "0x2afd48", "len": "0x174c", "ntsc": [["L00", "0x2b03a0"]]}
+{"id": "rac1.omni.collide.segment", "rac_rs_entry": "0x1efbf0", "len": "0x10f0", "ntsc": [["L00", "0x1efc70"]]}
+{"id": "rac1.omni.collide.sphere_mobys", "rac_rs_entry": "0x1f27e8", "len": "0x908", "ntsc": [["L00", "0x1f2868"]]}
+{"id": "rac1.omni.blast.apply", "rac_rs_entry": "0x25a608", "len": "0x14c", "ntsc": [["L00", "0x25a9f8"]]}
+{"id": "rac1.omni.fx.explode", "rac_rs_entry": "0x25e060", "len": "0xc40", "ntsc": [["L00", "0x25e450"]]}
+{"id": "rac1.omni.weapon.devastator.retarget", "rac_rs_entry": "0x2af950", "len": "0x3f4", "ntsc": [["L00", "0x2affa8"]]}
+{"id": "rac1.omni.weapon.blaster.aim_search", "rac_rs_entry": "0x2b4050", "len": "0x2fc", "ntsc": [["L00", "0x2b46a8"]]}
+{"id": "rac1.omni.weapon.ryno.fire", "rac_rs_entry": "0x2cc888", "len": "0x310", "ntsc": [["L00", "0x2ccee0"]]}
+{"id": "rac1.omni.projectile.hit_face_id", "rac_rs_entry": "0x1f3558", "len": "0x30", "ntsc": [["L00", "0x1f35d8"]]}
+{"id": "rac1.omni.goldcase.update", "rac_rs_entry": "0x2e13f0", "len": "0x208", "ntsc": []}
+{"id": "rac1.gold_bolt.count_spare", "rac_rs_entry": "0x264150", "len": "0x48", "ntsc": [["L00", "0x264540"], ["boot", "0x215248"]]}
+{"id": "rac1.omni.hero.items_attach", "rac_rs_entry": "0x20f0c8", "len": "0x724", "ntsc": [["L00", "0x20f580"]]}
+{"id": "rac1.omni.ammo.collect", "rac_rs_entry": "0x2c5590", "len": "0x1dc", "ntsc": [["L00", "0x2c5be8"]]}
+{"id": "rac1.omni.hud.health_draw", "rac_rs_entry": "0x2280b8", "len": "0x4b8", "ntsc": [["L00", "0x239810"]]}
