@@ -27,7 +27,7 @@ if ! docker image inspect openrac-switch2-builder >/dev/null 2>&1; then
 fi
 path() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else echo "$1"; fi; }
 MSYS_NO_PATHCONV=1 docker run --rm --name openrac-build \
-  -v "$(path "$REPO"):/src:ro" -v "openrac-src:/work/openrac" -v "openrac-build:/build" -v "$(path "$HERE/out"):/out" \
+  -v "$(path "$REPO"):/src:ro" -v "openrac-src:/work/openrac" -v "openrac-build:/build" -v "$(path "$HERE/out"):/out" -v "$(path "$HERE/icon.jpg"):/icon.jpg:ro" \
   -v "$(path "$ISO"):/work/openrac/baserom/SCUS_971.99.iso:ro" -w /work/openrac \
   openrac-switch2-builder bash -c '
 set -e
@@ -41,8 +41,8 @@ set +e
 ninja -C /build/s2 -k 0 '"$TARGETS"'
 rc=$?
 if [ $rc -eq 0 ] && [ -f /build/s2/openrac-rac1-ntsc.elf ]; then
-  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "OpenRAC contributors" "0.1.0" /out/openrac.nacp
-  /opt/devkitpro/tools/bin/elf2nro /build/s2/openrac-rac1-ntsc.elf /out/openrac.nro --nacp=/out/openrac.nacp && ls -l /out/openrac.nro
+  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "Lanana420" "0.1" /out/openrac.nacp
+  /opt/devkitpro/tools/bin/elf2nro /build/s2/openrac-rac1-ntsc.elf /out/openrac.nro --nacp=/out/openrac.nacp --icon=/icon.jpg && ls -l /out/openrac.nro
 fi
 echo "build-exit $rc"
 ' 2>&1 | tee "$LOG"
