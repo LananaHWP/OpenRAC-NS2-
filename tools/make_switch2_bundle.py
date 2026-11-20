@@ -53,19 +53,23 @@ You need: the image (.iso) of your own Ratchet & Clank disc (NTSC-U), about 6 GB
 Python 3.9 or newer on this PC.
 
   Windows:  double-click install.bat
-  Linux:    sh install.sh        (a window needs python3-tk; without it the setup asks its questions in the terminal)
+  Linux, macOS: sh install.sh   (a window needs python3-tk; without it the setup asks its questions in the terminal)
 
 Then pick how the game gets to the console:
 
   Over FTP (the console on your network)
     Start an FTP server homebrew on the console, note the address it shows (the default port is 1337, with no user name or password), and type it in. The setup checks the disc,
-    exports the levels on this PC and uploads everything to switch/openrac on the SD card, about 5 GB. An upload that stops is resumed:
+    exports the levels on this PC and uploads everything to the game's folder under switch/ on the SD card, about 5 GB. An upload that stops is resumed:
     run the setup again. The work folder (about 1 GB) is made next to the disc image and deleted afterwards.
 
   Onto an SD card in this PC
     Put the card in the PC, pick its drive or folder, and the files are written straight onto it.
 
-Nothing is written to the console's own storage: everything is in the card's switch/openrac folder. Start OpenRAC from the homebrew menu.
+  Into a folder on this PC
+    Pick any folder: the setup writes the card's switch folder into it, and you copy that onto the SD card's root yourself
+    (a card reader, FileZilla, a file manager).
+
+Nothing is written to the console's own storage: everything is in the game's own folder under switch/ on the card. Start the game from the homebrew menu.
 
 Arsenal Mastery is an optional mod. Leave its box unticked for the original game, or delete the folder
 switch/openrac/data/plugins/arsenal-mastery later to turn it off.
@@ -78,6 +82,7 @@ Hold + and - together for OpenRAC's own menu. The game's A and B swap in menus (
 From a terminal (both systems):
   python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50:1337
   python3 switch2_setup.py --cli --iso GAME.iso --sd E:\
+  python3 switch2_setup.py --cli --iso GAME.iso --folder D:\\OpenRAC-out
 """
 
 

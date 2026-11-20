@@ -1,32 +1,40 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 the OpenRAC contributors
-"""OpenRAC for the Nintendo Switch 2: puts the game on the console from the player's own disc image, onto an SD card in this PC or over FTP.
+"""OpenRAC for the Nintendo Switch 2: puts the game on the console from the player's own disc image: onto an SD card in this PC, over FTP, or
+into a folder on this PC to copy over yourself.
 
-    python3 switch2_setup.py                       a window: pick the disc image, then the SD card or the console's FTP address, and Install
+    python3 switch2_setup.py                       a window: pick the disc image, then where it goes (FTP, SD card, folder), and Install
     python3 switch2_setup.py --cli                 the same by questions in the terminal (no window needed)
     python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\ [--arsenal-mastery]
     python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50[:1337] [--ftp-user U --ftp-password P --ftp-root /]
+    python3 switch2_setup.py --cli --iso GAME.iso --folder D:\\OpenRAC-out
 
-What it does (everything goes to the switch/openrac folder of the card, nothing to the console's own storage):
-  1. checks the image is a disc OpenRAC knows (Ratchet & Clank, NTSC-U) and there is room;
-  2. writes the boot files and the disc image (the game reads most of its data from the disc by sector)  -> data/iso_data/rac1/
-  3. exports the levels the renderer draws, from the disc                                                  -> data/port/ntsc/
-  4. copies the program (openrac.nro) and its pictures (the Switch button prompts, the help screen)    -> openrac.nro, data/texture_packs/
-  5. optionally the Arsenal Mastery mod (an optional extra: leave it out for the original game)         -> data/plugins/
+The disc it knows (found from the boot file SYSTEM.CNF names): Ratchet & Clank, NTSC-U (SCUS_971.99). The table GAMES below is where another
+game's program (its own folder under switch/) would be added.
 
-To an SD card the files are written straight onto it. Over FTP they are made in a work folder next to the disc image (about 1 GB; the image itself is
-linked, not copied, when that folder is on the same drive) and uploaded to the console's FTP server (the homebrew FTP servers of the Switch: start
-one, note the address it shows). An upload that stops is resumed from where it was (run the setup again). The work folder is deleted afterwards.
+What it does (everything goes to that folder of the card, nothing to the console's own storage):
+  1. checks the image is a disc OpenRAC knows and there is room;
+  2. writes the boot files and the disc image (the game reads most of its data from the disc by sector)  -> data/iso_data/<game>/
+  3. exports the levels the renderer draws, from the disc                                                  -> data/port/<ntsc|pal>/
+  4. copies the program (openrac.nro) and its pictures (the Switch button prompts, the help screen)
+  5. optionally the Arsenal Mastery mod (an optional extra: leave it out for the original game)            -> data/plugins/
+
+To an SD card the files are written straight onto it. Into a folder, the same tree (switch/<folder of the game>/...) is written under the folder you
+pick: copy its switch folder onto the card's root yourself (FileZilla, a card reader, a file manager). Over FTP they are made in a work folder next
+to the disc image (about 1 GB; the image itself is linked, not copied, when that folder is on the same drive) and uploaded to the console's FTP
+server (the homebrew FTP servers of the Switch: start one, note the address it shows). An upload that stops is resumed from where it was (run the
+setup again). The work folder is deleted afterwards.
 
 No part of the game is shipped: steps 2 and 3 read the player's own disc. Needs Python 3.9 or newer (the standard library only).
-The bundle (openrac.nro, the pictures, the mod) is the folder `bundle` next to this file, or --bundle DIR.
+The bundle (the .nro programs, the pictures, the mod) is the folder `bundle` next to this file, or --bundle DIR.
 """
 import argparse
 import ftplib
 import json
 import pathlib
 import queue
+import re
 import shutil
 import subprocess
 import sys
@@ -41,6 +49,30 @@ MIB = 1024 ** 2
 
 class Failure(Exception):
     pass
+
+
+# The discs the setup knows, by the serial of the boot file SYSTEM.CNF names. game: the extractor's game id, version: the folder of the exported
+# levels, home: the program's folder under switch/ on the card (the same as OPENRAC_SWITCH2_HOME of its build), nro: its file in the bundle.
+GAMES = {
+    "SCUS_971.99": {
+        "title": "Ratchet & Clank (NTSC-U)", "game": "rac1", "version": "ntsc", "home": "openrac", "nro": "openrac.nro",
+        "pictures": True, "mod": True,
+    },
+}
+
+
+def identify(iso):
+    """The GAMES entry of a disc image: the serial its SYSTEM.CNF boots (that file is among the first sectors of the image)."""
+    with open(iso, "rb") as fp:
+        head = fp.read(128 * MIB)
+    match = re.search(rb"BOOT2\s*=\s*cdrom0:\\?([A-Z]{4}_[0-9]{3}\.[0-9]{2})", head)
+    if match is None:
+        raise Failure("%s is not a PlayStation 2 disc image (no SYSTEM.CNF with a BOOT2 line)" % iso)
+    serial = match.group(1).decode("ascii")
+    if serial not in GAMES:
+        known = ", ".join("%s (%s)" % (g["title"], s) for s, g in GAMES.items())
+        raise Failure("this disc (%s) is not one OpenRAC runs on the Switch 2 yet. Known: %s" % (serial, known))
+    return GAMES[serial]
 
 
 def find_root():
@@ -197,11 +229,11 @@ class Ftp:
         raise Failure("could not send %s: the connection keeps failing" % label)
 
 
-def upload_tree(make_connection, local_root, say, connections=4):
-    """Uploads switch/openrac of local_root to the console over several connections, as an FTP client does: the big files (the disc image) on one
+def upload_tree(make_connection, local_root, home, say, connections=4):
+    """Uploads switch/<home> of local_root to the console over several connections, as an FTP client does: the big files (the disc image) on one
     of them while the others send the many small ones (each small file costs several round trips on one connection, which is what makes a
     single-connection upload of thousands of files slow)."""
-    base = local_root / "switch" / "openrac"
+    base = local_root / "switch" / home
     files = [p for p in base.rglob("*") if p.is_file()]
     big = sorted((p for p in files if p.stat().st_size > 64 * MIB), key=lambda p: p.stat().st_size)
     small = sorted((p for p in files if p.stat().st_size <= 64 * MIB), key=lambda p: p.as_posix())
@@ -277,30 +309,32 @@ def upload_tree(make_connection, local_root, say, connections=4):
 
 # ---------------------------------------------------------------------------------------------- the tree
 
-def build_tree(iso, out_root, arsenal, bundle, say, jobs=None):
-    """Writes switch/openrac of the game into out_root (an SD card's root, or a work folder)."""
+def build_tree(profile, iso, out_root, arsenal, bundle, say, jobs=None):
+    """Writes switch/<the game's folder> into out_root (an SD card's root, a folder for the player to copy, or a work folder)."""
     base = find_root()
-    target = out_root / "switch" / "openrac"
+    target = out_root / "switch" / profile["home"]
     data = target / "data"
     target.mkdir(parents=True, exist_ok=True)
 
     say("== 1/4  the disc: checking it and writing the boot files and the image")
-    run([sys.executable, base / "tools" / "extractor.py", "-g", "rac1", "--proj-path", data, "-e", "--boot-only", iso], say, base)
+    run([sys.executable, base / "tools" / "extractor.py", "-g", profile["game"], "--proj-path", data, "-e", "--boot-only", iso], say, base)
 
     say("== 2/4  the levels: exporting them from the disc (a few minutes)")
-    command = [sys.executable, base / "editor" / "extract.py", "port", iso, data / "port" / "ntsc", "--anywhere"]
+    command = [sys.executable, base / "editor" / "extract.py", "port", iso, data / "port" / profile["version"], "--anywhere"]
     if jobs:
         command += ["--jobs", str(jobs)]
     run(command, say, base)
 
-    say("== 3/4  the program and its pictures")
-    shutil.copy2(bundle / "openrac.nro", target / "openrac.nro")
-    if (bundle / "texture_packs").is_dir():
+    say("== 3/4  the program" + (" and its pictures" if profile["pictures"] else ""))
+    shutil.copy2(bundle / profile["nro"], target / profile["nro"])
+    if profile["pictures"] and (bundle / "texture_packs").is_dir():
         copy_tree(bundle / "texture_packs", data / "texture_packs", say)
 
     say("== 4/4  the optional mod")
     plugins = data / "plugins"
-    if arsenal and (bundle / "mods" / "arsenal-mastery").is_dir():
+    if not profile["mod"]:
+        say("none for this game")
+    elif arsenal and (bundle / "mods" / "arsenal-mastery").is_dir():
         copy_tree(bundle / "mods" / "arsenal-mastery", plugins / "arsenal-mastery", say)
         (plugins / "plugins.json").write_text(
             json.dumps({"format": 1, "mods": [{"id": "arsenal-mastery", "enabled": True, "settings": {}}]}, indent=2) + "\n", encoding="utf8"
@@ -321,30 +355,37 @@ def parse_ftp(text, port):
     return host, port
 
 
-def install(iso, arsenal, bundle, say, sd=None, ftp=None, jobs=None, work=None, keep_work=False, connections=4):
-    """sd: the SD card's root (a folder); ftp: (host, port, user, password, root). One of them."""
+def install(iso, arsenal, bundle, say, sd=None, ftp=None, folder=None, jobs=None, work=None, keep_work=False, connections=4):
+    """sd: the SD card's root (a folder); ftp: (host, port, user, password, root); folder: a folder on this PC to write the card's tree into. One of them."""
     iso = pathlib.Path(iso)
     bundle = pathlib.Path(bundle)
     if not iso.is_file():
         raise Failure("the disc image %s is not a file" % iso)
-    if not (bundle / "openrac.nro").is_file():
-        raise Failure("%s has no openrac.nro: the setup bundle is incomplete" % bundle)
-    if (sd is None) == (ftp is None):
-        raise Failure("choose the SD card or FTP")
+    profile = identify(iso)
+    say("disc: %s" % profile["title"])
+    if not (bundle / profile["nro"]).is_file():
+        raise Failure("%s has no %s: the setup bundle is incomplete (or has no program for this game)" % (bundle, profile["nro"]))
+    if [sd is not None, ftp is not None, folder is not None].count(True) != 1:
+        raise Failure("choose the SD card, FTP or a folder")
     size = iso.stat().st_size
-    if sd is not None:
-        sd = pathlib.Path(sd)
-        if not sd.is_dir():
-            raise Failure("the SD card folder %s is not there" % sd)
-        free = shutil.disk_usage(sd).free
-        needed = size + int(1.5 * GIB)
+    needed = size + int(1.5 * GIB)
+    if sd is not None or folder is not None:
+        out = pathlib.Path(sd if sd is not None else folder)
+        if sd is not None and not out.is_dir():
+            raise Failure("the SD card folder %s is not there" % out)
+        if folder is not None:
+            out.mkdir(parents=True, exist_ok=True)
+        free = shutil.disk_usage(out).free
         if free < needed:
-            raise Failure("the SD card has %.1f GB free and the game needs %.1f GB (the disc image and the levels)" % (free / GIB, needed / GIB))
-        if size > 4 * GIB - 1 and shutil.disk_usage(sd).total < 40 * GIB:
+            raise Failure("%s has %.1f GB free and the game needs %.1f GB (the disc image and the levels)" % (out, free / GIB, needed / GIB))
+        if sd is not None and size > 4 * GIB - 1 and shutil.disk_usage(out).total < 40 * GIB:
             say("warning: the image is over 4 GB: a card formatted FAT32 cannot hold it (format it exFAT)")
-        target = build_tree(iso, sd, arsenal, bundle, say, jobs)
+        target = build_tree(profile, iso, out, arsenal, bundle, say, jobs)
         say("")
-        say("Done. Put the card in the console and start OpenRAC from the homebrew menu: %s" % (target / "openrac.nro"))
+        if sd is not None:
+            say("Done. Put the card in the console and start the game from the homebrew menu: %s" % (target / profile["nro"]))
+        else:
+            say("Done. Copy the folder %s onto the SD card's root (so that it ends up as switch/%s on the card), over FTP or with a card reader." % (out / "switch", profile["home"]))
         return
 
     host, port, user, password, root = ftp
@@ -365,20 +406,23 @@ def install(iso, arsenal, bundle, say, sd=None, ftp=None, jobs=None, work=None, 
     if free < int(1.5 * GIB):
         raise Failure("the work folder %s has %.1f GB free: it needs about 1.5 GB (and %.1f GB more when it is not on the disc image's drive)" % (work_dir, free / GIB, size / GIB))
     try:
-        build_tree(iso, work_dir, arsenal, bundle, say, jobs)
+        build_tree(profile, iso, work_dir, arsenal, bundle, say, jobs)
         say("== sending to the console")
-        upload_tree(make_connection, work_dir, say, connections)
+        upload_tree(make_connection, work_dir, profile["home"], say, connections)
     finally:
         if not keep_work:
             shutil.rmtree(work_dir, ignore_errors=True)
     say("")
-    say("Done. Start OpenRAC from the console's homebrew menu (switch/openrac/openrac.nro).")
+    say("Done. Start the game from the console's homebrew menu (switch/%s/%s)." % (profile["home"], profile["nro"]))
 
 
 # ---------------------------------------------------------------------------------------------- the front ends
 
 def ask(question, default=""):
-    reply = input("%s%s: " % (question, " [%s]" % default if default else "")).strip()
+    try:
+        reply = input("%s%s: " % (question, " [%s]" % default if default else "")).strip()
+    except EOFError:  # nothing to read from (piped input, a script): the default
+        reply = ""
     return reply or default
 
 
@@ -386,21 +430,24 @@ def run_cli(args):
     try:
         if not args.iso:
             args.iso = ask("Path of your Ratchet & Clank disc image (.iso, NTSC-U)")
-        if not args.sd and not args.ftp:
-            choice = ask("Install to an SD card in this PC, or over FTP to the console? (sd/ftp)", "ftp").lower()
-            if choice.startswith("s"):
+        profile = identify(args.iso) if pathlib.Path(args.iso).is_file() else None
+        if not args.sd and not args.ftp and not args.folder:
+            choice = ask("Install over FTP to the console, to an SD card in this PC, or into a folder on this PC? (ftp/sd/folder)", "ftp").lower()
+            if choice.startswith("fo"):
+                args.folder = ask("The folder to write to (a switch folder is made inside it)")
+            elif choice.startswith("s"):
                 args.sd = ask("The SD card's drive or folder (for example E:\\ or /media/you/SD)")
             else:
                 args.ftp = ask("The console's FTP address (for example 192.168.1.50:1337)")
                 args.ftp_user = args.ftp_user or ask("FTP user (empty: none, as the Switch 2 FTP server wants)")
                 args.ftp_password = args.ftp_password or ask("FTP password (empty: none)")
-        if sys.stdin.isatty() and "--arsenal-mastery" not in sys.argv and ask("Install Arsenal Mastery, the optional mod? (y/n)", "n").lower().startswith("y"):
+        if profile is not None and profile["mod"] and sys.stdin.isatty() and "--arsenal-mastery" not in sys.argv and ask("Install Arsenal Mastery, the optional mod? (y/n)", "n").lower().startswith("y"):
             args.arsenal_mastery = True
         ftp = None
         if args.ftp:
             host, port = parse_ftp(args.ftp, args.ftp_port)
             ftp = (host, port, args.ftp_user, args.ftp_password, args.ftp_root)
-        install(args.iso, args.arsenal_mastery, args.bundle, print, sd=args.sd if not ftp else None, ftp=ftp, jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
+        install(args.iso, args.arsenal_mastery, args.bundle, print, sd=args.sd if not ftp else None, ftp=ftp, folder=args.folder if not ftp and not args.sd else None, jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
     except Failure as e:
         print("error: %s" % e, file=sys.stderr)
         return 1
@@ -415,8 +462,9 @@ def run_window(args):
     window.title("OpenRAC for Switch 2: setup")
     window.geometry("780x620")
     iso = tk.StringVar(value=args.iso or "")
-    mode = tk.StringVar(value="sd" if args.sd else "ftp")
+    mode = tk.StringVar(value="sd" if args.sd else "folder" if args.folder else "ftp")
     sd = tk.StringVar(value=args.sd or "")
+    folder = tk.StringVar(value=args.folder or "")
     host = tk.StringVar(value=args.ftp or "")
     port = tk.StringVar(value=str(args.ftp_port))
     user = tk.StringVar(value=args.ftp_user or "")
@@ -437,14 +485,18 @@ def run_window(args):
     choices = ttk.Frame(frame)
     choices.grid(row=3, column=0, columnspan=3, sticky="w")
     ttk.Radiobutton(choices, text="Over FTP (the console on the network)", variable=mode, value="ftp").pack(side="left", padx=(0, 20))
-    ttk.Radiobutton(choices, text="Onto an SD card in this PC", variable=mode, value="sd").pack(side="left")
+    ttk.Radiobutton(choices, text="Onto an SD card in this PC", variable=mode, value="sd").pack(side="left", padx=(0, 20))
+    ttk.Radiobutton(choices, text="Into a folder on this PC", variable=mode, value="folder").pack(side="left")
 
     ftp_box = ttk.Frame(frame)
     sd_box = ttk.Frame(frame)
+    folder_box = ttk.Frame(frame)
     ftp_box.grid(row=4, column=0, columnspan=3, sticky="ew", pady=8)
     sd_box.grid(row=4, column=0, columnspan=3, sticky="ew", pady=8)
+    folder_box.grid(row=4, column=0, columnspan=3, sticky="ew", pady=8)
     ftp_box.columnconfigure(1, weight=1)
     sd_box.columnconfigure(0, weight=1)
+    folder_box.columnconfigure(0, weight=1)
     ttk.Label(ftp_box, text="Console address:").grid(row=0, column=0, sticky="w")
     ttk.Entry(ftp_box, textvariable=host).grid(row=0, column=1, sticky="ew", padx=6)
     ttk.Label(ftp_box, text="Port:").grid(row=0, column=2, sticky="w")
@@ -460,10 +512,17 @@ def run_window(args):
     ttk.Entry(sd_box, textvariable=sd).grid(row=1, column=0, sticky="ew", pady=2)
     ttk.Button(sd_box, text="Browse...", command=lambda: sd.set(filedialog.askdirectory() or sd.get())).grid(row=1, column=1, padx=(6, 0))
 
+    ttk.Label(folder_box, text="The folder to write to (a switch folder is made inside it; copy that onto the SD card's root yourself):").grid(row=0, column=0, columnspan=2, sticky="w")
+    ttk.Entry(folder_box, textvariable=folder).grid(row=1, column=0, sticky="ew", pady=2)
+    ttk.Button(folder_box, text="Browse...", command=lambda: folder.set(filedialog.askdirectory(mustexist=False) or folder.get())).grid(row=1, column=1, padx=(6, 0))
+
     def show(*_):
-        (ftp_box if mode.get() == "ftp" else sd_box).tkraise()
-        (sd_box if mode.get() == "ftp" else ftp_box).grid_remove()
-        (ftp_box if mode.get() == "ftp" else sd_box).grid()
+        boxes = {"ftp": ftp_box, "sd": sd_box, "folder": folder_box}
+        for name, box in boxes.items():
+            if name != mode.get():
+                box.grid_remove()
+        boxes[mode.get()].grid()
+        boxes[mode.get()].tkraise()
 
     mode.trace_add("write", show)
     show()
@@ -507,7 +566,10 @@ def run_window(args):
                 address, p = parse_ftp(host.get(), int(port.get() or 1337))
                 install(iso.get(), arsenal.get(), args.bundle, say, ftp=(address, p, user.get(), password.get(), root.get()), jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
             else:
-                install(iso.get(), arsenal.get(), args.bundle, say, sd=sd.get(), jobs=args.jobs)
+                if mode.get() == "folder":
+                    install(iso.get(), arsenal.get(), args.bundle, say, folder=folder.get(), jobs=args.jobs)
+                else:
+                    install(iso.get(), arsenal.get(), args.bundle, say, sd=sd.get(), jobs=args.jobs)
         except Failure as e:
             say("")
             say("FAILED: %s" % e)
@@ -520,8 +582,8 @@ def run_window(args):
     def start():
         if busy["on"]:
             return
-        if not iso.get() or not (host.get() if mode.get() == "ftp" else sd.get()):
-            messagebox.showinfo("OpenRAC setup", "Pick the disc image, and the console's address or the SD card, first.")
+        if not iso.get() or not {"ftp": host, "sd": sd, "folder": folder}[mode.get()].get():
+            messagebox.showinfo("OpenRAC setup", "Pick the disc image, and the console's address, the SD card or the folder, first.")
             return
         busy["on"] = True
         button.config(state="disabled")
@@ -539,6 +601,7 @@ def main():
     ap.add_argument("--cli", action="store_true", help="no window: ask in the terminal for what is not given")
     ap.add_argument("--iso")
     ap.add_argument("--sd", help="the SD card's drive or folder (writes straight onto it)")
+    ap.add_argument("--folder", help="a folder on this PC: the card's switch/<game> tree is written into it, for you to copy onto the card")
     ap.add_argument("--ftp", help="the console's FTP address, HOST or HOST:PORT (uploads over the network)")
     ap.add_argument("--ftp-port", type=int, default=1337)
     ap.add_argument("--ftp-user", default="")
@@ -551,8 +614,8 @@ def main():
     ap.add_argument("--bundle", default=str(HERE / "bundle"))
     ap.add_argument("--jobs", type=int, help="levels to export at once")
     args = ap.parse_args()
-    if args.sd and args.ftp:
-        ap.error("choose --sd or --ftp, not both")
+    if [bool(args.sd), bool(args.ftp), bool(args.folder)].count(True) > 1:
+        ap.error("choose one of --sd, --ftp and --folder")
     if not args.cli:
         try:
             import tkinter  # noqa: F401

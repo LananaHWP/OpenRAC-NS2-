@@ -17,7 +17,7 @@ Some of the mod's extras still don't work, see "Arsenal Mastery" below. The engi
 - A Switch 2 platform layer in `port/platform_switch2/`. It covers the window and OpenGL, the pad and the audio, plus a few things Horizon doesn't have. The console wouldn't give me one big 4 GB block of memory, so the game's memory is a handful of normal buffers that get looked up by address. There's also a small thread that keeps the CPU boost on without dragging the GPU clock down.
 - Switch button prompts. The button icons in the game's text, the Help > Controls screen and the menu overlay all show Switch buttons. In menus A and B are swapped so A confirms and B goes back. You can turn that off with `game_menu_swap_ab = 0` in the settings.
 - Arsenal Mastery, the optional mod from rac-rs, and the layer it needs to run on OpenRAC (`port/game/common/mod_omni.luau`).
-- A setup tool that gets the game onto the console over FTP or onto an SD card.
+- A setup tool that gets the game onto the console over FTP, onto an SD card, or into a folder on your PC.
 - Logging is off by default. Put an empty `switch/openrac/debug.txt` on the card if you want `boot.txt` and the log files for a bug report.
 
 ## Installing
@@ -26,13 +26,13 @@ You need an image (.iso) of your own NTSC-U disc, a Switch 2 that can run homebr
 
 Build the setup bundle (see below) or grab one from the releases, then:
 
-1. Windows: run `install.bat`. Linux: `sh install.sh`.
-2. Pick your disc image, then choose FTP or SD card. For FTP, start an FTP server on the console and type in its address. The Switch 2 one uses port 1337 and no login. For an SD card, point it at the card.
+1. Windows: run `install.bat`. Linux and macOS: `sh install.sh`.
+2. Pick your disc image, then choose FTP, an SD card or a folder. For FTP, start an FTP server on the console and type in its address. The Switch 2 one uses port 1337 and no login. For an SD card, point it at the card. For a folder, pick any folder on your PC: the setup writes a `switch` folder into it and you copy that onto the card's root yourself.
 3. Tick Arsenal Mastery if you want the mod. Leave it off for the plain game.
 4. Press Install. It checks the disc, exports the levels on your PC and sends everything to `switch/openrac` on the card. That's around 5 GB, and an FTP upload that gets interrupted picks up where it stopped if you run it again.
 5. Start OpenRAC from the homebrew menu.
 
-You can also run it from a terminal: `python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50`, or `--sd E:\` for a card.
+You can also run it from a terminal: `python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50`, `--sd E:\` for a card, or `--folder D:\OpenRAC-out` for a folder.
 
 Files on the card, in `switch/openrac/`:
 
