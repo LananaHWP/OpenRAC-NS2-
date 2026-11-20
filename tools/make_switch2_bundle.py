@@ -81,6 +81,25 @@ From a terminal (both systems):
 """
 
 
+CREDITS = """OpenRAC for the Nintendo Switch 2 0.1
+
+Source code (GPL-3.0-or-later; openrac.nro is built from it): https://github.com/LananaHWP/OpenRAC-NS2-
+The license text is in COPYING. Files keep the license of the folder they come from; see LICENSE.md and THIRD_PARTY_NOTICES.md in the source.
+
+Credits
+- OpenRAC and its contributors: https://github.com/OpenRAC/OpenRAC (the decompilations, the tools and the renderer this is built on)
+- rac-rs by AsobiCodes: https://github.com/AsobiCodes/rac-rs. Arsenal Mastery (bundle/mods/arsenal-mastery) is theirs,
+  https://github.com/AsobiCodes/arsenal-mastery, MIT, Copyright (c) 2026 AsobiCodes (its LICENSE is in the folder).
+- Switch Button Icons and Controls by Zacksly (CC BY 3.0 Licensed | zacksly.itch.io), https://zacksly.itch.io,
+  https://creativecommons.org/licenses/by/3.0/. The button icons in the game and the help screen pictures in
+  bundle/texture_packs are based on it and were changed: cut to shape, scaled, the logo on the controller covered, labels added.
+- OunceDevKit (libounce, OunceVK, libkaihen) by ouncebrew: https://github.com/ouncebrew/ounce-devkit, on devkitPro.
+- SDL (zlib license), https://libsdl.org. Orbitron (SIL Open Font License) lettered the help screen.
+
+Ratchet & Clank belongs to Sony Interactive Entertainment and Insomniac Games; Nintendo Switch belongs to Nintendo. This is a fan
+project. No part of the game is included: the setup reads the disc image you give it.
+"""
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--nro", required=True)
@@ -113,6 +132,8 @@ def main():
         shutil.copytree(args.mod, bundle / "mods" / "arsenal-mastery", ignore=SKIP, dirs_exist_ok=True)
     # the marker that tells the tools this is a copy of OpenRAC, not a checkout (tools/openrac_common/paths.py)
     (out / "STANDALONE").write_text("", encoding="utf8")
+    (out / "CREDITS.txt").write_text(CREDITS, encoding="utf8", newline="\r\n")
+    shutil.copy2(ROOT / "COPYING", out / "COPYING")
     (out / "install.bat").write_text(BAT, encoding="utf8", newline="\r\n")
     (out / "install.sh").write_text(SH, encoding="utf8", newline="\n")
     (out / "README.txt").write_text(README, encoding="utf8", newline="\r\n")
