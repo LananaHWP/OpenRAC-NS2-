@@ -430,7 +430,8 @@
       "func_00129160": "not a routine of its own: the end of the routine before it, followed by sceVu0UnitMatrix, whose own entry func_00129178 host/handasm.c answers",
       "func_002BAC00": "a piece of func_002B9FD8's loop, entered by a branch: it reads that routine's $s0-$s2 (a packet cursor, a count, a record) and its vf20; func_002B9FD8 is the port's own (host_functions)",
       "func_00281A14": "a step of func_00281450's packet builder: it takes the packet cursor in $at and the source in $s2 from it; func_00281450 is the port's own (host_functions)",
-      "func_00281A94": "a step of func_00281450's packet builder: the packet cursor in $at, which it advances; func_00281450 is the port's own (host_functions)"
+      "func_00281A94": "a step of func_00281450's packet builder: the packet cursor in $at, which it advances; func_00281450 is the port's own (host_functions)",
+      "func_00281D50": "a step of func_00281450's packet builder: its inputs in vf8-vf10 and $at; func_00281450 is the port's own (host_functions). The release's copy of rac2-ntsc's func_00281490, left as it is there"
     },
     "signatures": {
       "F391de845_FUN_002E45C8": "int (void *, float, float, float)",

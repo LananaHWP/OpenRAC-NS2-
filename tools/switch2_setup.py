@@ -6,7 +6,7 @@ into a folder on this PC to copy over yourself.
 
     python3 switch2_setup.py                       a window: pick the disc image, then where it goes (FTP, SD card, folder), and Install
     python3 switch2_setup.py --cli                 the same by questions in the terminal (no window needed)
-    python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\ [--arsenal-mastery]
+    python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\ [--arsenal-mastery] [--quickselect-pause] [--steady-strafe]
     python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50[:1337] [--ftp-user U --ftp-password P --ftp-root /]
     python3 switch2_setup.py --cli --iso GAME.iso --folder D:\\OpenRAC-out
 
@@ -18,7 +18,7 @@ What it does (everything goes to that folder of the card, nothing to the console
   2. writes the boot files and the disc image (the game reads most of its data from the disc by sector)  -> data/iso_data/<game>/
   3. exports the levels the renderer draws, from the disc                                                  -> data/port/<ntsc|pal>/
   4. copies the program (openrac.nro) and its pictures (the Switch button prompts, the help screen)
-  5. optionally the Arsenal Mastery mod (an optional extra: leave it out for the original game)            -> data/plugins/
+  5. optionally the mods (Arsenal Mastery, Quick Select pause, Steady strafe: each its own choice, off is the original game)  -> data/plugins/
 
 To an SD card the files are written straight onto it. Into a folder, the same tree (switch/<folder of the game>/...) is written under the folder you
 pick: copy its switch folder onto the card's root yourself (FileZilla, a card reader, a file manager). Over FTP they are made in a work folder next
@@ -59,6 +59,27 @@ GAMES = {
         "pictures": True, "mod": True,
     },
 }
+
+
+# The optional mods the bundle may hold (bundle/mods/<id>), each its own choice: copied to data/plugins/<id> and switched on in plugins.json.
+# flag: its command line switch; about: the line the window and the terminal show beside it.
+MODS = [
+    {"id": "arsenal-mastery", "name": "Arsenal Mastery", "flag": "--arsenal-mastery",
+     "about": "weapon and health levels as in Ratchet & Clank 3 (from rac-rs)"},
+    {"id": "quickselect-pause", "name": "Quick Select pause", "flag": "--quickselect-pause",
+     "about": "the world stands still while the Quick Select ring is up"},
+    {"id": "steady-strafe", "name": "Steady strafe", "flag": "--steady-strafe",
+     "about": "hold R2 to strafe facing the camera, as in Ratchet & Clank 2"},
+]
+
+
+def selected_mods(args):
+    """The ids the command line asked for: --mods ID,ID, and each mod's own flag."""
+    ids = [m.strip() for m in (args.mods or "").split(",") if m.strip()]
+    for mod in MODS:
+        if getattr(args, mod["id"].replace("-", "_"), False) and mod["id"] not in ids:
+            ids.append(mod["id"])
+    return ids
 
 
 def identify(iso):
@@ -309,7 +330,7 @@ def upload_tree(make_connection, local_root, home, say, connections=4):
 
 # ---------------------------------------------------------------------------------------------- the tree
 
-def build_tree(profile, iso, out_root, arsenal, bundle, say, jobs=None):
+def build_tree(profile, iso, out_root, mods, bundle, say, jobs=None):
     """Writes switch/<the game's folder> into out_root (an SD card's root, a folder for the player to copy, or a work folder)."""
     base = find_root()
     target = out_root / "switch" / profile["home"]
@@ -330,20 +351,28 @@ def build_tree(profile, iso, out_root, arsenal, bundle, say, jobs=None):
     if profile["pictures"] and (bundle / "texture_packs").is_dir():
         copy_tree(bundle / "texture_packs", data / "texture_packs", say)
 
-    say("== 4/4  the optional mod")
+    say("== 4/4  the optional mods")
     plugins = data / "plugins"
+    chosen = []
     if not profile["mod"]:
         say("none for this game")
-    elif arsenal and (bundle / "mods" / "arsenal-mastery").is_dir():
-        copy_tree(bundle / "mods" / "arsenal-mastery", plugins / "arsenal-mastery", say)
-        (plugins / "plugins.json").write_text(
-            json.dumps({"format": 1, "mods": [{"id": "arsenal-mastery", "enabled": True, "settings": {}}]}, indent=2) + "\n", encoding="utf8"
-        )
-        say("Arsenal Mastery is on: delete the folder plugins/arsenal-mastery, or set \"enabled\": false in plugins.json, to play the original game")
-    elif arsenal:
-        say("the bundle has no mods/arsenal-mastery: skipped")
     else:
-        say("left out (the original game)")
+        for mod in MODS:
+            if mod["id"] not in mods:
+                continue
+            if (bundle / "mods" / mod["id"]).is_dir():
+                copy_tree(bundle / "mods" / mod["id"], plugins / mod["id"], say)
+                chosen.append(mod)
+                say("%s is on" % mod["name"])
+            else:
+                say("the bundle has no mods/%s: %s skipped" % (mod["id"], mod["name"]))
+        if chosen:
+            (plugins / "plugins.json").write_text(
+                json.dumps({"format": 1, "mods": [{"id": m["id"], "enabled": True, "settings": {}} for m in chosen]}, indent=2) + "\n", encoding="utf8"
+            )
+            say("Each mod can be turned off later: delete its folder in plugins, or set enabled to false in plugins.json")
+        else:
+            say("left out (the original game)")
     return target
 
 
@@ -355,7 +384,7 @@ def parse_ftp(text, port):
     return host, port
 
 
-def install(iso, arsenal, bundle, say, sd=None, ftp=None, folder=None, jobs=None, work=None, keep_work=False, connections=4):
+def install(iso, mods, bundle, say, sd=None, ftp=None, folder=None, jobs=None, work=None, keep_work=False, connections=4):
     """sd: the SD card's root (a folder); ftp: (host, port, user, password, root); folder: a folder on this PC to write the card's tree into. One of them."""
     iso = pathlib.Path(iso)
     bundle = pathlib.Path(bundle)
@@ -380,7 +409,7 @@ def install(iso, arsenal, bundle, say, sd=None, ftp=None, folder=None, jobs=None
             raise Failure("%s has %.1f GB free and the game needs %.1f GB (the disc image and the levels)" % (out, free / GIB, needed / GIB))
         if sd is not None and size > 4 * GIB - 1 and shutil.disk_usage(out).total < 40 * GIB:
             say("warning: the image is over 4 GB: a card formatted FAT32 cannot hold it (format it exFAT)")
-        target = build_tree(profile, iso, out, arsenal, bundle, say, jobs)
+        target = build_tree(profile, iso, out, mods, bundle, say, jobs)
         say("")
         if sd is not None:
             say("Done. Put the card in the console and start the game from the homebrew menu: %s" % (target / profile["nro"]))
@@ -406,7 +435,7 @@ def install(iso, arsenal, bundle, say, sd=None, ftp=None, folder=None, jobs=None
     if free < int(1.5 * GIB):
         raise Failure("the work folder %s has %.1f GB free: it needs about 1.5 GB (and %.1f GB more when it is not on the disc image's drive)" % (work_dir, free / GIB, size / GIB))
     try:
-        build_tree(profile, iso, work_dir, arsenal, bundle, say, jobs)
+        build_tree(profile, iso, work_dir, mods, bundle, say, jobs)
         say("== sending to the console")
         upload_tree(make_connection, work_dir, profile["home"], say, connections)
     finally:
@@ -441,13 +470,17 @@ def run_cli(args):
                 args.ftp = ask("The console's FTP address (for example 192.168.1.50:1337)")
                 args.ftp_user = args.ftp_user or ask("FTP user (empty: none, as the Switch 2 FTP server wants)")
                 args.ftp_password = args.ftp_password or ask("FTP password (empty: none)")
-        if profile is not None and profile["mod"] and sys.stdin.isatty() and "--arsenal-mastery" not in sys.argv and ask("Install Arsenal Mastery, the optional mod? (y/n)", "n").lower().startswith("y"):
-            args.arsenal_mastery = True
+        mods = selected_mods(args)
+        if profile is not None and profile["mod"] and sys.stdin.isatty() and not mods:
+            # no mod asked for on the command line: each is asked about, off by default
+            for mod in MODS:
+                if ask("Install %s (%s)? (y/n)" % (mod["name"], mod["about"]), "n").lower().startswith("y"):
+                    mods.append(mod["id"])
         ftp = None
         if args.ftp:
             host, port = parse_ftp(args.ftp, args.ftp_port)
             ftp = (host, port, args.ftp_user, args.ftp_password, args.ftp_root)
-        install(args.iso, args.arsenal_mastery, args.bundle, print, sd=args.sd if not ftp else None, ftp=ftp, folder=args.folder if not ftp and not args.sd else None, jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
+        install(args.iso, mods, args.bundle, print, sd=args.sd if not ftp else None, ftp=ftp, folder=args.folder if not ftp and not args.sd else None, jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
     except Failure as e:
         print("error: %s" % e, file=sys.stderr)
         return 1
@@ -470,7 +503,8 @@ def run_window(args):
     user = tk.StringVar(value=args.ftp_user or "")
     password = tk.StringVar(value=args.ftp_password or "")
     root = tk.StringVar(value=args.ftp_root)
-    arsenal = tk.BooleanVar(value=args.arsenal_mastery)
+    asked = selected_mods(args)
+    mod_vars = [(mod, tk.BooleanVar(value=mod["id"] in asked)) for mod in MODS]
     lines = queue.Queue()
     busy = {"on": False}
 
@@ -527,16 +561,19 @@ def run_window(args):
     mode.trace_add("write", show)
     show()
 
-    ttk.Checkbutton(
-        frame,
-        text="Install Arsenal Mastery (an optional mod that adds weapon and health levels; leave it off for the original game)",
-        variable=arsenal,
-    ).grid(row=5, column=0, columnspan=3, sticky="w")
+    mods_box = ttk.LabelFrame(frame, text="Optional mods (all off is the original game; each can be turned off later)")
+    mods_box.grid(row=5, column=0, columnspan=3, sticky="ew", pady=(0, 4))
+    for mod, var in mod_vars:
+        ttk.Checkbutton(mods_box, text="%s: %s" % (mod["name"], mod["about"]), variable=var).pack(anchor="w", padx=6)
+
+    def chosen_mods():
+        return [mod["id"] for mod, var in mod_vars if var.get()]
+
     button = ttk.Button(frame, text="Install")
     button.grid(row=6, column=0, columnspan=3, pady=10)
     bar = ttk.Progressbar(frame, mode="indeterminate")
     bar.grid(row=7, column=0, columnspan=3, sticky="ew")
-    log = tk.Text(frame, height=14, wrap="word", state="disabled")
+    log = tk.Text(frame, height=12, wrap="word", state="disabled")
     log.grid(row=8, column=0, columnspan=3, sticky="nsew", pady=(10, 0))
     frame.rowconfigure(8, weight=1)
 
@@ -564,12 +601,12 @@ def run_window(args):
         try:
             if mode.get() == "ftp":
                 address, p = parse_ftp(host.get(), int(port.get() or 1337))
-                install(iso.get(), arsenal.get(), args.bundle, say, ftp=(address, p, user.get(), password.get(), root.get()), jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
+                install(iso.get(), chosen_mods(), args.bundle, say, ftp=(address, p, user.get(), password.get(), root.get()), jobs=args.jobs, work=args.work, keep_work=args.keep_work, connections=args.ftp_connections)
             else:
                 if mode.get() == "folder":
-                    install(iso.get(), arsenal.get(), args.bundle, say, folder=folder.get(), jobs=args.jobs)
+                    install(iso.get(), chosen_mods(), args.bundle, say, folder=folder.get(), jobs=args.jobs)
                 else:
-                    install(iso.get(), arsenal.get(), args.bundle, say, sd=sd.get(), jobs=args.jobs)
+                    install(iso.get(), chosen_mods(), args.bundle, say, sd=sd.get(), jobs=args.jobs)
         except Failure as e:
             say("")
             say("FAILED: %s" % e)
@@ -610,7 +647,9 @@ def main():
     ap.add_argument("--ftp-connections", type=int, default=4, help="connections to the console at once (default 4; 1 if its FTP server allows only one)")
     ap.add_argument("--work", help="the work folder of an FTP install (default: next to the disc image)")
     ap.add_argument("--keep-work", action="store_true", help="keep the work folder afterwards")
-    ap.add_argument("--arsenal-mastery", action="store_true", help="also install the optional Arsenal Mastery mod")
+    for mod in MODS:
+        ap.add_argument(mod["flag"], action="store_true", help="also install the optional mod %s: %s" % (mod["name"], mod["about"]))
+    ap.add_argument("--mods", help="optional mods to install, by id and separated by commas (%s)" % ",".join(m["id"] for m in MODS))
     ap.add_argument("--bundle", default=str(HERE / "bundle"))
     ap.add_argument("--jobs", type=int, help="levels to export at once")
     args = ap.parse_args()

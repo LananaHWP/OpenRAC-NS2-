@@ -46,6 +46,14 @@
 #include "openrac/game_host.h"
 #include "openrac/game_lib.h"
 
+#if defined(OPENRAC_SWITCH2)
+/* On the console, with debug.txt on the card, the card's commands are written to stderr.txt (platform_switch2/compat.c). */
+int openrac_switch2_debug(void);
+#define MC_LOG(...) do { if (openrac_switch2_debug()) { fprintf(stderr, "mc: " __VA_ARGS__); fputc(10, stderr); } } while (0)
+#else
+#define MC_LOG(...) ((void)0)
+#endif
+
 /* The command numbers sceMcSync reports. */
 enum {
     MC_GET_INFO = 0x01,
@@ -95,6 +103,13 @@ static int no_name(gaddr name) {
 }
 
 static int finish(int cmd, int result) {
+    {
+        /* The card's info is asked every tick, for both ports: its first answers are said, not a hundred a second. */
+        static int info_said;
+        if (cmd != MC_GET_INFO || info_said++ < 12) {
+            MC_LOG("command %#x -> %d", cmd, result);
+        }
+    }
     if (state_command != 0) {
         GREF(int, state_command) = cmd;
         GREF(int, state_result) = result;
@@ -204,8 +219,19 @@ static int each_name(const char* dir, void (*each)(const char* dir, const char* 
     if (d == NULL) {
         return 0;
     }
+#if defined(OPENRAC_SWITCH2)
+    /* Horizon's file system lists neither "." nor "..", which a card's folder always does and which the games count (Going Commando takes its
+     * save folder for no save unless it lists exactly its own nine): they come first, the file system's own entries after them. */
+    each(dir, ".", data);
+    each(dir, "..", data);
+#endif
     struct dirent* ent;
     while ((ent = readdir(d)) != NULL) {
+#if defined(OPENRAC_SWITCH2)
+        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+            continue;
+        }
+#endif
         each(dir, ent->d_name, data);
     }
     closedir(d);
@@ -726,6 +752,7 @@ int openrac_lib_sceMcOpen(int port, int slot, gaddr name, int mode) {
         || !card_path_of(port, (const char*)G(name), path, sizeof path, &foreign)) {
         return finish(MC_OPEN, MC_NO_CARD);
     }
+    MC_LOG("open %s mode %#x%s", path, mode, foreign ? " (another game's)" : "");
     /* Another game's file is only ever read. */
     if (foreign && (mode & (2 | 0x200)) != 0) {
         return finish(MC_OPEN, MC_FAILED);
@@ -894,6 +921,7 @@ int openrac_lib_sceMcMkdir(int port, int slot, gaddr name) {
         || !card_path_of(port, (const char*)G(name), path, sizeof path, &foreign)) {
         return finish(MC_MKDIR, MC_NO_CARD);
     }
+    MC_LOG("mkdir %s", path);
     /* Inside another game's folder, nothing is made; its own top folder is there already. */
     if (foreign) {
         return finish(MC_MKDIR, stat(path, &st) == 0 ? MC_EXISTS : MC_FAILED);
@@ -988,7 +1016,13 @@ static void add_entry(const char* dir, const char* name) {
     snprintf(path, sizeof path, "%s/%s", dir, name);
     mc_entry* e = &listing[listing_count++];
     memset(e, 0, sizeof *e);
-    if (stat(path, &st) == 0) {
+    int known = stat(path, &st) == 0;
+#if defined(OPENRAC_SWITCH2)
+    if (!known && name[0] == '.' && (name[1] == '\0' || (name[1] == '.' && name[2] == '\0'))) {
+        known = stat(dir, &st) == 0;  /* "dir/." is not a path of Horizon's file system: the folder itself */
+    }
+#endif
+    if (known) {
         stamp(e->created, st.st_mtime);
         stamp(e->modified, st.st_mtime);
         e->size = S_ISDIR(st.st_mode) ? 0 : (uint32_t)st.st_size;
@@ -1147,6 +1181,7 @@ int openrac_lib_sceMcGetDir(
     }
     if (mode == 0) {
         list(port, (const char*)G(name));
+        MC_LOG("list %s: %d entries", (const char*)G(name), listing_count);
     }
     int n = 0;
     while (n < max && listing_next < listing_count) {

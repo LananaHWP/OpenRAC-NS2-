@@ -1,0 +1,22 @@
+{
+  "format": 2,
+  "id": "quickselect-pause",
+  "name": "Quick Select pause",
+  "version": "0.1.0",
+  "author": "Lanana420 (after rac-rs)",
+  "description": "The world stands still while the Quick Select ring is up (Triangle held), as in the later games: enemies, shots, platforms and Ratchet wait for you to pick a weapon. Off by default; turn it on in the mods list.",
+  "license": "GPL-3.0-or-later",
+  "type": "script",
+  "api": "1.3",
+  "scripts": [
+    "main.luau"
+  ],
+  "games": {
+    "rac1": [
+      "pal",
+      "ntsc"
+    ]
+  },
+  "hooks": [],
+  "optional_hooks": []
+}

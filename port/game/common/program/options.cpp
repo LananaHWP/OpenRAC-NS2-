@@ -59,8 +59,11 @@ fs::path data_home() {
         base = fs::path(profile.value_or(".")) / "AppData/Local/openrac";
     }
 #elif defined(OPENRAC_SWITCH2)
+#ifndef OPENRAC_S2_HOME
+#define OPENRAC_S2_HOME "sdmc:/switch/openrac"
+#endif
     // Everything of the program's lives on the SD card: saves, settings, controls, mods' files, the logs and the game's data.
-    fs::path base = "sdmc:/switch/openrac";
+    fs::path base = OPENRAC_S2_HOME;  // sdmc:/switch/<OPENRAC_SWITCH2_HOME> (cmake/OpenracSwitch2.cmake)
 #else
     fs::path base;
 

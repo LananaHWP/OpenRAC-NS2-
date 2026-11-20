@@ -163,6 +163,16 @@ int play_movie(
         if (shown) {
             media::frame_to_rgba(*shown, rgba);
 
+            // The first pictures of a movie, said in the verbose log: how many of a sample of its pixels are not black (a movie that
+            // reaches the screen black shows here whether the decoder or the drawing is to blame).
+            if (log::verbose_on() && (blank == 0 || blank == 50 || blank == 200)) {
+                std::size_t lit = 0, sampled = 0;
+                for (std::size_t i = 0; i + 3 < rgba.size(); i += 4 * 61, ++sampled) {
+                    lit += (rgba[i] | rgba[i + 1] | rgba[i + 2]) > 24 ? 1 : 0;
+                }
+                log::verbose("movie at sector {}: blank {}: {} of {} sampled pixels are lit", lsn, blank, lit, sampled);
+            }
+
             if (overlay != nullptr) {
                 overlay(rgba.data(), int(shown->width), int(shown->height));
             } else if (!frontend::show_picture(
@@ -193,7 +203,14 @@ int play_movie(
         const bool start_before = (previous & 0x0008) == 0;
         previous = buttons;
 
-        if (start_skips && start_now && !start_before) {
+#if defined(OPENRAC_SWITCH2)
+        // On the console, a Start press in the first two seconds of a movie (the startup video, while the GPU is still being set up) lost the
+        // GPU and left the caches it had saved bad, so the next starts failed: it is ignored then.
+        const bool skip_ready = blank >= 120;
+#else
+        const bool skip_ready = true;
+#endif
+        if (start_skips && start_now && !start_before && skip_ready) {
             crash::breadcrumb(crash::BreadcrumbThread::Main, "movie skip requested");
             log::info("movie at sector {}: Start pressed (pad {:#06x})", lsn, buttons);
             skipped = 1;

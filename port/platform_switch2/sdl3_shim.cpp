@@ -89,7 +89,9 @@ HidAnalogStickState g_stick_prev[2] = {};
 bool g_quit_sent = false;
 AppletOperationMode g_mode_prev = AppletOperationMode_Handheld;
 
-std::atomic<SDL_AudioStream*> g_audio_stream{nullptr};
+// Every open stream is mixed into the one audout device: the game's sound engine keeps its stream open while a movie opens its own.
+std::mutex g_audio_lock;
+std::vector<SDL_AudioStream*> g_audio_streams;
 std::thread g_audio_thread;
 std::atomic<bool> g_audio_run{false};
 
@@ -159,10 +161,18 @@ Sint16 trigger_axis(u64 hid) {
     return (padGetButtons(&g_pad) & hid) ? 32767 : 0;
 }
 
+std::atomic<unsigned long> g_pad_updates{0};
+std::atomic<unsigned long long> g_pad_raw{0};
+std::atomic<int> g_pad_lx{0}, g_pad_ly{0};
+
 void pump_pad() {
     ensure_pad();
     padUpdate(&g_pad);
     const u64 now = padGetButtons(&g_pad);
+    g_pad_updates++;
+    g_pad_raw = now;
+    g_pad_lx = padGetStickPos(&g_pad, 0).x;
+    g_pad_ly = padGetStickPos(&g_pad, 0).y;
     const u64 changed = now ^ g_buttons_prev;
     if (g_gamepad_open && changed) {
         for (const ButtonMap& b : kButtons) {
@@ -229,30 +239,43 @@ void audio_main() {
             continue;
         }
         auto* out = static_cast<std::uint8_t*>(released->buffer);
-        std::memset(out, 0, kBytes);
-        SDL_AudioStream* s = g_audio_stream.load();
-        if (s != nullptr && !s->paused.load()) {
-            std::size_t queued;
-            {
-                std::lock_guard<std::mutex> lock(s->lock);
-                queued = s->bytes.size();
-            }
-            if (queued < kBytes && s->callback != nullptr) {
-                s->callback(s->user, s, static_cast<int>(kBytes - queued), static_cast<int>(kBytes));
-            }
-            const float gain = s->gain.load();
-            std::lock_guard<std::mutex> lock(s->lock);
-            const std::size_t n = s->bytes.size() < kBytes ? s->bytes.size() : kBytes;
-            for (std::size_t i = 0; i < n; i++) {
-                out[i] = s->bytes[i];
-            }
-            s->bytes.erase(s->bytes.begin(), s->bytes.begin() + static_cast<std::ptrdiff_t>(n));
-            if (gain != 1.0f) {
-                auto* samples = reinterpret_cast<std::int16_t*>(out);
-                for (std::size_t i = 0; i < kBytes / 2; i++) {
-                    samples[i] = static_cast<std::int16_t>(samples[i] * gain);
+        static std::int32_t mix[kBytes / 2];  // the one audio thread: off its stack
+        static std::uint8_t chunk[kBytes];
+        std::memset(mix, 0, sizeof mix);
+        {
+            std::lock_guard<std::mutex> streams(g_audio_lock);  // also keeps a stream alive while it is read
+            for (SDL_AudioStream* s : g_audio_streams) {
+                if (s->paused.load()) {
+                    continue;
+                }
+                std::size_t queued;
+                {
+                    std::lock_guard<std::mutex> lock(s->lock);
+                    queued = s->bytes.size();
+                }
+                if (queued < kBytes && s->callback != nullptr) {
+                    s->callback(s->user, s, static_cast<int>(kBytes - queued), static_cast<int>(kBytes));
+                }
+                const float gain = s->gain.load();
+                std::memset(chunk, 0, sizeof chunk);
+                std::size_t n;
+                {
+                    std::lock_guard<std::mutex> lock(s->lock);
+                    n = s->bytes.size() < kBytes ? s->bytes.size() : kBytes;
+                    for (std::size_t i = 0; i < n; i++) {
+                        chunk[i] = s->bytes[i];
+                    }
+                    s->bytes.erase(s->bytes.begin(), s->bytes.begin() + static_cast<std::ptrdiff_t>(n));
+                }
+                const auto* samples = reinterpret_cast<const std::int16_t*>(chunk);
+                for (std::size_t i = 0; i < n / 2; i++) {
+                    mix[i] += static_cast<std::int32_t>(samples[i] * gain);
                 }
             }
+        }
+        auto* samples_out = reinterpret_cast<std::int16_t*>(out);
+        for (std::size_t i = 0; i < kBytes / 2; i++) {
+            samples_out[i] = static_cast<std::int16_t>(mix[i] > 32767 ? 32767 : (mix[i] < -32768 ? -32768 : mix[i]));
         }
         released->data_size = kBytes;
         audoutAppendAudioOutBuffer(released);
@@ -329,7 +352,7 @@ bool SDL_SetAppMetadata(const char*, const char*, const char*) {
     return true;
 }
 const char* SDL_GetBasePath(void) {
-    return "sdmc:/switch/openrac/";
+    return OPENRAC_S2_HOME "/";
 }
 void SDL_free(void* p) {
     std::free(p);
@@ -880,7 +903,10 @@ SDL_AudioStream* SDL_OpenAudioDeviceStream(SDL_AudioDeviceID, const SDL_AudioSpe
     }
     s->callback = callback;
     s->user = userdata;
-    g_audio_stream = s;
+    {
+        std::lock_guard<std::mutex> streams(g_audio_lock);
+        g_audio_streams.push_back(s);
+    }
     audio_start();
     return s;
 }
@@ -888,9 +914,15 @@ void SDL_DestroyAudioStream(SDL_AudioStream* s) {
     if (s == nullptr) {
         return;
     }
-    SDL_AudioStream* expected = s;
-    g_audio_stream.compare_exchange_strong(expected, nullptr);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));  // a buffer in flight may still read it
+    {
+        std::lock_guard<std::mutex> streams(g_audio_lock);  // waits for the buffer being mixed, which may be reading this stream
+        for (auto it = g_audio_streams.begin(); it != g_audio_streams.end(); ++it) {
+            if (*it == s) {
+                g_audio_streams.erase(it);
+                break;
+            }
+        }
+    }
     delete s;
 }
 bool SDL_ResumeAudioStreamDevice(SDL_AudioStream* s) {
@@ -987,3 +1019,11 @@ bool SDL_Vulkan_CreateSurface(SDL_Window*, VkInstance, const struct VkAllocation
 }
 
 }  // extern "C"
+
+// The pad as the console reports it, for the freeze finder's dump (platform_switch2/compat.c): how often it was read, and what it said last.
+extern "C" void openrac_switch2_pad_state(unsigned long* updates, unsigned long long* buttons, int* lx, int* ly) {
+    *updates = g_pad_updates.load();
+    *buttons = g_pad_raw.load();
+    *lx = g_pad_lx.load();
+    *ly = g_pad_ly.load();
+}

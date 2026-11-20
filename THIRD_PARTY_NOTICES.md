@@ -388,3 +388,12 @@ and the [bundled xxHash notice](https://github.com/lz4/lz4/blob/v1.10.0/lib/xxha
 [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)). The pictures were changed: cut to their shapes and scaled down to the game's button
 cells (written out as numbers by `tools/make_switch_glyphs.py`), and the controller picture was edited (its logo covered) and set with labels.
 Nintendo Switch is a trademark of Nintendo; the pack and this project are not affiliated with or sponsored by Nintendo.
+
+## rac-rs and the mods in switch2/mods
+
+[rac-rs](https://github.com/AsobiCodes/rac-rs) by AsobiCodes (GPL-3.0-or-later). `switch2/mods/arsenal-mastery` is
+[Arsenal Mastery](https://github.com/AsobiCodes/arsenal-mastery) (MIT, Copyright (c) 2026 AsobiCodes; its LICENSE is in the folder), with its
+manifest written as `openrac-mod.json`. `switch2/mods/quickselect-pause` and `switch2/mods/steady-strafe` are rac-rs's "Quick Select pauses the
+game" and its Steady strafe aiming written again as script mods for OpenRAC's script host, from rac-rs's source and notes (the update mask, the camera
+and aim words, the hero's words and the PAL to USA address map): GPL-3.0-or-later, like rac-rs. `port/game/common/mod_omni.luau` reimplements the
+OmniLoader interface Arsenal Mastery was written for, from rac-rs's published binding and documentation.

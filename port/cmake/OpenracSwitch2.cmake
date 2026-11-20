@@ -5,6 +5,14 @@ if(NOT NINTENDO_SWITCH2)
 endif()
 set(OPENRAC_SWITCH2 ON)
 set(OPENRAC_SWITCH2_DIR "${CMAKE_CURRENT_LIST_DIR}/../platform_switch2")
+set(OPENRAC_SWITCH2_HOME "openrac" CACHE STRING "The folder of switch/ on the SD card the program keeps its data, settings and logs in")
+add_compile_definitions("OPENRAC_S2_HOME=\"sdmc:/switch/${OPENRAC_SWITCH2_HOME}\"")
+# Diagnostics for a program that stops answering: every generated function writes its address into a ring (platform_switch2/compat.c) and,
+# with debug.txt on the card, the last ones are logged to boot.txt every 10 s. Slows the game down; off unless asked for.
+option(OPENRAC_SWITCH2_CALL_RING "Log the last functions the game ran (for finding a freeze)" OFF)
+if(OPENRAC_SWITCH2_CALL_RING)
+  add_compile_definitions(OPENRAC_SWITCH2_CALL_RING=1)
+endif()
 add_compile_definitions(OPENRAC_SWITCH2=1 _GNU_SOURCE=1 CLOCK_THREAD_CPUTIME_ID=CLOCK_MONOTONIC)
 # Horizon's libc lacks a few POSIX headers (dlfcn.h, execinfo.h, sys/sysinfo.h): stand-ins first on the path.
 include_directories(BEFORE SYSTEM "${OPENRAC_SWITCH2_DIR}/compat")

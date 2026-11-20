@@ -9,3 +9,6 @@ func_V1_JP_002D0198	the Japanese release's code (src/jp), as func_JP_0027FB70
 func_V1_KR_0027FCA0	the Korean release's code (src/kr), which this program carries: only other func_KR_ functions reach it, and nothing reaches them
 func_V1_KR_0028AB78	the Korean release's code (src/kr), as func_KR_0027FCA0
 func_V1_KR_002D0E58	the Korean release's code (src/kr), as func_KR_0027FCA0
+func_002E25FC	PAL-only VU0 macro-code routine the carry did not pair with a v1.01 function (vf instructions only); with the disc it runs its translation. Found building rac2-pal for the Switch 2
+func_002E3390	PAL-only VU0 macro-code routine as func_002E25FC, reached only through it
+func_00310010	PAL-only routine the carry did not pair with a v1.01 function; with the disc it runs its translation. Found building rac2-pal for the Switch 2

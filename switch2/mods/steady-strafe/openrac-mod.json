@@ -1,0 +1,27 @@
+{
+  "format": 2,
+  "id": "steady-strafe",
+  "name": "Steady strafe",
+  "version": "0.1.0",
+  "author": "Lanana420 (after rac-rs)",
+  "description": "Hold R2 (ZR) and Ratchet side-steps and backpedals facing where the camera looks, and the weapons shoot along the camera, as in Ratchet & Clank 2. R2 is the strafe button while the mod is on (it is the crouch otherwise). Off by default.",
+  "license": "GPL-3.0-or-later",
+  "type": "script",
+  "api": "1.3",
+  "scripts": [
+    "main.luau"
+  ],
+  "games": {
+    "rac1": [
+      "ntsc"
+    ]
+  },
+  "hooks": [
+    "rac1.player.update",
+    "rac1.moby.moby192.update"
+  ],
+  "optional_hooks": [],
+  "conflicts": [
+    { "id": "lock-strafe", "reason": "both take R2" }
+  ]
+}

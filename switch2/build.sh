@@ -41,7 +41,7 @@ set +e
 ninja -C /build/s2 -k 0 '"$TARGETS"'
 rc=$?
 if [ $rc -eq 0 ] && [ -f /build/s2/openrac-rac1-ntsc.elf ]; then
-  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "Lanana420" "0.1" /out/openrac.nacp
+  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "Lanana420" "0.2" /out/openrac.nacp
   /opt/devkitpro/tools/bin/elf2nro /build/s2/openrac-rac1-ntsc.elf /out/openrac.nro --nacp=/out/openrac.nacp --icon=/icon.jpg && ls -l /out/openrac.nro
 fi
 echo "build-exit $rc"

@@ -381,7 +381,9 @@ bool essential_moby(int class_id) {
 // The game's profile: its memory read by program, and the display list it sends.
 class Profile final : public host::GameProfile {
 public:
-    explicit constexpr Profile(const Release& release) : release_(release) {}
+    // `frame_block`: the block of the frame in the GS's memory (D_001A72DC / 256), which the PAL disc puts 0x80 earlier than the USA ones.
+    explicit constexpr Profile(const Release& release, std::uint32_t frame_block = 0x1E80)
+        : release_(release), frame_block_(frame_block) {}
 
     host::GameState read_state(std::span<const std::uint8_t> ram, int level) const override {
         return read_game_state(ram, addresses(level), release_);
@@ -442,7 +444,9 @@ public:
 
     // The VRAM base of the frame (D_001A72DC, 0x1E8000 in bytes / 256 / 8): past the two 448-line
     // buffers, where the world's passes set FRAME (func_002DF1B8: FBP 0xF4).
-    std::uint32_t draw_buffer_block() const override { return 0x1E80; }
+    // The PAL disc's variable holds 0x1E0000 (FBP 0xF0): its frame is at block 0x1E00, so that its 2D (the HUD, the dialogs, the loading
+    // pictures, a movie's overlay) is drawn into the frame and not taken for an off-screen target.
+    std::uint32_t draw_buffer_block() const override { return frame_block_; }
 
     // 0x10 before Ratchet & Clank's: ResolveMobyAnimFramePtrs (func_0029F390) reads the frames at
     // +0x40, the sequences at +0x42 and writes the keys at +0x58, and the pose layer slots
@@ -505,11 +509,12 @@ private:
     }
 
     const Release& release_;
+    std::uint32_t frame_block_;
 };
 
 // One instance for each disc, constants for the program's life.
 const Profile kNtscProfile{kNtsc};
-const Profile kPalProfile{kPal};
+const Profile kPalProfile{kPal, 0x1E00};
 const Profile kNtsc2Profile{kNtsc2};
 
 }  // namespace

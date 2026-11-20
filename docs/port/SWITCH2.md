@@ -142,3 +142,29 @@ Works: enemies found (`omni.mobys`, `is_enemy`), XP and levels per save, the HUD
 case). Not yet: `omni.fn`, `omni.with_stack`, `omni.pose`, `omni.raycast` and the `collide.sphere_mobys` hook (a host function of the port's,
 which hostgen cannot put a hook under): the perks that need them (the minibomb, dual blasters, glove of doom, hit path, pyrocitor, tesla claw's
 line of sight, the sphere radius perks) stay off, and the mod says so in the log.
+
+## 0.2 (2026-11-20)
+
+- **Mods.** Quick Select pause and Steady strafe are script mods in `switch2/mods/` beside Arsenal Mastery, each its own choice in the setup
+  (`plugins.json` lists the ones installed; all off is the plain game). Both come from rac-rs: the update mask and the Quick Select ring's fade
+  byte for the pause, the camera's yaw word (per level), the aim words (0x140600, 0x14060c) and the hero's words for the strafe, with the USA
+  disc's addresses taken from rac-rs's PAL to USA map. A script sees only game RAM through `openrac.read` and `openrac.write`; what the renderer
+  draws of a moby is its three rotation rows (+0xC0, +0xD0, +0xE0), which the game rebuilds from the Euler angles in each update, so the strafe
+  turns the rows and not only the yaw word, from a hook after the hero's update (`rac1.player.update`) and before the frame is taken. What the
+  hero holds is turned about him by the same angle: the weapon in his hand (item slot 0 at 0x1403e0), and the Bomb Glove's bomb (class 121). The
+  Bomb Glove's own update (class 192) runs with the hero's frame words (0x13f990, 0x13f9a0, 0x13f9b0, 0x13f9c0 and his logic facing) turned to
+  the camera's heading, as rac-rs does, so a thrown bomb goes where the camera looks.
+- **Clocks.** `cpu_max.txt` on the card asks for the CPU's own clock 20 seconds after the start (`perf.c`): the console clamps 1785 MHz to its
+  highest step, 1702 MHz, which a timed loop measured (1516 MHz before, 1700 MHz after) and which held 60 frames a second docked on the first
+  planets. Asked at the start, while the GPU was being set up, it lost the GPU.
+- **GPU lost at the start.** `VK_ERROR_DEVICE_LOST` right after the first frame left bad cache files (`.cache/openrac`, and OunceVK's
+  `config/ouncevk/shader-cache`), and every later start failed until they were deleted. Skipping the startup video in its first moments did it,
+  so Start is ignored for a video's first 120 blanks on the console (`movie.cpp`), and the OpenGL state warm-up, the cache's writer, is off
+  there by default (`OPENRAC_RENDER_OPT_OFF=gl-state-warmup`, set in `openrac_switch2_load_env` unless `env.txt` names its own list). No crash
+  followed in the tests after that.
+- **Going Commando (PAL), experimental.** `switch2/build_rac2.sh`, its own folder on the card (`OPENRAC_SWITCH2_HOME`, `switch/openrac-rac2`).
+  The PAL disc's frame is at block 0x1E00, where the USA discs' is 0x1E80 (`profile.cpp`), the audio layer mixes every open stream (a video
+  used to take the game's sound over), the card's folder listing carries `.` and `..` (Horizon's file system has neither, the game counts
+  its nine entries) and a video's picture is drawn over an earlier off-screen target at its block. Open: the first level froze at a dialog,
+  and the loading screens and the thruster fire drew wrong, before the last of these fixes; not checked since. The build's freeze finder
+  (`RING=ON`) writes the last functions the game ran to `boot.txt` every 3 seconds.

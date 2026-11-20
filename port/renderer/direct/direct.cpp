@@ -4,6 +4,7 @@
 #include "renderer/direct/direct.h"
 
 #include <algorithm>
+#include <set>
 #include <bit>
 #include <cmath>
 #include <cstdint>
@@ -1252,7 +1253,9 @@ DirectVertex GifInterpreter::convert(const GsVertex& v) const {
     out.z = static_cast<float>(depth * 2.0 - 1.0);
     int frame_x = 0;
     int frame_y = 0;
-    if (attributes().tme
+    // A picture put in memory outside the list (a movie's frame) is a texture even where the game drew off-screen earlier (Going Commando's PAL
+    // disc: the movie's frame is at the block its title screen drew into), so it is not taken for the target there.
+    if (attributes().tme && !m_textures.picture_at(c.tex0.tbp0)
         && std::find(m_offscreen.begin(), m_offscreen.end(), c.tex0.tbp0) != m_offscreen.end()) {
         // A texel of an off-screen target: its pixel, over the target's square (first row on top,
         // as it was drawn).
@@ -1299,7 +1302,8 @@ void GifInterpreter::ensure_draw() {
         int frame_x = 0;
         int frame_y = 0;
         s.target = offscreen_target();
-        s.source = s.textured && std::find(m_offscreen.begin(), m_offscreen.end(), c.tex0.tbp0) != m_offscreen.end()
+        s.source = s.textured && !m_textures.picture_at(c.tex0.tbp0)
+                           && std::find(m_offscreen.begin(), m_offscreen.end(), c.tex0.tbp0) != m_offscreen.end()
                        ? c.tex0.tbp0
                        : 0;
         s.frame_source = s.source == 0 && s.textured && is_colour_format(c.tex0.psm)
@@ -1351,6 +1355,22 @@ void GifInterpreter::ensure_draw() {
         if (s.textured && s.source == 0 && !s.frame_source && s.texture == m_textures.placeholder() && !show_missing) {
             s.fbmsk = 0xFFFFFFFFu;
             s.depth_write = false;
+        }
+        if (s.textured && log::verbose_on()) {
+            // The textured draws in the order they come, each pair (what was drawn before, this) said once: which texture a frame's draws read
+            // as, and into which target (0: the frame), in the detailed log. A few dozen lines for a whole run.
+            static std::uint64_t previous = 0;
+            static std::set<std::pair<std::uint64_t, std::uint64_t>> seen;
+            const std::uint64_t kind = s.source != 0 ? 1 : s.frame_source ? 2 : s.texture == m_textures.placeholder() ? 3 : 0;
+            const std::uint64_t now = (static_cast<std::uint64_t>(c.tex0.tbp0) << 32) | (kind << 28) | (static_cast<std::uint64_t>(s.target) & 0xFFFFFFF);
+            if (now != previous && seen.size() < 300 && seen.insert({previous, now}).second) {
+                log::verbose("2D draw: block {:#x} {}x{} as {} into {} (after {:#x} as {} into {})", c.tex0.tbp0, c.tex0.width(), c.tex0.height(),
+                             kind == 1 ? "target" : kind == 2 ? "frame" : kind == 3 ? "missing" : "texture",
+                             s.target != 0 ? "target " + std::to_string(s.target) : std::string("the frame"),
+                             previous >> 32, ((previous >> 28) & 15) == 1 ? "target" : ((previous >> 28) & 15) == 2 ? "frame" : ((previous >> 28) & 15) == 3 ? "missing" : "texture",
+                             previous & 0xFFFFFFF);
+            }
+            previous = now;
         }
         if (s.textured) {
             note_texture_kind(c.tex0.tbp0, c.tex0.psm,

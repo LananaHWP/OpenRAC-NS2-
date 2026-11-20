@@ -578,3 +578,10 @@ int vsync() {
 }
 
 }  // namespace openrac::program
+
+#if defined(OPENRAC_SWITCH2)
+// The game's frame counter, for the freeze finder's dump (platform_switch2/compat.c): a game that still ticks moves it on.
+extern "C" long openrac_switch2_game_frame(void) {
+    return openrac::program::g_frame;
+}
+#endif

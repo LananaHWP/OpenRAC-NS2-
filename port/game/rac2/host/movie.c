@@ -21,6 +21,7 @@
  * the tick's display list.
  */
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "openrac/game_host.h"
@@ -52,6 +53,16 @@ static void movie_overlay(const uint8_t* rgba, int width, int height) {
         memcpy(pixels + (size_t)y * 512 * 4, rgba + (size_t)y * width * 4, (size_t)width * 4);
     }
     openrac_game_load_picture(&picture, pixels);
+#if defined(OPENRAC_SWITCH2)
+    {
+        /* Going Commando's movie on the console, with debug.txt on the card: where the picture goes, said to stderr.txt (the first blanks). */
+        extern int openrac_switch2_debug(void);
+        static int blanks;
+        if (openrac_switch2_debug() && (blanks++ < 3 || blanks == 100)) {
+            fprintf(stderr, "fmv: base %#x frame tbp %#x list %#x picture %dx%d\n", (unsigned)FMV_GS_BASE, (unsigned)FMV_FRAME_TBP, (unsigned)list, width, height);
+        }
+    }
+#endif
 
     func_002B6480(list, 0);
     func_00127220(0x10009000u, list & 0x0FFFFFFFu);

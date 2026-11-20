@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 the OpenRAC contributors
 """Collects the Switch 2 setup (tools/switch2_setup.py) into a folder to give to players: the setup itself, the extractors it runs, and
-the bundle it copies onto the SD card (the program, the pictures, the optional mod).
+the bundle it copies onto the SD card (the program, the pictures, the optional mods).
 
-    python tools/make_switch2_bundle.py --nro PATH/openrac.nro [--textures DIR] [--mod DIR] [--out dist/OpenRAC-Switch2-Setup]
+    python tools/make_switch2_bundle.py --nro PATH/openrac.nro [--textures DIR] [--mods DIR] [--out dist/OpenRAC-Switch2-Setup]
 
   --textures  the texture pack folder (its rac1-ntsc/Interface/*.png: the Switch button prompts' help screen, the preview and the logo)
-  --mod       the Arsenal Mastery folder (with its openrac-mod.json); left out of the bundle when not given
+  --mods      a folder of mod folders (each with its openrac-mod.json: arsenal-mastery, quickselect-pause, steady-strafe), each a choice
+              in the setup; left out of the bundle when not given. --mod DIR adds one mod folder, under the folder's own name
 
 The folder holds nothing of the game itself, only OpenRAC's own program and the pictures made for it.
 """
@@ -71,8 +72,11 @@ Then pick how the game gets to the console:
 
 Nothing is written to the console's own storage: everything is in the game's own folder under switch/ on the card. Start the game from the homebrew menu.
 
-Arsenal Mastery is an optional mod. Leave its box unticked for the original game, or delete the folder
-switch/openrac/data/plugins/arsenal-mastery later to turn it off.
+The mods are optional, each its own tick box in the setup (all unticked is the original game):
+  Arsenal Mastery    weapon and health levels as in Ratchet & Clank 3 (from rac-rs)
+  Quick Select pause the world stands still while the Quick Select ring is up (from rac-rs)
+  Steady strafe      hold R2 to strafe facing the camera, as in Ratchet & Clank 2 (from rac-rs; USA disc)
+To turn one off later, delete its folder in switch/openrac/data/plugins, or set "enabled" to false in plugins.json there.
 
 Logs are off. To make one for a bug report, create an empty file switch/openrac/debug.txt on the card (over FTP too), play, and fetch
 switch/openrac/boot.txt and the log files in switch/openrac/data. Delete debug.txt afterwards.
@@ -81,12 +85,12 @@ Hold + and - together for OpenRAC's own menu. The game's A and B swap in menus (
 
 From a terminal (both systems):
   python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50:1337
-  python3 switch2_setup.py --cli --iso GAME.iso --sd E:\
+  python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\
   python3 switch2_setup.py --cli --iso GAME.iso --folder D:\\OpenRAC-out
 """
 
 
-CREDITS = """OpenRAC for the Nintendo Switch 2 0.1
+CREDITS = """OpenRAC for the Nintendo Switch 2 0.2
 
 Source code (GPL-3.0-or-later; openrac.nro is built from it): https://github.com/LananaHWP/OpenRAC-NS2-
 The license text is in COPYING. Files keep the license of the folder they come from; see LICENSE.md and THIRD_PARTY_NOTICES.md in the source.
@@ -95,6 +99,8 @@ Credits
 - OpenRAC and its contributors: https://github.com/OpenRAC/OpenRAC (the decompilations, the tools and the renderer this is built on)
 - rac-rs by AsobiCodes: https://github.com/AsobiCodes/rac-rs. Arsenal Mastery (bundle/mods/arsenal-mastery) is theirs,
   https://github.com/AsobiCodes/arsenal-mastery, MIT, Copyright (c) 2026 AsobiCodes (its LICENSE is in the folder).
+  Quick Select pause and Steady strafe (bundle/mods) are rac-rs's "Quick Select pauses the game" and its Steady strafe aiming written as script
+  mods for OpenRAC, using rac-rs's addresses and findings: GPL-3.0-or-later, like rac-rs.
 - Switch Button Icons and Controls by Zacksly (CC BY 3.0 Licensed | zacksly.itch.io), https://zacksly.itch.io,
   https://creativecommons.org/licenses/by/3.0/. The button icons in the game and the help screen pictures in
   bundle/texture_packs are based on it and were changed: cut to shape, scaled, the logo on the controller covered, labels added.
@@ -110,6 +116,7 @@ def main():
     ap.add_argument("--nro", required=True)
     ap.add_argument("--textures")
     ap.add_argument("--mod")
+    ap.add_argument("--mods")
     ap.add_argument("--out", default=str(ROOT / "dist" / "OpenRAC-Switch2-Setup"))
     args = ap.parse_args()
     out = pathlib.Path(args.out)
@@ -134,7 +141,11 @@ def main():
     if args.textures:
         shutil.copytree(args.textures, bundle / "texture_packs", ignore=SKIP, dirs_exist_ok=True)
     if args.mod:
-        shutil.copytree(args.mod, bundle / "mods" / "arsenal-mastery", ignore=SKIP, dirs_exist_ok=True)
+        shutil.copytree(args.mod, bundle / "mods" / pathlib.Path(args.mod).name, ignore=SKIP, dirs_exist_ok=True)
+    if args.mods:
+        for folder in sorted(pathlib.Path(args.mods).iterdir()):
+            if (folder / "openrac-mod.json").is_file():
+                shutil.copytree(folder, bundle / "mods" / folder.name, ignore=SKIP, dirs_exist_ok=True)
     # the marker that tells the tools this is a copy of OpenRAC, not a checkout (tools/openrac_common/paths.py)
     (out / "STANDALONE").write_text("", encoding="utf8")
     (out / "CREDITS.txt").write_text(CREDITS, encoding="utf8", newline="\r\n")
