@@ -930,7 +930,7 @@ mod tests {
     #[test]
     fn a_tool_path_is_filled_in_without_the_verbatim_prefix() {
         let config = Config {
-            python: Some(PathBuf::from(r"\\?\D:\claude code\openrac\python\python.exe")),
+            python: Some(PathBuf::from(r"\\?\D:\agent code\openrac\python\python.exe")),
             ..Config::default()
         };
         let ctx = Context {
@@ -944,7 +944,7 @@ mod tests {
             path: None,
             option: None,
         };
-        assert_eq!(value("python", &ctx).unwrap(), r"D:\claude code\openrac\python\python.exe");
+        assert_eq!(value("python", &ctx).unwrap(), r"D:\agent code\openrac\python\python.exe");
     }
 
     /// A Play whose program is not there says so (`missing_artifact`), so that the launcher offers

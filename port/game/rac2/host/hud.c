@@ -38,6 +38,10 @@ static void side_marker(int side) {
 
 static int widgets_side;
 
+/* The health meter as a number: each release's host/health_hud.c (PAL's draws it; the others' say 0). A plain reference, not a weak
+ * one, so that the linker takes the file from the game's archive. */
+int rac2_numeric_health(gaddr meter);
+
 void func_0034E4F8(gaddr object) {
     const int side = openrac_game_hud_side();
     widgets_side = side;
@@ -58,7 +62,10 @@ void func_0034AD10(gaddr panel) {
     if (side != 0) {
         func_002FC560(REG_NOP, 0x4853ull << 48);
     }
-    func_0034AD10__game(panel);
+    /* The health meter: the number meter in its place while the mod that asks for it is loaded. */
+    if (!rac2_numeric_health(panel)) {
+        func_0034AD10__game(panel);
+    }
     side_marker(side);
 }
 

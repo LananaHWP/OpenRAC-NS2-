@@ -4,10 +4,11 @@
 """Collects the Switch 2 setup (tools/switch2_setup.py) into a folder to give to players: the setup itself, the extractors it runs, and
 the bundle it copies onto the SD card (the program, the pictures, the optional mods).
 
-    python tools/make_switch2_bundle.py --nro PATH/openrac.nro [--textures DIR] [--mods DIR] [--out dist/OpenRAC-Switch2-Setup]
+    python tools/make_switch2_bundle.py --nro PATH/openrac.nro [--nro-rac2 PATH/openrac-rac2.nro] [--textures DIR] [--mods DIR] [--out DIR]
 
+  --nro-rac2  Going Commando's program; without it the setup can install only Ratchet & Clank
   --textures  the texture pack folder (its rac1-ntsc/Interface/*.png: the Switch button prompts' help screen, the preview and the logo)
-  --mods      a folder of mod folders (each with its openrac-mod.json: arsenal-mastery, quickselect-pause, steady-strafe), each a choice
+  --mods      a folder of mod folders (each with its openrac-mod.json: arsenal-mastery, quickselect-pause, steady-strafe, rac3-health), each a choice
               in the setup; left out of the bundle when not given. --mod DIR adds one mod folder, under the folder's own name
 
 The folder holds nothing of the game itself, only OpenRAC's own program and the pictures made for it.
@@ -50,18 +51,22 @@ exit 1
 README = """OpenRAC for the Nintendo Switch 2 - setup
 ==========================================
 
-You need: the image (.iso) of your own Ratchet & Clank disc (NTSC-U), about 6 GB of free space on the console's SD card (exFAT), and
-Python 3.9 or newer on this PC.
+Two games, each from your own disc image (.iso):
+  Ratchet & Clank, NTSC-U (SCUS-97199)
+  Ratchet & Clank: Going Commando, PAL (SCES-51607, sold as Ratchet & Clank 2: Locked and Loaded)
+
+You need about 6 GB of free space on the console's SD card (exFAT) for each game, and Python 3.9 or newer on this PC.
 
   Windows:  double-click install.bat
   Linux, macOS: sh install.sh   (a window needs python3-tk; without it the setup asks its questions in the terminal)
 
-Then pick how the game gets to the console:
+Pick a disc image: the setup sees which game it is. To have both games, run it once for each. Then pick how the game gets to the console:
 
   Over FTP (the console on your network)
-    Start an FTP server homebrew on the console, note the address it shows (the default port is 1337, with no user name or password), and type it in. The setup checks the disc,
-    exports the levels on this PC and uploads everything to the game's folder under switch/ on the SD card, about 5 GB. An upload that stops is resumed:
-    run the setup again. The work folder (about 1 GB) is made next to the disc image and deleted afterwards.
+    Start an FTP server homebrew on the console, note the address it shows (the default port is 1337, with no user name or password), and type it in.
+    The setup checks the disc, exports the levels on this PC and uploads everything to the game's folder under switch/ on the SD card, about 5 GB.
+    An upload that stops is resumed: run the setup again. The work folder (about 1 GB, 2 GB for Going Commando) is made next to the disc image and
+    deleted afterwards.
 
   Onto an SD card in this PC
     Put the card in the PC, pick its drive or folder, and the files are written straight onto it.
@@ -70,16 +75,23 @@ Then pick how the game gets to the console:
     Pick any folder: the setup writes the card's switch folder into it, and you copy that onto the SD card's root yourself
     (a card reader, FileZilla, a file manager).
 
-Nothing is written to the console's own storage: everything is in the game's own folder under switch/ on the card. Start the game from the homebrew menu.
+Nothing is written to the console's own storage: everything is in the game's own folder on the card, switch/openrac (Ratchet & Clank) or
+switch/openrac-rac2 (Going Commando). Start the game from the homebrew menu.
 
-The mods are optional, each its own tick box in the setup (all unticked is the original game):
-  Arsenal Mastery    weapon and health levels as in Ratchet & Clank 3 (from rac-rs)
-  Quick Select pause the world stands still while the Quick Select ring is up (from rac-rs)
-  Steady strafe      hold R2 to strafe facing the camera, as in Ratchet & Clank 2 (from rac-rs; USA disc)
-To turn one off later, delete its folder in switch/openrac/data/plugins, or set "enabled" to false in plugins.json there.
+Going Commando is new in 0.3 and less tested: the first level and most of the second were played through. Some places run at about 40 frames
+a second, with the game itself at full speed.
 
-Logs are off. To make one for a bug report, create an empty file switch/openrac/debug.txt on the card (over FTP too), play, and fetch
-switch/openrac/boot.txt and the log files in switch/openrac/data. Delete debug.txt afterwards.
+The mods are optional, each its own tick box in the setup (all unticked is the original game).
+  Ratchet & Clank:
+    Arsenal Mastery     weapon and health levels as in Ratchet & Clank 3 (from rac-rs)
+    Quick Select pause  the world stands still while the Quick Select ring is up (from rac-rs)
+    Steady strafe       hold R2 to strafe facing the camera, as in Ratchet & Clank 2 (from rac-rs; USA disc)
+  Going Commando:
+    RAC3-style health   health as a number, from 10 up to 200, in a box like the ammo box; enemy hits and health pickups grow with it
+To turn one off later, delete its folder in the game's data/plugins on the card, or set "enabled" to false in plugins.json there.
+
+Logs are off. To make one for a bug report, create an empty file debug.txt in the game's folder on the card (over FTP too), play, and fetch
+boot.txt from that folder and the log files in its data folder. Delete debug.txt afterwards.
 
 Hold + and - together for OpenRAC's own menu. The game's A and B swap in menus (A confirms, B goes back).
 
@@ -90,9 +102,9 @@ From a terminal (both systems):
 """
 
 
-CREDITS = """OpenRAC for the Nintendo Switch 2 0.2
+CREDITS = """OpenRAC for the Nintendo Switch 2 0.3
 
-Source code (GPL-3.0-or-later; openrac.nro is built from it): https://github.com/LananaHWP/OpenRAC-NS2-
+Source code (GPL-3.0-or-later; openrac.nro and openrac-rac2.nro are built from it): https://github.com/LananaHWP/OpenRAC-NS2-
 The license text is in COPYING. Files keep the license of the folder they come from; see LICENSE.md and THIRD_PARTY_NOTICES.md in the source.
 
 Credits
@@ -101,6 +113,7 @@ Credits
   https://github.com/AsobiCodes/arsenal-mastery, MIT, Copyright (c) 2026 AsobiCodes (its LICENSE is in the folder).
   Quick Select pause and Steady strafe (bundle/mods) are rac-rs's "Quick Select pauses the game" and its Steady strafe aiming written as script
   mods for OpenRAC, using rac-rs's addresses and findings: GPL-3.0-or-later, like rac-rs.
+- RAC3-style health (bundle/mods/rac3-health, for Going Commando) was written for this port: GPL-3.0-or-later.
 - Switch Button Icons and Controls by Zacksly (CC BY 3.0 Licensed | zacksly.itch.io), https://zacksly.itch.io,
   https://creativecommons.org/licenses/by/3.0/. The button icons in the game and the help screen pictures in
   bundle/texture_packs are based on it and were changed: cut to shape, scaled, the logo on the controller covered, labels added.
@@ -114,6 +127,7 @@ project. No part of the game is included: the setup reads the disc image you giv
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--nro", required=True)
+    ap.add_argument("--nro-rac2")
     ap.add_argument("--textures")
     ap.add_argument("--mod")
     ap.add_argument("--mods")
@@ -138,6 +152,8 @@ def main():
     bundle = out / "bundle"
     bundle.mkdir(exist_ok=True)
     shutil.copy2(args.nro, bundle / "openrac.nro")
+    if args.nro_rac2:
+        shutil.copy2(args.nro_rac2, bundle / "openrac-rac2.nro")
     if args.textures:
         shutil.copytree(args.textures, bundle / "texture_packs", ignore=SKIP, dirs_exist_ok=True)
     if args.mod:

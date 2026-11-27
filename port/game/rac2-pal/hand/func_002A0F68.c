@@ -31,6 +31,42 @@ static float float_002A0F68(unsigned int w)
     return u.f;
 }
 
+/* The EE's divide and multiply do not make infinities or NaNs: a divide by zero is the largest float of the sign the operands' signs make,
+ * and an overflow is the largest float. The host's would make an infinity, and the infinity times the rate of zero a NaN, which the loops
+ * below take for a fraction still to step: the animation update never came back (the first enemy of the first level froze the game
+ * in it, on the console). */
+static float div_sat_002A0F68(float a, float b)
+{
+    unsigned int ua = (unsigned int)bits_002A0F68(a);
+    unsigned int ub = (unsigned int)bits_002A0F68(b);
+    float q;
+
+    if ((ub & 0x7F800000u) == 0) {
+        return ((ua ^ ub) & 0x80000000u) != 0 ? -3.40282347e38f : 3.40282347e38f;
+    }
+    q = a / b;
+    if (q > 3.40282347e38f) {
+        return 3.40282347e38f;
+    }
+    if (q < -3.40282347e38f) {
+        return -3.40282347e38f;
+    }
+    return q;
+}
+
+static float mul_sat_002A0F68(float a, float b)
+{
+    float p = a * b;
+
+    if (p > 3.40282347e38f) {
+        return 3.40282347e38f;
+    }
+    if (p < -3.40282347e38f) {
+        return -3.40282347e38f;
+    }
+    return p;
+}
+
 /* UpdateMobyAnimation: steps the moby's animation fraction (float at 0x44) by speed (0x48) * rate
    (0x4C) when the current and next animation numbers (bytes 0x42 and 0x43) agree, else by the
    rate alone. A fraction near or over 1.0 moves to the next frame (bytes 0x40 and 0x41, data
@@ -55,6 +91,7 @@ void FUN_002A0F68(char *m)
     unsigned int t6 = *(unsigned int *)(m + 108) & 0xFFFFFF;
     int flags = 0;
     int cur, nxt, start;
+    int steps;
     char *anim, *a1, *a2;
     unsigned int a0w;
     long b;
@@ -90,8 +127,14 @@ void FUN_002A0F68(char *m)
     goto stepped;
 
 forward:
-    for (;;) {
+    for (steps = 0;; ++steps) {
         int count;
+
+        if (steps > 4096) {
+            f1 = 0.0f;
+            *(float *)(m + 68) = f1;
+            break;
+        }
 
         f1 = f1 - 1.0f;
         cur = nxt;
@@ -102,7 +145,7 @@ forward:
             a66 = a67;
             t6 = 0xFFFF;
         }
-        f1 = f1 / rate;
+        f1 = div_sat_002A0F68(f1, rate);
         flags |= 1;
         count = *(unsigned char *)(anim + 16);
         a0w = *(unsigned int *)(anim + 24);
@@ -117,7 +160,7 @@ forward:
         } else {
             rate = *(float *)a1;
         }
-        f1 = f1 * rate;
+        f1 = mul_sat_002A0F68(f1, rate);
         *(unsigned char *)(m + 66) = (unsigned char)a66;
         *(unsigned char *)(m + 64) = (unsigned char)cur;
         *(unsigned char *)(m + 65) = (unsigned char)nxt;
@@ -133,8 +176,13 @@ forward:
     goto stepped;
 
 backward:
-    for (;;) {
-        f1 = f1 / rate;
+    for (steps = 0;; ++steps) {
+        if (steps > 4096) {
+            f1 = 0.0f;
+            *(float *)(m + 68) = f1;
+            break;
+        }
+        f1 = div_sat_002A0F68(f1, rate);
         nxt = cur;
         cur = cur - 1;
         a2 = *(char **)(m + 88);
@@ -151,7 +199,7 @@ backward:
         } else {
             rate = *(float *)a1;
         }
-        f1 = f1 * rate;
+        f1 = mul_sat_002A0F68(f1, rate);
         *(char **)(m + 88) = a1;
         *(unsigned char *)(m + 64) = (unsigned char)cur;
         *(unsigned char *)(m + 65) = (unsigned char)nxt;

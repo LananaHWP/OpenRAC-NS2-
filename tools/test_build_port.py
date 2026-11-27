@@ -225,8 +225,8 @@ class Commands(unittest.TestCase):
         self.assertEqual(steps[0], ["cmake", "--preset", "release", "-DPython3_EXECUTABLE=/usr/bin/python3"])
 
     def test_python_is_named_without_the_windows_verbatim_prefix(self):
-        self.assertEqual(build_port.plain_path("\\\\?\\D:\\claude code\\python\\python.exe"),
-                         Path("D:\\claude code\\python\\python.exe"))
+        self.assertEqual(build_port.plain_path("\\\\?\\D:\\agent code\\python\\python.exe"),
+                         Path("D:\\agent code\\python\\python.exe"))
         self.assertEqual(build_port.plain_path("\\\\?\\UNC\\nas\\share\\python.exe"),
                          Path("\\\\nas\\share\\python.exe"))
         self.assertEqual(build_port.plain_path("/usr/bin/python3"), Path("/usr/bin/python3"))
@@ -235,11 +235,11 @@ class Commands(unittest.TestCase):
         # What launcher 1.0.1 left behind: hostgen's `cmd /C` could not start this Python.
         (self.build / "build.ninja").write_text("")
         cache = build_port.parse_cache(CACHE)
-        cache["Python3_EXECUTABLE"] = "//?/D:/claude code/python/python.exe"
+        cache["Python3_EXECUTABLE"] = "//?/D:/agent code/python/python.exe"
         steps = build_port.commands("cmake", "release", self.build, ["rac1-pal"], None, cache, None,
-                                    "D:/claude code/python/python.exe")
+                                    "D:/agent code/python/python.exe")
         self.assertEqual(steps, [["cmake", "-S", str(build_port.PORT), "-B", str(self.build),
-                                  "-DPython3_EXECUTABLE=D:/claude code/python/python.exe"], BUILD])
+                                  "-DPython3_EXECUTABLE=D:/agent code/python/python.exe"], BUILD])
         unconfigured = build_port.commands("cmake", "release", self.build / "new", ["rac1-pal"], None,
                                            {"Python3_EXECUTABLE": "//?/D:/python.exe"}, None, "D:/python.exe")
         self.assertIn("-DPython3_EXECUTABLE=D:/python.exe", unconfigured[0])

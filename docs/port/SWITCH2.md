@@ -168,3 +168,22 @@ line of sight, the sphere radius perks) stay off, and the mod says so in the log
   its nine entries) and a video's picture is drawn over an earlier off-screen target at its block. Open: the first level froze at a dialog,
   and the loading screens and the thruster fire drew wrong, before the last of these fixes; not checked since. The build's freeze finder
   (`RING=ON`) writes the last functions the game ran to `boot.txt` every 3 seconds.
+
+## 0.3: Going Commando released (2026-11-27)
+
+Tested on the console: the first level and most of the second without problems, about 40 frames a second in places with the game at full speed.
+
+- **The first enemy's freeze.** The animation step (`rac2-pal/hand/func_002A0F68.c`) divided by zero. The EE's divide and multiply saturate; the
+  host's make an infinity, then a NaN, which the stepping loops never left. Both saturate now, and the loops are bounded. Not reported since.
+- **Glows through walls.** With the profile's precise depth (glClipControl) the effect quads showed through walls and the ship's hull on the
+  console. Leaving the quads out removed them. `precise_depth()` is off on the Switch (`rac2/profile.cpp`); why the precise path leaks is not
+  established. At 24 bits and a near of 0.05, Maktar's dome may flicker (not seen).
+- **The continue point.** After a death the first level's opening object was made anew and moved Ratchet back to the level's start, after the
+  game had put him at the saved continue point. `rac2-pal/host/launch.c` makes it finished when a continue point is saved. How the PS2 avoids
+  this is not known.
+- **RAC3-style health** (`switch2/mods/rac3-health`, PAL). Two new hook points, `rac2.player.max_health.update` and
+  `rac2.hud.health_meter.experience`. The number box is native (`rac2-pal/host/health_hud.c`), drawn from the HUD's own ammo box pieces and font
+  while the mod is loaded; without it the game's segments are drawn. The NTSC releases have stubs. A weak reference does not pull a host file out
+  of the game's static library, so `rac2/host/hud.c` names it with a plain one.
+- **The setup** knows both discs (`SCUS_971.99`, `SCES_516.07`), each with its own program, folder on the card and mods; the bundle takes
+  `--nro-rac2`.

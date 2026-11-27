@@ -14,6 +14,8 @@ type HookPoint =
     | "rac2.level.load"
     | "rac2.player.approach_speed"
     | "rac2.player.nanotech_steps"
+    | "rac2.hud.health_meter.experience"
+    | "rac2.player.max_health.update"
     | "rac2.item.give"
     | "rac2.item.equip"
     | "rac2.weapon.level_up"
@@ -41,6 +43,8 @@ type HookPoint =
     | "Hero_ApproachSpeed"
     | "Hero_NanotechSteps"
     | "Hero_TakeDamage"
+    | "Hero_UpdateMaxHealth"
+    | "Hud_HealthMeter_Experience"
     | "Item_Colors"
     | "Item_Equip"
     | "Item_Give"
@@ -91,6 +95,10 @@ type Level_LoadFn = (load: number, resume: number) -> number
 type Hero_ApproachSpeedFn = (up: number, down: number) -> ()
 -- rac2.player.nanotech_steps (Hero_NanotechSteps) i32(u32,u32,u32): Adds the nanotech levels' steps of health to *count; the recount of the most health each tick adds the boosts after it (the HUD's experience bar calls it too, ignoring count).
 type Hero_NanotechStepsFn = (a0: number, a1: number, count: number) -> number
+-- rac2.hud.health_meter.experience (Hud_HealthMeter_Experience) void(u32): Sets up the health meter's experience bar, shown while the most health is under 80.
+type Hud_HealthMeter_ExperienceFn = (meter: number) -> ()
+-- rac2.player.max_health.update (Hero_UpdateMaxHealth) void(): Each tick (most of them it only counts): works out the most health, 4 and the nanotech steps and boosts, and when it differs from the one stored, stores it, fills the health to it and, when it grew, plays the level up.
+type Hero_UpdateMaxHealthFn = () -> ()
 -- rac2.item.give (Item_Give) void(i32): Gives the player item id (GiveInventoryItem): nothing when it is owned already; else sets its owned and new bytes, its starting ammo, adds it to the vendor's list and the quick select. The NPCs, pickups, arena prizes, the vendor's purchases and the start's items go through it; a few places set the owned bytes themselves (Endako's packs and Grindboots, Aranos Prison's Qwark Statuette). Rac1's GiveItem.
 type Item_GiveFn = (id: number) -> ()
 -- rac2.item.equip (Item_Equip) i32(i32): Puts item id in the hero's hand, or on him for the boots, helmets and packs (by the state of its record in the item table): a request his update carries out; 1 when one was made. Most givers call it right after Item_Give with the same id (Todano's Sheepinator, the Tractor Beam, the Thermanator, the Swingshot, the Mapper, ...), the vendor after a purchase; a mod that gives another item in a giver's place hands it this one's too.

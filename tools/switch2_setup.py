@@ -6,23 +6,24 @@ into a folder on this PC to copy over yourself.
 
     python3 switch2_setup.py                       a window: pick the disc image, then where it goes (FTP, SD card, folder), and Install
     python3 switch2_setup.py --cli                 the same by questions in the terminal (no window needed)
-    python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\ [--arsenal-mastery] [--quickselect-pause] [--steady-strafe]
+    python3 switch2_setup.py --cli --iso GAME.iso --sd E:\\ [--arsenal-mastery] [--quickselect-pause] [--steady-strafe] [--rac3-health]
     python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50[:1337] [--ftp-user U --ftp-password P --ftp-root /]
     python3 switch2_setup.py --cli --iso GAME.iso --folder D:\\OpenRAC-out
 
-The disc it knows (found from the boot file SYSTEM.CNF names): Ratchet & Clank, NTSC-U (SCUS_971.99). The table GAMES below is where another
-game's program (its own folder under switch/) would be added.
+The discs it knows (found from the boot file SYSTEM.CNF names): Ratchet & Clank, NTSC-U (SCUS_971.99), and Ratchet & Clank: Going Commando,
+PAL (SCES_516.07, sold as Ratchet & Clank 2: Locked and Loaded). Each game has its own program and its own folder under switch/ (the table
+GAMES below).
 
 What it does (everything goes to that folder of the card, nothing to the console's own storage):
   1. checks the image is a disc OpenRAC knows and there is room;
   2. writes the boot files and the disc image (the game reads most of its data from the disc by sector)  -> data/iso_data/<game>/
   3. exports the levels the renderer draws, from the disc                                                  -> data/port/<ntsc|pal>/
-  4. copies the program (openrac.nro) and its pictures (the Switch button prompts, the help screen)
-  5. optionally the mods (Arsenal Mastery, Quick Select pause, Steady strafe: each its own choice, off is the original game)  -> data/plugins/
+  4. copies the game's program (openrac.nro, or openrac-rac2.nro for Going Commando) and its pictures (Ratchet & Clank's help screen and logo)
+  5. optionally the game's mods (each its own choice, off is the original game)  -> data/plugins/
 
 To an SD card the files are written straight onto it. Into a folder, the same tree (switch/<folder of the game>/...) is written under the folder you
 pick: copy its switch folder onto the card's root yourself (FileZilla, a card reader, a file manager). Over FTP they are made in a work folder next
-to the disc image (about 1 GB; the image itself is linked, not copied, when that folder is on the same drive) and uploaded to the console's FTP
+to the disc image (about 1 GB, 2 GB for Going Commando; the image itself is linked, not copied, when that folder is on the same drive) and uploaded to the console's FTP
 server (the homebrew FTP servers of the Switch: start one, note the address it shows). An upload that stops is resumed from where it was (run the
 setup again). The work folder is deleted afterwards.
 
@@ -52,24 +53,31 @@ class Failure(Exception):
 
 
 # The discs the setup knows, by the serial of the boot file SYSTEM.CNF names. game: the extractor's game id, version: the folder of the exported
-# levels, home: the program's folder under switch/ on the card (the same as OPENRAC_SWITCH2_HOME of its build), nro: its file in the bundle.
+# levels, home: the program's folder under switch/ on the card (the same as OPENRAC_SWITCH2_HOME of its build), nro: its file in the bundle,
+# extra_gib: the room needed beside the disc image's copy (the boot files and the exported levels).
 GAMES = {
     "SCUS_971.99": {
         "title": "Ratchet & Clank (NTSC-U)", "game": "rac1", "version": "ntsc", "home": "openrac", "nro": "openrac.nro",
-        "pictures": True, "mod": True,
+        "pictures": True, "extra_gib": 1.5,
+    },
+    "SCES_516.07": {
+        "title": "Ratchet & Clank: Going Commando (PAL)", "game": "rac2", "version": "pal", "home": "openrac-rac2", "nro": "openrac-rac2.nro",
+        "pictures": False, "extra_gib": 2.5,
     },
 }
 
 
 # The optional mods the bundle may hold (bundle/mods/<id>), each its own choice: copied to data/plugins/<id> and switched on in plugins.json.
-# flag: its command line switch; about: the line the window and the terminal show beside it.
+# game: the game it is for (a GAMES entry's "game"); flag: its command line switch; about: the line the window and the terminal show beside it.
 MODS = [
-    {"id": "arsenal-mastery", "name": "Arsenal Mastery", "flag": "--arsenal-mastery",
+    {"id": "arsenal-mastery", "game": "rac1", "name": "Arsenal Mastery", "flag": "--arsenal-mastery",
      "about": "weapon and health levels as in Ratchet & Clank 3 (from rac-rs)"},
-    {"id": "quickselect-pause", "name": "Quick Select pause", "flag": "--quickselect-pause",
+    {"id": "quickselect-pause", "game": "rac1", "name": "Quick Select pause", "flag": "--quickselect-pause",
      "about": "the world stands still while the Quick Select ring is up"},
-    {"id": "steady-strafe", "name": "Steady strafe", "flag": "--steady-strafe",
+    {"id": "steady-strafe", "game": "rac1", "name": "Steady strafe", "flag": "--steady-strafe",
      "about": "hold R2 to strafe facing the camera, as in Ratchet & Clank 2"},
+    {"id": "rac3-health", "game": "rac2", "name": "RAC3-style health", "flag": "--rac3-health",
+     "about": "health as a number, from 10 up to 200, with its own health box"},
 ]
 
 
@@ -354,25 +362,24 @@ def build_tree(profile, iso, out_root, mods, bundle, say, jobs=None):
     say("== 4/4  the optional mods")
     plugins = data / "plugins"
     chosen = []
-    if not profile["mod"]:
-        say("none for this game")
-    else:
-        for mod in MODS:
-            if mod["id"] not in mods:
-                continue
-            if (bundle / "mods" / mod["id"]).is_dir():
-                copy_tree(bundle / "mods" / mod["id"], plugins / mod["id"], say)
-                chosen.append(mod)
-                say("%s is on" % mod["name"])
-            else:
-                say("the bundle has no mods/%s: %s skipped" % (mod["id"], mod["name"]))
-        if chosen:
-            (plugins / "plugins.json").write_text(
-                json.dumps({"format": 1, "mods": [{"id": m["id"], "enabled": True, "settings": {}} for m in chosen]}, indent=2) + "\n", encoding="utf8"
-            )
-            say("Each mod can be turned off later: delete its folder in plugins, or set enabled to false in plugins.json")
+    for mod in MODS:
+        if mod["id"] not in mods:
+            continue
+        if mod["game"] != profile["game"]:
+            say("%s is not for %s: skipped" % (mod["name"], profile["title"]))
+        elif (bundle / "mods" / mod["id"]).is_dir():
+            copy_tree(bundle / "mods" / mod["id"], plugins / mod["id"], say)
+            chosen.append(mod)
+            say("%s is on" % mod["name"])
         else:
-            say("left out (the original game)")
+            say("the bundle has no mods/%s: %s skipped" % (mod["id"], mod["name"]))
+    if chosen:
+        (plugins / "plugins.json").write_text(
+            json.dumps({"format": 1, "mods": [{"id": m["id"], "enabled": True, "settings": {}} for m in chosen]}, indent=2) + "\n", encoding="utf8"
+        )
+        say("Each mod can be turned off later: delete its folder in plugins, or set enabled to false in plugins.json")
+    else:
+        say("left out (the original game)")
     return target
 
 
@@ -397,7 +404,8 @@ def install(iso, mods, bundle, say, sd=None, ftp=None, folder=None, jobs=None, w
     if [sd is not None, ftp is not None, folder is not None].count(True) != 1:
         raise Failure("choose the SD card, FTP or a folder")
     size = iso.stat().st_size
-    needed = size + int(1.5 * GIB)
+    extra = int(profile["extra_gib"] * GIB)
+    needed = size + extra
     if sd is not None or folder is not None:
         out = pathlib.Path(sd if sd is not None else folder)
         if sd is not None and not out.is_dir():
@@ -432,8 +440,8 @@ def install(iso, mods, bundle, say, sd=None, ftp=None, folder=None, jobs=None, w
     work_dir = pathlib.Path(work) if work else iso.parent / "OpenRAC-Switch2-work"
     work_dir.mkdir(parents=True, exist_ok=True)
     free = shutil.disk_usage(work_dir).free
-    if free < int(1.5 * GIB):
-        raise Failure("the work folder %s has %.1f GB free: it needs about 1.5 GB (and %.1f GB more when it is not on the disc image's drive)" % (work_dir, free / GIB, size / GIB))
+    if free < extra:
+        raise Failure("the work folder %s has %.1f GB free: it needs about %.1f GB (and %.1f GB more when it is not on the disc image's drive)" % (work_dir, free / GIB, extra / GIB, size / GIB))
     try:
         build_tree(profile, iso, work_dir, mods, bundle, say, jobs)
         say("== sending to the console")
@@ -458,7 +466,7 @@ def ask(question, default=""):
 def run_cli(args):
     try:
         if not args.iso:
-            args.iso = ask("Path of your Ratchet & Clank disc image (.iso, NTSC-U)")
+            args.iso = ask("Path of your disc image (.iso): Ratchet & Clank (NTSC-U) or Going Commando (PAL)")
         profile = identify(args.iso) if pathlib.Path(args.iso).is_file() else None
         if not args.sd and not args.ftp and not args.folder:
             choice = ask("Install over FTP to the console, to an SD card in this PC, or into a folder on this PC? (ftp/sd/folder)", "ftp").lower()
@@ -471,9 +479,9 @@ def run_cli(args):
                 args.ftp_user = args.ftp_user or ask("FTP user (empty: none, as the Switch 2 FTP server wants)")
                 args.ftp_password = args.ftp_password or ask("FTP password (empty: none)")
         mods = selected_mods(args)
-        if profile is not None and profile["mod"] and sys.stdin.isatty() and not mods:
-            # no mod asked for on the command line: each is asked about, off by default
-            for mod in MODS:
+        if profile is not None and sys.stdin.isatty() and not mods:
+            # no mod asked for on the command line: each of the game's is asked about, off by default
+            for mod in [m for m in MODS if m["game"] == profile["game"]]:
                 if ask("Install %s (%s)? (y/n)" % (mod["name"], mod["about"]), "n").lower().startswith("y"):
                     mods.append(mod["id"])
         ftp = None
@@ -493,7 +501,7 @@ def run_window(args):
 
     window = tk.Tk()
     window.title("OpenRAC for Switch 2: setup")
-    window.geometry("780x620")
+    window.geometry("780x700")
     iso = tk.StringVar(value=args.iso or "")
     mode = tk.StringVar(value="sd" if args.sd else "folder" if args.folder else "ftp")
     sd = tk.StringVar(value=args.sd or "")
@@ -511,7 +519,7 @@ def run_window(args):
     frame = ttk.Frame(window, padding=12)
     frame.pack(fill="both", expand=True)
     frame.columnconfigure(1, weight=1)
-    ttk.Label(frame, text="Your Ratchet & Clank disc image (.iso, NTSC-U):").grid(row=0, column=0, columnspan=3, sticky="w")
+    ttk.Label(frame, text="Your disc image (.iso): Ratchet & Clank (NTSC-U) or Going Commando (PAL):").grid(row=0, column=0, columnspan=3, sticky="w")
     ttk.Entry(frame, textvariable=iso).grid(row=1, column=0, columnspan=2, sticky="ew", pady=(2, 10))
     ttk.Button(frame, text="Browse...", command=lambda: iso.set(filedialog.askopenfilename(filetypes=[("Disc image", "*.iso"), ("All files", "*.*")]) or iso.get())).grid(row=1, column=2, padx=(6, 0))
 
@@ -563,8 +571,12 @@ def run_window(args):
 
     mods_box = ttk.LabelFrame(frame, text="Optional mods (all off is the original game; each can be turned off later)")
     mods_box.grid(row=5, column=0, columnspan=3, sticky="ew", pady=(0, 4))
-    for mod, var in mod_vars:
-        ttk.Checkbutton(mods_box, text="%s: %s" % (mod["name"], mod["about"]), variable=var).pack(anchor="w", padx=6)
+    # by game: a mod ticked for the other game than the disc's is skipped, and the log says so
+    for profile in GAMES.values():
+        ttk.Label(mods_box, text="%s:" % profile["title"]).pack(anchor="w", padx=6)
+        for mod, var in mod_vars:
+            if mod["game"] == profile["game"]:
+                ttk.Checkbutton(mods_box, text="%s: %s" % (mod["name"], mod["about"]), variable=var).pack(anchor="w", padx=22)
 
     def chosen_mods():
         return [mod["id"] for mod, var in mod_vars if var.get()]

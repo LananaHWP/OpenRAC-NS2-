@@ -438,9 +438,16 @@ public:
     // centimetres over large areas, and from the landing pad (about 150 units) they flickered in
     // and out of it with GL's depth (GameProfile::precise_depth). Without glClipControl (macOS's
     // OpenGL) a near of 0.25 parts them five times farther away (GameProfile::depth_near).
+#if defined(OPENRAC_SWITCH2)
+    // Not on the Switch: with it, effect quads showed through walls and the ship's hull there (they test GEQUAL against the world's
+    // depth; leaving them out removed what showed through). This is the depth rac1 draws with, whose glows the walls hide. The cause in the
+    // precise path is not established; at 24 bits and the near of 0.05, Maktar's dome (above) may flicker.
+    bool precise_depth() const override { return false; }
+#else
     bool precise_depth() const override { return true; }
 
     float depth_near() const override { return 0.25f; }
+#endif
 
     // The VRAM base of the frame (D_001A72DC, 0x1E8000 in bytes / 256 / 8): past the two 448-line
     // buffers, where the world's passes set FRAME (func_002DF1B8: FBP 0xF4).

@@ -5,7 +5,7 @@ The rules for every C++ file under `runtime/`: `src/ps2`, `src/sys`, `src/host`,
 check it against the hardware documentation. So the code is written to be read line by line by
 someone who knows the PlayStation 2 and has never seen this file.
 
-Anyone who touches the runtime follows this page: people, Claude, Codex, any agent. It builds on
+Anyone who touches the runtime follows this page: people and any coding agent. It builds on
 [CONTRIBUTING.md](../../../CONTRIBUTING.md), [CONTRIBUTING.md](../../../CONTRIBUTING.md) and the
 [runtime README](../README.md), and none of them is loosened here. After a context compaction, read
 this page again from the top instead of working from a summary of it.

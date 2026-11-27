@@ -131,6 +131,22 @@
       "about": "Adds the nanotech levels' steps of health to *count; the recount of the most health each tick adds the boosts after it (the HUD's experience bar calls it too, ignoring count)."
     },
     {
+      "id": "rac2.hud.health_meter.experience",
+      "name": "Hud_HealthMeter_Experience",
+      "signature": "void(u32)",
+      "params": ["meter"],
+      "symbols": {"ntsc": "func_0034AA30", "pal": "func_0034CBF8", "ntsc2": "func_0034B770"},
+      "about": "Sets up the health meter's experience bar, shown while the most health is under 80."
+    },
+    {
+      "id": "rac2.player.max_health.update",
+      "name": "Hero_UpdateMaxHealth",
+      "signature": "void()",
+      "params": [],
+      "symbols": {"ntsc": "func_L00_002D5EB8", "pal": "func_L00_002D6408", "ntsc2": "func_L00_002D6258"},
+      "about": "Each tick (most of them it only counts): works out the most health, 4 and the nanotech steps and boosts, and when it differs from the one stored, stores it, fills the health to it and, when it grew, plays the level up."
+    },
+    {
       "id": "rac2.item.give",
       "name": "Item_Give",
       "signature": "void(i32)",

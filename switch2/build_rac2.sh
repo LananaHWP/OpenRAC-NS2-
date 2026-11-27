@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 the OpenRAC contributors
 # Builds OpenRAC Ratchet & Clank: Going Commando (Europe/Australia, SCES_516.07) for the Nintendo Switch 2 in Docker: writes
-# switch2/out/openrac-rac2.nro. EXPERIMENTAL: it boots, plays the menus and the videos and loads the first level, but is not released.
+# switch2/out/openrac-rac2.nro.
 #
 #   OPENRAC_RAC2_ISO=/path/to/your/disc.iso switch2/build_rac2.sh [ninja targets...]     (default target: openrac-rac2-pal)
 #
@@ -40,7 +40,7 @@ set +e
 ninja -C /build/s2 -k 0 '"$TARGETS"'
 rc=$?
 if [ $rc -eq 0 ] && [ -f /build/s2/openrac-rac2-pal.elf ]; then
-  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Going Commando)" "Lanana420" "0.2" /out/openrac-rac2.nacp
+  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Going Commando)" "Lanana420" "0.3" /out/openrac-rac2.nacp
   /opt/devkitpro/tools/bin/elf2nro /build/s2/openrac-rac2-pal.elf /out/openrac-rac2.nro --nacp=/out/openrac-rac2.nacp --icon=/icon.jpg && ls -l /out/openrac-rac2.nro
 fi
 echo "build-exit $rc"

@@ -31,7 +31,7 @@ MSYS_NO_PATHCONV=1 docker run --rm --name openrac-build \
   -v "$(path "$ISO"):/work/openrac/baserom/SCUS_971.99.iso:ro" -w /work/openrac \
   openrac-switch2-builder bash -c '
 set -e
-cd /src && tar --exclude=./baserom --exclude=./build --exclude=./.git --exclude=./dist --exclude=./switch2/out --exclude=./games/rac1/ntsc-decomp/build --exclude=./games/rac1/ntsc-decomp/dumps -cf - port tools sdk docs games/rac1/ntsc-decomp-patches 2>/dev/null | tar -xf - -C /work/openrac
+cd /src && tar --exclude=./baserom --exclude=./build --exclude=./.git --exclude=./dist --exclude=./switch2/out --exclude=./games/rac1/ntsc-decomp/build --exclude=./games/rac1/ntsc-decomp/dumps --exclude=./games/rac1/ntsc-decomp/.git -cf - port tools sdk docs games/rac1/ntsc-decomp games/rac1/ntsc-decomp-patches 2>/dev/null | tar -xf - -C /work/openrac
 cd /work/openrac
 if [ ! -f /build/s2/build.ninja ] || [ "'"${CFG:-0}"'" = 1 ]; then
   cmake -S port -B /build/s2 -G Ninja -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/libounce/cmake/Switch2.cmake -DCMAKE_BUILD_TYPE=Release \
@@ -41,7 +41,7 @@ set +e
 ninja -C /build/s2 -k 0 '"$TARGETS"'
 rc=$?
 if [ $rc -eq 0 ] && [ -f /build/s2/openrac-rac1-ntsc.elf ]; then
-  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "Lanana420" "0.2" /out/openrac.nacp
+  /opt/devkitpro/tools/bin/nacptool --create "OpenRAC (Ratchet & Clank)" "Lanana420" "0.3" /out/openrac.nacp
   /opt/devkitpro/tools/bin/elf2nro /build/s2/openrac-rac1-ntsc.elf /out/openrac.nro --nacp=/out/openrac.nacp --icon=/icon.jpg && ls -l /out/openrac.nro
 fi
 echo "build-exit $rc"

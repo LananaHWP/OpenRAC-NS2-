@@ -729,6 +729,8 @@
    "Hero_ApproachSpeed": "rac2.player.approach_speed",
    "Hero_NanotechSteps": "rac2.player.nanotech_steps",
    "Hero_TakeDamage": "rac2.player.take_damage",
+   "Hero_UpdateMaxHealth": "rac2.player.max_health.update",
+   "Hud_HealthMeter_Experience": "rac2.hud.health_meter.experience",
    "Item_Colors": "rac2.item.colors",
    "Item_Equip": "rac2.item.equip",
    "Item_Give": "rac2.item.give",

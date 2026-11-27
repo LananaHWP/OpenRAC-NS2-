@@ -1,6 +1,6 @@
 # OpenRAC for Switch 2
 
-This is my port of Ratchet & Clank 1 to the Nintendo Switch 2, built on top of [OpenRAC](https://github.com/OpenRAC/OpenRAC). OpenRAC takes the PS2 games, decompiles them back to C and builds them as normal native programs. I got the NTSC-U version of the first game running that way on the Switch 2, using [OunceDevKit](https://github.com/ouncebrew/ounce-devkit). There's no emulation going on.
+This is my port of Ratchet & Clank 1 and Going Commando to the Nintendo Switch 2, built on top of [OpenRAC](https://github.com/OpenRAC/OpenRAC). OpenRAC takes the PS2 games, decompiles them back to C and builds them as normal native programs. I got the NTSC-U version of the first game and the PAL version of the second running that way on the Switch 2, using [OunceDevKit](https://github.com/ouncebrew/ounce-devkit). There's no emulation going on.
 
 You need your own copy of the game. The setup reads your disc image, and nothing from the game is in this repo.
 
@@ -8,35 +8,40 @@ Ratchet & Clank belongs to Sony and Insomniac, and Nintendo Switch belongs to Ni
 
 ## Where it's at
 
-It runs docked and in handheld, and in the testing I did (mostly the first level) it ran about as fast as it should. It's NTSC-U Ratchet & Clank 1 only for now. I haven't played through everything, so expect bugs.
+| Game | Disc it needs | How far it's been tested |
+| --- | --- | --- |
+| Ratchet & Clank | NTSC-U (SCUS-97199) | Runs docked and in handheld. In my testing (mostly the first level) it ran about as fast as it should. |
+| Ratchet & Clank: Going Commando | PAL (SCES-51607, sold as Ratchet & Clank 2: Locked and Loaded) | New in 0.3. I played through the first level and most of the second without problems. Some places run at about 40 frames a second, with the game itself at full speed. |
 
-Version 0.2 adds two more optional mods, Quick Select pause and Steady strafe, and each mod is now its own choice in the setup (see "Mods" below). The engineering notes are in [docs/port/SWITCH2.md](docs/port/SWITCH2.md) if you want the details.
+I haven't played through either game, so expect bugs. Each game is its own program with its own folder on the card, so you can install one or both.
 
-Going Commando (PAL) also builds with `switch2/build_rac2.sh`. It boots, plays the menus and the videos and loads the first level, but it isn't released: the first level froze, and the loading screens and the ship's thruster fire drew wrong, and I haven't been able to check them since the last fix. The 0.2 release is Ratchet & Clank 1 only.
+Version 0.3 adds Going Commando and its first mod, RAC3-style health (see "Mods" below). It also fixes three things I found in Going Commando on the way: the first enemy froze the game, glows showed through walls, and dying sent you back to the start of the first level instead of your continue point. The engineering notes are in [docs/port/SWITCH2.md](docs/port/SWITCH2.md) if you want the details.
 
 ## What I added to OpenRAC
 
 - A Switch 2 platform layer in `port/platform_switch2/`. It covers the window and OpenGL, the pad and the audio, plus a few things Horizon doesn't have. The console wouldn't give me one big 4 GB block of memory, so the game's memory is a handful of normal buffers that get looked up by address. There's also a small thread that keeps the CPU boost on without dragging the GPU clock down.
-- Switch button prompts. The button icons in the game's text, the Help > Controls screen and the menu overlay all show Switch buttons. In menus A and B are swapped so A confirms and B goes back. You can turn that off with `game_menu_swap_ab = 0` in the settings.
-- Three optional script mods, all from rac-rs's work: Arsenal Mastery, Quick Select pause and Steady strafe, and the layer the first needs to run on OpenRAC (`port/game/common/mod_omni.luau`).
-- A setup tool that gets the game onto the console over FTP, onto an SD card, or into a folder on your PC.
-- Logging is off by default. Put an empty `switch/openrac/debug.txt` on the card if you want `boot.txt` and the log files for a bug report.
+- Switch button prompts. The button icons in the game's text and the menu overlay show Switch buttons, and in the first game the Help > Controls screen does too. In menus A and B are swapped so A confirms and B goes back. You can turn that off with `game_menu_swap_ab = 0` in the settings.
+- Four optional script mods. Three come from rac-rs's work (Arsenal Mastery, Quick Select pause and Steady strafe, plus the layer the first needs to run on OpenRAC, `port/game/common/mod_omni.luau`), and RAC3-style health for Going Commando is new here.
+- A setup tool that gets either game onto the console over FTP, onto an SD card, or into a folder on your PC.
+- Logging is off by default. Put an empty `debug.txt` in the game's folder on the card if you want `boot.txt` and the log files for a bug report.
 
 ## Installing
 
-You need an image (.iso) of your own NTSC-U disc, a Switch 2 that can run homebrew, a bit over 6 GB free on the SD card (exFAT), and Python 3.9 or newer on your PC.
+You need an image (.iso) of your own disc (see the table above), a Switch 2 that can run homebrew, about 6 GB free on the SD card (exFAT) for each game, and Python 3.9 or newer on your PC.
 
 Build the setup bundle (see below) or grab one from the releases, then:
 
 1. Windows: run `install.bat`. Linux and macOS: `sh install.sh`.
-2. Pick your disc image, then choose FTP, an SD card or a folder. For FTP, start an FTP server on the console and type in its address. The Switch 2 one uses port 1337 and no login. For an SD card, point it at the card. For a folder, pick any folder on your PC: the setup writes a `switch` folder into it and you copy that onto the card's root yourself.
-3. Tick the mods you want: Arsenal Mastery, Quick Select pause, Steady strafe. Each is its own tick box and all of them off is the plain game.
-4. Press Install. It checks the disc, exports the levels on your PC and sends everything to `switch/openrac` on the card. That's around 5 GB, and an FTP upload that gets interrupted picks up where it stopped if you run it again.
-5. Start OpenRAC from the homebrew menu.
+2. Pick your disc image (the setup works out which game it is), then choose FTP, an SD card or a folder. For FTP, start an FTP server on the console and type in its address. The Switch 2 one uses port 1337 and no login. For an SD card, point it at the card. For a folder, pick any folder on your PC: the setup writes a `switch` folder into it and you copy that onto the card's root yourself.
+3. Tick the mods you want under your game. Each is its own tick box and all of them off is the plain game.
+4. Press Install. It checks the disc, exports the levels on your PC and sends everything to the game's folder on the card: `switch/openrac` for Ratchet & Clank, `switch/openrac-rac2` for Going Commando. That's around 5 GB, and an FTP upload that gets interrupted picks up where it stopped if you run it again.
+5. Start the game from the homebrew menu.
 
-You can also run it from a terminal: `python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50`, `--sd E:\` for a card, or `--folder D:\OpenRAC-out` for a folder.
+For the other game, run the setup again with its disc image.
 
-Files on the card, in `switch/openrac/`:
+You can also run it from a terminal: `python3 switch2_setup.py --cli --iso GAME.iso --ftp 192.168.1.50`, `--sd E:\` for a card, or `--folder D:\OpenRAC-out` for a folder. Add `--arsenal-mastery`, `--quickselect-pause`, `--steady-strafe` or `--rac3-health` for the mods.
+
+Files on the card, in the game's folder:
 
 - `data/` holds the game's data and `data/plugins/` the mods. To turn a mod off, delete its folder there or set its `"enabled"` to `false` in `plugins.json`.
 - `settings/` has the settings. `game_button_glyphs` is 0, 1 or 2 for PlayStation, letter or Switch prompts.
@@ -49,21 +54,29 @@ Files on the card, in `switch/openrac/`:
 You only need Docker. The image has devkitA64, OunceDevKit and Clang in it.
 
 ```sh
-OPENRAC_RAC1_ISO=/path/to/your/disc.iso switch2/build.sh        # makes switch2/out/openrac.nro
-python3 tools/make_switch2_bundle.py --nro switch2/out/openrac.nro --mods switch2/mods --out dist/OpenRAC-Switch2-Setup
+python3 tools/sources.py init                                          # checks out the decompilations and applies OpenRAC's patches
+OPENRAC_RAC1_ISO=/path/to/your/rac1.iso switch2/build.sh               # makes switch2/out/openrac.nro
+OPENRAC_RAC2_ISO=/path/to/your/rac2.iso switch2/build_rac2.sh          # makes switch2/out/openrac-rac2.nro
+python3 tools/make_switch2_bundle.py --nro switch2/out/openrac.nro --nro-rac2 switch2/out/openrac-rac2.nro --mods switch2/mods --out dist/OpenRAC-Switch2-Setup
 ```
 
-The build needs your disc image because hostgen translates the decompilation from it, along with a few functions the decompilation doesn't have C for. The bundle can also take a folder of texture pack pictures with `--textures`. The help screen pictures come from `tools/make_controls_help.py` and the Switch button icons from `tools/make_switch_glyphs.py`. Both need the icon pack listed in the credits. `tools/make_logo_pack.py` makes a title logo from an image you give it.
+Each build needs that game's disc image because hostgen translates the decompilation from it, along with a few functions the decompilation doesn't have C for. The bundle can also take a folder of texture pack pictures with `--textures`. The help screen pictures come from `tools/make_controls_help.py` and the Switch button icons from `tools/make_switch_glyphs.py`. Both need the icon pack listed in the credits. `tools/make_logo_pack.py` makes a title logo from an image you give it.
 
-Most of the Switch 2 code is in `port/platform_switch2/` and `port/cmake/OpenracSwitch2.cmake`, with small `OPENRAC_SWITCH2` branches in `port/runtime`, `port/platform`, `port/renderer/textures`, `port/game/common` and `port/game/rac1*`. The build script, the Docker image and the rest are in `switch2/`.
+Most of the Switch 2 code is in `port/platform_switch2/` and `port/cmake/OpenracSwitch2.cmake`, with small `OPENRAC_SWITCH2` branches in `port/runtime`, `port/platform`, `port/renderer/textures`, `port/game/common`, `port/game/rac1*` and `port/game/rac2*`. The build scripts, the Docker image and the rest are in `switch2/`.
 
 ## Mods
 
-All three are script mods in `switch2/mods/`, off unless you tick them in the setup.
+All of them are script mods in `switch2/mods/`, off unless you tick them in the setup. To turn one off later, see `plugins` above.
+
+For Ratchet & Clank:
 
 - **Arsenal Mastery** gives every weapon levels and XP, like Ratchet & Clank 3, and makes health work the same way. Enemies, XP, levels, the HUD bars and the damage scaling all run. A few of its perks still need pieces I haven't written (`omni.fn`, `omni.with_stack`, `omni.pose`, `omni.raycast`, and one hook that sits on a function the port implements itself). Those perks stay off and the mod says so in the log.
 - **Quick Select pause** stops the world while the Quick Select ring is up (hold Y), as in the later games. It clears the game's world-update mask for those ticks and puts it back after each one.
 - **Steady strafe** is rac-rs's Steady strafe aiming, USA disc only: hold ZR and Ratchet side-steps and backpedals facing where the camera looks, with the weapon in his hand and the Bomb Glove's bomb turning with him, and the shots following the camera. ZR is the strafe button while it's on (the game uses it to crouch). What's missing: the legs don't twist or run backwards for a backpedal, the Mine Glove, Devastator and R.Y.N.O. aim as the game does, and the camera doesn't change (no Raised or Shoulder modes, aim circle or lock-on).
+
+For Going Commando (which already has weapon levels and strafing of its own):
+
+- **RAC3-style health** shows your health as a number, like Ratchet & Clank 3. You start with 10 and reach 200 with every nanotech level and boost. It's the game's own health made 2.5 times bigger, so hits and pickups take and give the same share as before, except that enemies on later planets hit a bit harder (up to 30% more; there's a setting to turn that off). The four health segments are replaced by a box that matches the ammo box: your health as a number with a gauge behind it that turns orange when you're low, and your nanotech XP on the same hooked line the ammo box uses for weapon XP.
 
 ## If it won't start
 

@@ -75,6 +75,22 @@ struct Hero_NanotechSteps {
     using fn = int32_t (*)(uint32_t, uint32_t, uint32_t);
 };
 
+// Sets up the health meter's experience bar, shown while the most health is under 80.
+struct Hud_HealthMeter_Experience {
+    static constexpr const char* id = "rac2.hud.health_meter.experience";
+    static constexpr const char* name = "Hud_HealthMeter_Experience";
+    static constexpr const char* signature = "void(u32)";
+    using fn = void (*)(uint32_t);
+};
+
+// Each tick (most of them it only counts): works out the most health, 4 and the nanotech steps and boosts, and when it differs from the one stored, stores it, fills the health to it and, when it grew, plays the level up.
+struct Hero_UpdateMaxHealth {
+    static constexpr const char* id = "rac2.player.max_health.update";
+    static constexpr const char* name = "Hero_UpdateMaxHealth";
+    static constexpr const char* signature = "void()";
+    using fn = void (*)();
+};
+
 // Gives the player item id (GiveInventoryItem): nothing when it is owned already; else sets its owned and new bytes, its starting ammo, adds it to the vendor's list and the quick select. The NPCs, pickups, arena prizes, the vendor's purchases and the start's items go through it; a few places set the owned bytes themselves (Endako's packs and Grindboots, Aranos Prison's Qwark Statuette). Rac1's GiveItem.
 struct Item_Give {
     static constexpr const char* id = "rac2.item.give";
@@ -272,6 +288,11 @@ namespace hooks {
         using get_hit = rac2::Moby_GetHitMessage;
         using post_hit = rac2::Moby_PostHit;
     }  // namespace combat
+    namespace hud {
+        namespace health_meter {
+            using experience = rac2::Hud_HealthMeter_Experience;
+        }  // namespace health_meter
+    }  // namespace hud
     namespace item {
         using colors = rac2::Item_Colors;
         using equip = rac2::Item_Equip;
@@ -329,6 +350,9 @@ namespace hooks {
     }  // namespace planet
     namespace player {
         using approach_speed = rac2::Hero_ApproachSpeed;
+        namespace max_health {
+            using update = rac2::Hero_UpdateMaxHealth;
+        }  // namespace max_health
         using nanotech_steps = rac2::Hero_NanotechSteps;
         using take_damage = rac2::Hero_TakeDamage;
     }  // namespace player
